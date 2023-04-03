@@ -1,0 +1,42 @@
+{
+  "name": "Apps Launcher",
+  "appDomain": "launcher.app.privacysafe.io",
+  "version": "0.4.6",
+  "components": {
+    "/index.html": {
+      "startedBy": "user",
+      "runtime": "web-gui",
+      "capsRequested": {
+        "apps": "opener",
+        "logout": "all",
+        "log": "all",
+        "mailerid": true,
+        "storage": {
+          "appFS": [
+            {
+              "domain": "launcher.app.privacysafe.io",
+              "storage": "local"
+            }
+          ]
+        },
+        "appRPC": {
+          "serviceComponents": ["AppConfigsInternal"]
+        }
+      }
+    },
+    "/settingsDenoServices.js": {
+      "startedBy": {
+        "thisAppComponents": "*",
+        "otherApps": "*"
+      },
+      "services": ["AppConfigs", "AppConfigsInternal"],
+      "runtime": "deno",
+      "capsRequested": {
+        "log": "all",
+        "storage": {
+          "appFS": "default"
+        }
+      }
+    }
+  }
+}
