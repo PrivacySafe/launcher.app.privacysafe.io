@@ -1,6 +1,6 @@
 export const apps: App[] = [
   {
-    id: 'mail.app.privacysafe.io',
+    id: 'inbox.app.privacysafe.io',
     icon: 'round-mail',
     iconColor: 'var(--green-grass-100, #33c653)',
     color: 'var(--green-grass-30, #bef2c1)',
