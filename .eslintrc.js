@@ -142,7 +142,6 @@ module.exports = {
     'vue/attribute-hyphenation': ['error', 'always'],
     'vue/html-quotes': ['error', 'double'],
     'vue/mustache-interpolation-spacing': ['error', 'always'],
-    'vue/name-property-casing': ['error', 'PascalCase'],
     'vue/prop-name-casing': ['error', 'camelCase'],
     'vue/v-bind-style': ['error', 'shorthand'],
     'vue/v-on-style': ['error', 'shorthand'],

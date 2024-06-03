@@ -1,13 +1,16 @@
 import { createApp } from 'vue'
-import { Button } from '@varlet/ui'
+import { createPinia } from 'pinia'
 import router from './router'
 import { iconsInitialization } from './icons'
 import { initializationServices } from '@/services'
 import App from '@/components/app.vue'
 
 import '@varlet/touch-emulator'
-import '@varlet/ui/es/button/style/index.js'
 import '@/assets/styles/main.css'
+
+import { I18n } from '@/plugins/i18n'
+import en from './data/i18/en.json'
+import { i18nPlugin } from './store/plugins/i18n-plugin'
 
 const mode = process.env.NODE_ENV
 
@@ -15,12 +18,16 @@ const init = () => {
   iconsInitialization()
   initializationServices()
     .then(() => {
+      const pinia = createPinia()
+      pinia.use(i18nPlugin)
+
       const app = createApp(App)
 
       app.config.globalProperties.$router = router
 
       app
-        .use(Button)
+        .use(pinia)
+        .use(I18n, { lang: 'en', messages: { en } })
         .use(router)
         .mount('#app')
     })

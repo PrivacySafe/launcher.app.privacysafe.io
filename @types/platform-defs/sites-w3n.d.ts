@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2022, 2024 3NSoft Inc.
+ Copyright (C) 2023 3NSoft Inc.
 
  This program is free software: you can redistribute it and/or modify it under
  the terms of the GNU General Public License as published by the Free Software
@@ -15,15 +15,15 @@
  this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
+declare namespace web3n.caps.sites {
 
-declare namespace web3n.shell {
-
-	interface ShellCAPs {
-		fileDialogs?: files.Dialogs;
-		userNotifications?: notifications.UserNotifications;
-		startAppWithParams?: commands.StartAppWithParams;
-		getStartedCmd?: commands.GetStartedCmd;
-		watchStartCmds?: commands.WatchStartCmds;
+	/**
+	 * This is a definition of capabilities' object, injected into the DOM.
+	 * One has to ensure that any particular capability is given, before trying
+	 * to use it.
+	 */
+	interface W3N {
+		// XXX empty for now
 	}
 
 }

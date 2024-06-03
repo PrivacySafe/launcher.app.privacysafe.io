@@ -1,21 +1,25 @@
 {
   "compilerOptions": {
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
     "target": "esnext",
     "module": "esnext",
     "strict": true,
     "useDefineForClassFields": true,
+    "strictNullChecks": true,
     "moduleResolution": "node",
+    "isolatedModules": true,
     "jsx": "preserve",
     "importHelpers": true,
-    "downlevelIteration": true,
     "sourceMap": true,
     "resolveJsonModule": true,
     "esModuleInterop": true,
+    "skipLibCheck": true,
     "lib": ["esnext", "dom"],
     "types": [
-      "node",
       "vite/client",
-      "@varlet/ui/types/global"
+      "@types/node",
+      "@varlet/ui/types"
     ],
     "baseUrl": ".",
     "paths": {
@@ -26,15 +30,11 @@
     }]
   },
   "include": [
-    "src/**/*.ts",
-    "src/**/*.d.ts",
-    "src/**/*.tsx",
-    "src/**/*.vue",
-    "src/**/*.json",
-    "@types"
+    "**/*",
   ],
   "exclude": [
     "node_modules",
-    "public"
+    "public",
+    "app"
   ]
 }

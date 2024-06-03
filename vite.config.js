@@ -1,6 +1,8 @@
 import path from 'path'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
+import components from 'unplugin-vue-components/vite'
+import { VarletUIResolver } from 'unplugin-vue-components/resolvers'
 
 function _resolve(dir) {
   return path.resolve(__dirname, dir)
@@ -22,7 +24,8 @@ export default defineConfig(({ mode }) => {
   }
 
   const plugins = [
-    vue()
+    vue(),
+    components({ resolvers: [VarletUIResolver()] }),
   ]
 
   let optimizeDeps = {}
@@ -32,6 +35,7 @@ export default defineConfig(({ mode }) => {
         'vue',
         'vue-router',
         '@iconify/vue',
+        '@varlet/ui',
       ]
     }
   }

@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2017 - 2018, 2020 - 2022 3NSoft Inc.
+ Copyright (C) 2017 - 2018, 2020 - 2022, 2024 3NSoft Inc.
 
  This program is free software: you can redistribute it and/or modify it under
  the terms of the GNU General Public License as published by the Free Software
@@ -20,6 +20,7 @@
 /// <reference path="./shell.d.ts" />
 /// <reference path="./shell-dialogs.d.ts" />
 /// <reference path="./shell-notifications.d.ts" />
+/// <reference path="./shell-commands.d.ts" />
 /// <reference path="./connectivity.d.ts" />
 /// <reference path="./rpc.d.ts" />
 /// <reference path="./ui.d.ts" />
@@ -37,15 +38,9 @@ declare namespace web3n.caps {
 		apps?: apps.Apps;
 		logout?: Logout;
 		shell?: shell.ShellCAPs;
-		appRPC?: rpc.client.AppRPC;
-		otherAppsRPC?: rpc.client.OtherAppsRPC;
-		exposeService?: rpc.service.ExposeService;
+		rpc?: rpc.RPC;
 		connectivity?: connectivity.Connectivity;
 	}
-
-	type Logger = (
-		type: 'error'|'info'|'warning', msg: string, err?: any
-	) => Promise<void>;
 
 	type Logout = (closePlatform: boolean) => Promise<void>;
 

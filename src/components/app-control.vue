@@ -2,7 +2,6 @@
   import { computed, onMounted, ref } from "vue"
   import { useRouter } from 'vue-router'
   import { Icon } from '@iconify/vue'
-  import { installerAppId } from '@/constants'
   import { getElementColor, invertColor, userNameFromUserId, userDomainFromUserId } from '@/helpers/forUI'
   import logo from '@/assets/images/logo.png'
   import { AppView, DynamicAppsList } from '@/state/apps'
@@ -34,7 +33,7 @@
   })
 
   const logout = async () => await w3n.logout!(true)
-  const openInstaller = async () => await w3n!.apps?.opener?.openApp(installerAppId)
+  const openInstaller = async () => await w3n!.shell!.startAppWithParams!(null, 'open-installer')
   const openSettings = () => {
     router.push('/settings')
   }

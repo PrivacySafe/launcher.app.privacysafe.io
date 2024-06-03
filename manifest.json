@@ -1,8 +1,9 @@
 {
   "name": "Apps Launcher",
   "appDomain": "launcher.app.privacysafe.io",
-  "version": "0.4.7",
+  "version": "0.5.1",
   "components": {
+
     "/index.html": {
       "startedBy": "user",
       "runtime": "web-gui",
@@ -21,11 +22,17 @@
         },
         "appRPC": {
           "serviceComponents": ["AppConfigsInternal"]
-        }
+        },
+        "shell": {
+					"startAppCmds": {
+						"thisApp": [ "open-installer" ]
+					}
+				}
       }
     },
+
     "/settingsDenoServices.js": {
-      "startedBy": {
+      "allowedCallers": {
         "thisAppComponents": "*",
         "otherApps": "*"
       },
@@ -37,6 +44,26 @@
           "appFS": "default"
         }
       }
+    },
+
+    "/installer/index.html": {
+			"startCmds": {
+				"open-installer": {
+					"thisAppComponents": "*"
+				}
+			},
+			"runtime": "web-gui",
+      "capsRequested": {
+        "apps": "all",
+        "storage": {
+          "appFS": "default"
+        }
+      },
+      "windowOpts": {
+        "width": 320,
+        "height": 480
+      }
     }
+
   }
 }

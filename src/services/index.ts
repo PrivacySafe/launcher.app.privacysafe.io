@@ -5,7 +5,7 @@ export let settingsService: AppConfigsInternal
 export async function initializationServices() {
 
   try {
-    const srvConnection = await w3n.appRPC!('AppConfigsInternal')
+    const srvConnection = await w3n.rpc!.thisApp!('AppConfigsInternal')
     settingsService = makeServiceCaller<AppConfigsInternal>(
       srvConnection, [ 'getSettingsFile', 'saveSettingsFile', 'getCurrentLanguage', 'getCurrentColorTheme' ]
     ) as AppConfigsInternal

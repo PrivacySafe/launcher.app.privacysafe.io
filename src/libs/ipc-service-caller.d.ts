@@ -1,4 +1,4 @@
-/* eslint-disable max-len*/
+/* eslint-disable @typescript-eslint/triple-slash-reference, max-len */
 /// <reference path="../../@types/platform-defs/w3n.d.ts" />
 declare type RPCConnection = web3n.rpc.client.RPCConnection;
 declare type PassedDatum = web3n.rpc.PassedDatum;
