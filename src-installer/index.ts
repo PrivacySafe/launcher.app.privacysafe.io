@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2021 3NSoft Inc.
+ Copyright (C) 2021, 2024 3NSoft Inc.
  
  This program is free software: you can redistribute it and/or modify it under
  the terms of the GNU General Public License as published by the Free Software
@@ -277,8 +277,8 @@ function toSymVer(v: string): SemVersion|undefined {
   return match[0].split('.').map((s: any) => parseInt(s)) as SemVersion;
 }
 
-function appStateFromInfo(info: web3n.apps.AppInfo): AppUpdater['state'] {
-  if (info.installed) {
+function appStateFromInfo(info: web3n.apps.AppVersions): AppUpdater['state'] {
+  if (info.current) {
     return 'installed';
   } else if (info.bundled) {
     return 'bundled';
@@ -316,7 +316,7 @@ function latestVersionIn(versions: string[]): string {
 
 class AppUpdater {
 
-  private info: web3n.apps.AppInfo = undefined as any;
+  private info: web3n.apps.AppVersions = undefined as any;
   private state: 'installed' | 'bundled' | 'downloaded' = undefined as any;
   private elem: HTMLElement = makeFromTemplate("app-template");
   private channel: string|undefined;
@@ -346,16 +346,18 @@ class AppUpdater {
   private render(): void {
     const newElem = makeFromTemplate("app-template");
     newElem.querySelector(".app-domain")!.textContent = this.id;
-    newElem.querySelector(".app-version")!.textContent = (this.info.installed ?
-      `Installed version ${this.info.installed[0].version}` :
+    newElem.querySelector(".app-version")!.textContent = (this.info.current ?
+      `Installed version ${this.info.current}` :
       (this.info.bundled ?
-        `Bundled version ${this.info.bundled![0].version}` :
-        `Downloaded version(s) ${
-          this.info.packs!.map(info => info.version).join(', ')}`));
+        `Bundled version ${this.info.bundled}` :
+        `Downloaded version(s) ${this.info.packs!.join(', ')}`
+      )
+    );
     this.addUpdatesDisplayTo(newElem);
     if (this.actionInProcess) {
       this.actionInProcess.renderIn(
-        newElem.querySelector(".app-progress") as HTMLDivElement);
+        newElem.querySelector(".app-progress") as HTMLDivElement
+      );
     } else {
       this.addActionsDisplayTo(newElem);
     }
@@ -429,7 +431,7 @@ class AppUpdater {
     }
   }
 
-  async setInfoAndRender(info: web3n.apps.AppInfo): Promise<void> {
+  async setInfoAndRender(info: web3n.apps.AppVersions): Promise<void> {
     this.info = info;
     this.state = appStateFromInfo(this.info);
     this.channel = await this.storage.getAppChannel(this.id);
@@ -437,7 +439,7 @@ class AppUpdater {
   }
 
   private async refreshInfoAndRender(): Promise<void> {
-    const refreshedInfo = await w3n.apps!.opener!.getAppInfo(this.id);
+    const refreshedInfo = await w3n.apps!.opener!.getAppVersions(this.id);
     this.setInfoAndRender(refreshedInfo!);
   }
 
@@ -493,11 +495,11 @@ class AppUpdater {
 
   private latestVersionFromInfo(): string {
     if (this.state === 'installed') {
-      return this.info.installed![0].version;
+      return this.info.current!;
     } else if (this.state === 'bundled') {
-      return this.info.bundled![0].version;
+      return this.info.bundled!;
     } else if (this.state === 'downloaded') {
-      return latestVersionIn(this.info.packs!.map(p => p.version));
+      return latestVersionIn(this.info.packs!);
     } else {
       throw new Error(`This point in code shouldn't be reached`);
     }
@@ -521,9 +523,7 @@ class AppUpdater {
     this.actionInProcess = actionInProcess;
     this.render();
     try {
-      const alreadyDownloaded = !!this.info.packs?.find(
-        p => ((p.platform === 'web') && (p.version === version))
-      );
+      const alreadyDownloaded = !!this.info.packs?.includes(version);
       if (!alreadyDownloaded) {
         await (new Promise<void>((
           complete, error
@@ -534,7 +534,7 @@ class AppUpdater {
         })));
       }
       actionInProcess.switchToCompletion();
-      await w3n.apps!.installer!.installWebApp(this.id, version);
+      await w3n.apps!.installer!.installApp(this.id, version);
       if (this.channel !== channel) {
         this.channel = channel;
         await this.storage.saveAppChannel(this.id, this.channel);
@@ -551,7 +551,7 @@ class AppUpdater {
       `Installing downloaded ...`);
     this.render();
     try {
-      await w3n.apps!.installer!.installWebApp(this.id, version);
+      await w3n.apps!.installer!.installApp(this.id, version);
     } finally {
       this.actionInProcess = undefined;
       this.refreshInfoAndRender();
@@ -564,20 +564,18 @@ class AppUpdater {
     this.actionInProcess = actionInProcess;
     this.render();
     try {
-      const alreadyUnpacked = !!this.info.packs?.find(
-        p => ((p.platform === 'web') && (p.version === version))
-      );
+      const alreadyUnpacked = !!this.info.packs?.includes(version);
       if (!alreadyUnpacked) {
         await (new Promise<void>((
           complete, error
-        ) => w3n.apps!.installer!.unpackBundledWebApp(this.id, {
+        ) => w3n.apps!.installer!.unpackBundledApp(this.id, {
           next: p => actionInProcess.update(p),
           error,
           complete
         })));
       }
       actionInProcess.switchToCompletion();
-      await w3n.apps!.installer!.installWebApp(this.id, version);
+      await w3n.apps!.installer!.installApp(this.id, version);
     } finally {
       this.actionInProcess = undefined;
       this.refreshInfoAndRender();
@@ -781,7 +779,7 @@ class AllApps {
   async refreshAndRenderAll(): Promise<void> {
     const infos = await w3n.apps!.opener!.listApps();
     const container = document.createElement('div');
-    const installed = infos.filter(app => !!app.installed);
+    const installed = infos.filter(app => !!app.current);
     const onlyBundled = infos.filter(app => (
       !installed.includes(app) && !!app.bundled));
     const onlyDownloaded = infos.filter(app => (

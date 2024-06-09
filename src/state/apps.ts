@@ -49,7 +49,7 @@ export class DynamicAppsList {
 		this.display(this.views.concat([]));
 	}
 
-	private async makeAppView(app: web3n.apps.AppInfo): Promise<AppView> {
+	private async makeAppView(app: web3n.apps.AppVersions): Promise<AppView> {
 		const { action, clickFn } = this.makeAction(app);
 
 		// XXX at this moment we use static data from constants, but
@@ -73,10 +73,10 @@ export class DynamicAppsList {
 
 	}
 
-	private makeAction(app: web3n.apps.AppInfo): {
+	private makeAction(app: web3n.apps.AppVersions): {
 		action: AppView['action']; clickFn: AppView['clickFn'];
 	} {
-		if (app.installed) {
+		if (app.current) {
 			return {
 				action: appActions.onInstalled,
 				clickFn: () => this.opener.openApp(app.id)
@@ -91,8 +91,10 @@ export class DynamicAppsList {
 		}
 	}
 
-	private checkViewAction(app: web3n.apps.AppInfo, view: AppView): boolean {
-		if ((app.installed && (view.action === appActions.onInstalled))
+	private checkViewAction(
+		app: web3n.apps.AppVersions, view: AppView
+	): boolean {
+		if ((app.current && (view.action === appActions.onInstalled))
 		|| (app.bundled && (view.action === appActions.onBundled))) {
 			return false;
 		} else {

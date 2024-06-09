@@ -34,6 +34,14 @@ declare namespace web3n.caps {
 		sharedLibs?: SharedLibInfo[];
 	}
 
+	/**
+	 * Launcher exposes clickable things that user can start/launch. System's
+	 * launcher app uses provided here info for setting up user interface. If
+	 * a required runtime or forma-factor is not available on a device, launcher
+	 * app can indicate it. This way an app may contain components for both
+	 * desktop and mobile devices without expecting each component to be
+	 * cross-platform and cross-form-factor (has this ever existed?).
+	 */
 	interface Launcher {
 		// XXX
 		// - add env/device/form-factor
