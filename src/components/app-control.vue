@@ -69,7 +69,7 @@
           class="app-control__sidebar-btn"
           @click="openSettings"
         >
-          settings
+          Settings
         </var-button>
 
         <var-button
