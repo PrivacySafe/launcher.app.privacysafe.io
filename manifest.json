@@ -1,7 +1,7 @@
 {
   "name": "Apps Launcher",
   "appDomain": "launcher.app.privacysafe.io",
-  "version": "0.5.3",
+  "version": "0.5.5",
   "components": {
 
     "/index.html": {
@@ -28,7 +28,8 @@
 						"thisApp": [ "open-installer" ]
 					}
 				}
-      }
+      },
+      "icon": "logo.png"
     },
 
     "/settingsDenoServices.js": {
@@ -62,7 +63,8 @@
       "windowOpts": {
         "width": 320,
         "height": 480
-      }
+      },
+      "icon": "logo.png"
     }
 
   }
