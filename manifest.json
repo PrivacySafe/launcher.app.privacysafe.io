@@ -1,7 +1,7 @@
 {
   "name": "Apps Launcher",
   "appDomain": "launcher.app.privacysafe.io",
-  "version": "0.5.5",
+  "version": "0.6.0",
   "components": {
 
     "/index.html": {
@@ -33,11 +33,15 @@
     },
 
     "/settingsDenoServices.js": {
-      "allowedCallers": {
-        "thisAppComponents": "*",
-        "otherApps": "*"
+      "services": {
+        "AppConfigs": {
+          "thisAppComponents": "*",
+          "otherApps": "*"
+        },
+        "AppConfigsInternal": {
+          "thisAppComponents": "*"
+        }
       },
-      "services": ["AppConfigs", "AppConfigsInternal"],
       "runtime": "deno",
       "capsRequested": {
         "log": "all",

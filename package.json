@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "vite",
-    "build:deno": "deno bundle './src-deno/settings-deno.ts' -- './app/settingsDenoServices.js'",
+    "build:deno": "bash ci/bundle-deno-code.sh",
     "build:installer": "tsc -p src-installer/tsconfig.json || echo '\n⚠️ ignoring error code'",
     "build": "vue-tsc --noEmit && vite build && npm run build:deno && npm run build:installer",
     "serve": "vite preview",
