@@ -1,7 +1,7 @@
-node_modules
-.eslintrc.js
-.vscode
-app
-tmp/
-@types
-./**/*.d.ts
+src/libs/**/*.js
+src/libs/**/*.d.ts
+src-deno/**/*.js
+src-deno/**/*.d.ts
+/doc/**/*.*
+/app/**/*.*
+

@@ -1,54 +1,60 @@
-import { createApp } from 'vue'
-import { createPinia } from 'pinia'
-import router from './router'
-import { iconsInitialization } from './icons'
-import { initializationServices } from '@/services'
-import App from '@/components/app.vue'
+import { createApp } from 'vue';
+import { createPinia } from 'pinia';
+import {
+  dialogs,
+  i18n,
+  I18nOptions,
+  notifications,
+  vueBus,
+  storeI18n,
+  storeNotifications,
+} from '@v1nt1248/3nclient-lib/plugins';
 
-import '@varlet/touch-emulator'
-import '@/assets/styles/main.css'
+import App from '@/views/app/app.vue';
 
-import { I18n } from '@/plugins/i18n'
-import en from './data/i18/en.json'
-import { i18nPlugin } from './store/plugins/i18n-plugin'
+import '@v1nt1248/3nclient-lib/style.css';
+import '@v1nt1248/3nclient-lib/variables.css';
+import '@/assets/styles/main.css';
 
-const mode = process.env.NODE_ENV
+import en from './data/i18/en.json';
 
-const init = () => {
-  iconsInitialization()
-  initializationServices()
-    .then(() => {
-      const pinia = createPinia()
-      pinia.use(i18nPlugin)
+const mode = process.env.NODE_ENV;
 
-      const app = createApp(App)
+function init() {
+  const pinia = createPinia();
+  pinia.use(storeI18n);
+  pinia.use(storeNotifications);
 
-      app.config.globalProperties.$router = router
+  const app = createApp(App);
 
-      app
-        .use(pinia)
-        .use(I18n, { lang: 'en', messages: { en } })
-        .use(router)
-        .mount('#app')
-    })
+  app.config.compilerOptions.isCustomElement = tag => {
+    return tag.startsWith('ui3n-');
+  };
+
+  app
+    .use(pinia)
+    .use(vueBus)
+    .use<I18nOptions>(i18n, { lang: 'en', messages: { en } })
+    .use(dialogs)
+    .use(notifications)
+    .mount('#main');
 }
 
 if ((w3n as web3n.testing.CommonW3N).testStand && mode !== 'production') {
-  import('@vue/devtools')
-    .then(devtools => {
-      (w3n as web3n.testing.CommonW3N).testStand.staticTestInfo()
-        .then((data: { userNum: number, userId: string }) => {
-          const { userNum } = data
-          devtools.connect('http://localhost', 8098 + userNum);
-          init()
-        })
-    })
+  import('@vue/devtools').then(devtools => {
+    (w3n as web3n.testing.CommonW3N).testStand.staticTestInfo().then((data: { userNum: number; userId: string }) => {
+      const { userNum } = data;
+      devtools.devtools.connect('http://localhost', 8097 + userNum);
+      init();
+    });
+  });
 } else if (mode !== 'production') {
-  import('@vue/devtools')
-    .then(devtools => {
-      devtools.connect('http://localhost', 8098);
-      init()
-    })
+  import('@vue/devtools').then(devtools => {
+    devtools.devtools.connect('http://localhost', 8098);
+    init();
+  });
 } else {
-  init()
+  init();
 }
+
+// init();

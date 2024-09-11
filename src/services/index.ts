@@ -1,17 +1,12 @@
-import { makeServiceCaller } from '@/libs/ipc-service-caller'
+import { AppConfigsInternal, UISettings } from './ui-settings';
 
-export let settingsService: AppConfigsInternal
+export let settingsService: AppConfigsInternal;
 
 export async function initializationServices() {
-
   try {
-    const srvConnection = await w3n.rpc!.thisApp!('AppConfigsInternal')
-    settingsService = makeServiceCaller<AppConfigsInternal>(
-      srvConnection, [ 'getSettingsFile', 'saveSettingsFile', 'getCurrentLanguage', 'getCurrentColorTheme' ]
-    ) as AppConfigsInternal
-
-    console.info('\n--- initializationServices DONE---\n')
+    settingsService = await UISettings.makeInternalService();
+    console.info('\n--- initializationServices DONE---\n');
   } catch (e) {
-    console.error('\nERROR into initializationServices: ', e)
+    console.error('\nERROR into initializationServices: ', e);
   }
 }

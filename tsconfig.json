@@ -1,25 +1,30 @@
 {
   "compilerOptions": {
+    "noEmit": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "target": "esnext",
     "module": "esnext",
-    "strict": true,
     "useDefineForClassFields": true,
     "strictNullChecks": true,
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": false,
+    "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
+    "jsxImportSource": "vue",
+    "noImplicitThis": true,
+    "strict": true,
     "importHelpers": true,
     "sourceMap": true,
-    "resolveJsonModule": true,
     "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,
-    "lib": ["esnext", "dom"],
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "types": [
       "vite/client",
       "@types/node",
-      "@varlet/ui/types"
+      "@types/lodash"
     ],
     "baseUrl": ".",
     "paths": {
@@ -30,7 +35,9 @@
     }]
   },
   "include": [
-    "**/*",
+    "vite.config.ts",
+    "src/**/*",
+    "@types/**/*"
   ],
   "exclude": [
     "node_modules",

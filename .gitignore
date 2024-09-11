@@ -1,13 +1,10 @@
 .DS_Store
 node_modules
-package-lock.json
-.yarn/
-.yarnrc.yml
 /dist
 /app
-/coverage
 /test-user-creds.json
 /test-runner
+/test-data
 /temp
 
 # local env files
@@ -31,4 +28,4 @@ yarn-error.log*
 
 # Tmp files
 .~*
-/app/
+/doc/chat.dbs.bak

@@ -1,14 +1,13 @@
 {
   "name": "Apps Launcher",
   "appDomain": "launcher.app.privacysafe.io",
-  "version": "0.6.1",
+  "version": "0.6.3",
   "components": {
-
     "/index.html": {
       "startedBy": "user",
       "runtime": "web-gui",
       "capsRequested": {
-        "apps": "opener",
+        "apps": "all",
         "logout": "all",
         "log": "all",
         "mailerid": true,
@@ -20,54 +19,35 @@
             }
           ]
         },
-        "appRPC": [ "AppConfigsInternal" ],
         "shell": {
-					"startAppCmds": {
-						"thisApp": [ "open-installer" ]
-					}
-				}
-      },
-      "icon": "logo.png"
-    },
-
-    "/settingsDenoServices.js": {
-      "services": {
-        "AppConfigs": {
-          "thisAppComponents": "*",
-          "otherApps": "*"
+          "fileDialog": "all",
+          "userNotifications": true,
+          "fsResource": {
+            "thisApp": "ui-settings"
+          }
         },
-        "AppConfigsInternal": {
-          "thisAppComponents": "*"
-        }
-      },
-      "runtime": "deno",
-      "capsRequested": {
-        "log": "all",
-        "storage": {
-          "appFS": "default"
-        }
-      }
-    },
-
-    "/installer/index.html": {
-			"startCmds": {
-				"open-installer": {
-					"thisAppComponents": "*"
-				}
-			},
-			"runtime": "web-gui",
-      "capsRequested": {
-        "apps": "all",
-        "storage": {
-          "appFS": "default"
-        }
+        "connectivity": "check"
       },
       "windowOpts": {
-        "width": 320,
-        "height": 480
+        "width": 800,
+        "height": 700,
+        "minWidth": 800,
+        "minHeight": 600,
+        "maxWidth": 1000
       },
       "icon": "logo.png"
     }
-
+  },
+  "exposedFSResources": {
+    "ui-settings": {
+      "allow": {
+        "thisAppComponents": "*",
+        "otherApps": "*"
+      },
+      "appStorage": "local",
+      "path": "/constants/settings.json",
+      "itemType": "file",
+      "initValueSrc": "/constants/settings.json"
+    }
   }
 }
