@@ -1,6 +1,6 @@
 {
   "name": "launcher.app.privacysafe.io",
-  "version": "0.6.3",
+  "version": "0.6.4",
   "license": "ISC",
   "type": "module",
   "scripts": {

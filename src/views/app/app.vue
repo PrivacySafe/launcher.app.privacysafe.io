@@ -35,6 +35,8 @@ onBeforeMount(async () => {
     await getUser();
     await getAppConfig();
     await getConnectivityStatus();
+
+    connectivityTimerId.value = setInterval(getConnectivityStatus, 60000);
   } catch (e) {
     console.error('MOUNTED ERROR: ', e);
     throw e;
@@ -52,7 +54,11 @@ onBeforeUnmount(() => {
   <div :class="$style.app">
     <div :class="$style.toolbar">
       <div :class="$style.toolbarTitle">
-        <img :src="prLogo" alt="logo" :class="$style.toolbarLogo" />
+        <img
+          :src="prLogo"
+          alt="logo"
+          :class="$style.toolbarLogo"
+        />
         <div :class="$style.delimiter">/</div>
         <div :class="$style.info">
           Launcher
@@ -73,14 +79,24 @@ onBeforeUnmount(() => {
           </span>
         </div>
 
-        <ui3n-menu position-strategy="fixed" :offset-y="4">
+        <ui3n-menu
+          position-strategy="fixed"
+          :offset-y="4"
+        >
           <div :class="$style.icon">
-            <contact-icon :name="user" :size="36" :readonly="true" />
+            <contact-icon
+              :name="user"
+              :size="36"
+              :readonly="true"
+            />
           </div>
 
           <template #menu>
             <div :class="$style.menu">
-              <div :class="$style.menuItem" @click="appExit">
+              <div
+                :class="$style.menuItem"
+                @click="appExit"
+              >
                 {{ $tr('app.exit') }}
               </div>
             </div>
@@ -118,7 +134,10 @@ onBeforeUnmount(() => {
       </transition>
     </div>
 
-    <transition name="set" mode="out-in">
+    <transition
+      name="set"
+      mode="out-in"
+    >
       <section
         v-if="isSettingsShow"
         :class="[$style.settings, isSettingsShow && $style.settingsOpened]"
@@ -132,7 +151,7 @@ onBeforeUnmount(() => {
 </template>
 
 <style lang="scss" module>
-@import "../../assets/styles/mixins";
+@import '../../assets/styles/mixins';
 
 .app {
   --main-toolbar-height: 72px;
