@@ -33,9 +33,9 @@ const mainStyle = computed<Record<string, string>>(() => {
   };
   return props.photo
     ? {
-      ...styles,
-      backgroundImage: `url(${props.photo})`,
-    }
+        ...styles,
+        backgroundImage: `url(${props.photo})`,
+      }
     : styles;
 });
 const nameStyle = computed<Record<string, string>>(() => ({ fontSize: `${Math.floor(innerSize.value * 0.5) - 6}px` }));
@@ -49,7 +49,7 @@ const onClick = (ev: MouseEvent): void => {
   <div
     :class="[$style.contactIcon, selected && $style.selected]"
     :style="mainStyle"
-    v-on="readonly ? {} : { 'click': onClick }"
+    v-on="readonly ? {} : { click: onClick }"
   >
     <div
       v-if="!props.photo"
@@ -64,7 +64,7 @@ const onClick = (ev: MouseEvent): void => {
       :class="$style.icon"
     >
       <ui3n-icon
-        icon="check"
+        icon="round-check"
         :width="innerSize / 3 - 2"
         :height="innerSize / 3 - 2"
         color="var(--white-0)"
@@ -99,7 +99,7 @@ const onClick = (ev: MouseEvent): void => {
 
 .selected {
   &::before {
-    content: "";
+    content: '';
     position: absolute;
     width: 100%;
     height: 100%;
@@ -110,7 +110,7 @@ const onClick = (ev: MouseEvent): void => {
   }
 
   &::after {
-    content: "";
+    content: '';
     position: absolute;
     width: 100%;
     height: 100%;
