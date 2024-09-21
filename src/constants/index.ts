@@ -1,6 +1,6 @@
 import type { AvailableColorTheme, AvailableLanguage } from '@/types';
 
-export const APP_VERSION = '0.7.1';
+export const APP_VERSION = '0.7.2';
 
 export const All_PRIVACYSAFE_APPLICATIONS = [
   'installer.app.privacysafe.io',
