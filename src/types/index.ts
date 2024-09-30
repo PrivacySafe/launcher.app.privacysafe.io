@@ -16,3 +16,8 @@ export type AppConfig = {
 };
 
 export type ConnectivityStatus = 'offline' | 'online';
+
+export type GlobalEvents = {
+  'install:complete': null;
+  'install:complete:next': null;
+};

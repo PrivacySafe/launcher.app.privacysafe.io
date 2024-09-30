@@ -43,7 +43,7 @@ async function loadInstalledApplicationsInfo() {
 
 async function loadInstalledApplicationsInfoAfterInstall() {
   await loadInstalledApplicationsInfo();
-  $emitter.emit('install:complete:next');
+  $emitter.emit('install:complete:next', null);
 }
 
 onBeforeMount(async () => {

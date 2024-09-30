@@ -12,7 +12,7 @@ import {
 } from '@v1nt1248/3nclient-lib/plugins';
 import { Ui3nButton, Ui3nIcon, Ui3nProgressCircular } from '@v1nt1248/3nclient-lib';
 import { useProcessStore } from '@/store';
-import { AppView } from '@/types';
+import type { AppView, GlobalEvents } from '@/types';
 
 const props = withDefaults(
   defineProps<{
@@ -26,7 +26,7 @@ const props = withDefaults(
   },
 );
 
-const { $emitter } = inject<VueBusPlugin>(VUEBUS_KEY)!;
+const { $emitter } = inject<VueBusPlugin<GlobalEvents>>(VUEBUS_KEY)!;
 const { $tr } = inject<I18nPlugin>(I18N_KEY)!;
 const { $createNotice } = inject<NotificationsPlugin>(NOTIFICATIONS_KEY)!;
 const processStore = useProcessStore();
@@ -99,7 +99,7 @@ async function installApp() {
       type: 'success',
       content: $tr('app.install.success', { name: props.application.manifest?.name || '' }),
     });
-    $emitter.emit('install:complete');
+    $emitter.emit('install:complete', null);
   } catch (err) {
     console.error(`The ${props.application.id} application installing error. `, err);
     $createNotice({
@@ -299,7 +299,7 @@ onBeforeUnmount(() => {
   font-size: var(--font-12);
   font-weight: 400;
   line-height: var(--font-16);
-  color: var(--color-test-block-primary-default);
+  color: var(--color-text-block-primary-default);
 }
 
 .accented {

@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { computed, onBeforeMount, onBeforeUnmount, ref } from 'vue';
 import { storeToRefs } from 'pinia';
-import { Ui3nButton, Ui3nMenu, Ui3nTabs } from '@v1nt1248/3nclient-lib';
+import { Ui3nButton, Ui3nMenu, Ui3nTabs, Ui3nRipple } from '@v1nt1248/3nclient-lib';
 import { initializationServices } from '@/services';
 import { useAppStore } from '@/store';
 import { APP_VERSION } from '@/constants';
@@ -11,6 +11,8 @@ import ContactIcon from '@/components/contact-icon.vue';
 import AppSettings from '@/components/app-settings.vue';
 import Applications from '@/views/applications/applications.vue';
 import Updates from '@/views/updates/updates.vue';
+
+const vUi3nRipple = Ui3nRipple;
 
 const appStore = useAppStore();
 const { user, connectivityStatus } = storeToRefs(appStore);
@@ -83,7 +85,10 @@ onBeforeUnmount(() => {
           position-strategy="fixed"
           :offset-y="4"
         >
-          <div :class="$style.icon">
+          <div
+            v-ui3n-ripple
+            :class="$style.icon"
+          >
             <contact-icon
               :name="user"
               :size="36"
@@ -249,6 +254,8 @@ onBeforeUnmount(() => {
 .icon {
   position: relative;
   cursor: pointer;
+  overflow: hidden;
+  border-radius: 50%;
 }
 
 .menu {
@@ -335,18 +342,5 @@ onBeforeUnmount(() => {
   display: flex;
   justify-content: center;
   align-content: flex-end;
-}
-</style>
-
-<style>
-.set-enter-active,
-.set-leave-active {
-  transition: all 0.4s ease-out;
-}
-
-.set-enter-from,
-.set-leave-to {
-  transform: translateY(100%);
-  opacity: 0;
 }
 </style>

@@ -13,9 +13,10 @@ import {
 import { Ui3nInput, Ui3nProgressCircular } from '@v1nt1248/3nclient-lib';
 import { useAppStore } from '@/store';
 import ApplicationView from '@/components/application-view.vue';
+import type { GlobalEvents } from '@/types';
 
 const { $tr } = inject<I18nPlugin>(I18N_KEY)!;
-const { $emitter } = inject<VueBusPlugin>(VUEBUS_KEY)!;
+const { $emitter } = inject<VueBusPlugin<GlobalEvents>>(VUEBUS_KEY)!;
 const { $createNotice } = inject<NotificationsPlugin>(NOTIFICATIONS_KEY)!;
 const appStore = useAppStore();
 const { prepareAppListForInstallAndUpdate } = appStore;
