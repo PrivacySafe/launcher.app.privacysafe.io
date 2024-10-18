@@ -1,13 +1,12 @@
 {
   "name": "Apps Launcher",
   "appDomain": "launcher.app.privacysafe.io",
-  "version": "0.7.6",
+  "version": "0.7.7",
   "components": {
     "/index.html": {
       "startedBy": "user",
       "runtime": "web-gui",
       "capsRequested": {
-        "apps": "all",
         "logout": "all",
         "log": "all",
         "mailerid": true,
@@ -26,7 +25,11 @@
             "thisApp": "ui-settings"
           }
         },
-        "connectivity": "check"
+        "connectivity": "check",
+        "system": {
+          "apps": "all",
+          "platform": "all"
+        }
       },
       "windowOpts": {
         "width": 800,

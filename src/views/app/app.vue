@@ -1,10 +1,26 @@
+<!--
+ Copyright (C) 2024 3NSoft Inc.
+
+ This program is free software: you can redistribute it and/or modify it under
+ the terms of the GNU General Public License as published by the Free Software
+ Foundation, either version 3 of the License, or (at your option) any later
+ version.
+
+ This program is distributed in the hope that it will be useful, but
+ WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ See the GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License along with
+ this program. If not, see <http://www.gnu.org/licenses/>.
+-->
+
 <script lang="ts" setup>
 import { computed, onBeforeMount, onBeforeUnmount, ref } from 'vue';
 import { storeToRefs } from 'pinia';
 import { Ui3nButton, Ui3nMenu, Ui3nTabs, Ui3nRipple } from '@v1nt1248/3nclient-lib';
 import { initializationServices } from '@/services';
 import { useAppStore } from '@/store';
-import { APP_VERSION } from '@/constants';
 import { mainTabs } from './constants';
 import prLogo from '@/assets/images/privacysafe-logo.svg';
 import ContactIcon from '@/components/contact-icon.vue';
@@ -26,17 +42,24 @@ const connectivityStatusText = computed(() =>
   connectivityStatus.value === 'online' ? 'app.status.connected.online' : 'app.status.connected.offline',
 );
 
+const appVersion = ref('');
+w3n.myVersion().then(v => {
+  appVersion.value = v;
+});
+
 async function appExit() {
   w3n.closeSelf!();
 }
 
 onBeforeMount(async () => {
   try {
-    await initializationServices();
+    await Promise.all([
+      initializationServices(),
 
-    await getUser();
-    await getAppConfig();
-    await getConnectivityStatus();
+      getUser(),
+      getAppConfig(),
+      getConnectivityStatus()
+    ]);
 
     connectivityTimerId.value = setInterval(getConnectivityStatus, 60000);
   } catch (e) {
@@ -63,8 +86,8 @@ onBeforeUnmount(() => {
         />
         <div :class="$style.delimiter">/</div>
         <div :class="$style.info">
-          Launcher
-          <div :class="$style.version">v {{ APP_VERSION }}</div>
+          {{ $tr('app.title') }}
+          <div :class="$style.version"> {{ $tr('app.version.abbrev') }} {{ appVersion }}</div>
         </div>
       </div>
 

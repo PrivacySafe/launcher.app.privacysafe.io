@@ -1,16 +1,20 @@
+/*
+ Copyright (C) 2024 3NSoft Inc.
+
+ This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License along with this program. If not, see <http://www.gnu.org/licenses/>.
+*/
+
 import type { AvailableColorTheme, AvailableLanguage } from '@/types';
 
-export const APP_VERSION = '0.7.6';
-
 export const All_PRIVACYSAFE_APPLICATIONS = [
-  'installer.app.privacysafe.io',
-  'launcher.app.privacysafe.io',
   'contacts.app.privacysafe.io',
   'chat.app.privacysafe.io',
   'files.app.privacysafe.io',
 ];
-
-export const NOT_DISPLAYED_APPLICATIONS = ['installer.app.privacysafe.io', 'launcher.app.privacysafe.io'];
 
 export const AVAILABLE_THEMES: Record<AvailableColorTheme, { label: string; cssClass: string }> = {
   default: {

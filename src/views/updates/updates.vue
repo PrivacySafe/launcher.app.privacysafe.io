@@ -1,3 +1,20 @@
+<!--
+ Copyright (C) 2024 3NSoft Inc.
+
+ This program is free software: you can redistribute it and/or modify it under
+ the terms of the GNU General Public License as published by the Free Software
+ Foundation, either version 3 of the License, or (at your option) any later
+ version.
+
+ This program is distributed in the hope that it will be useful, but
+ WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ See the GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License along with
+ this program. If not, see <http://www.gnu.org/licenses/>.
+-->
+
 <script lang="ts" setup>
 import { computed, inject, onBeforeMount, onBeforeUnmount, ref } from 'vue';
 import { storeToRefs } from 'pinia';
@@ -13,14 +30,14 @@ import {
 import { Ui3nInput, Ui3nProgressCircular } from '@v1nt1248/3nclient-lib';
 import { useAppStore } from '@/store';
 import ApplicationView from '@/components/application-view.vue';
-import type { GlobalEvents } from '@/types';
+import { UpdateAndInstallEvents } from '@/types';
 
 const { $tr } = inject<I18nPlugin>(I18N_KEY)!;
-const { $emitter } = inject<VueBusPlugin<GlobalEvents>>(VUEBUS_KEY)!;
+const { $emitter } = inject<VueBusPlugin<UpdateAndInstallEvents>>(VUEBUS_KEY)!;
 const { $createNotice } = inject<NotificationsPlugin>(NOTIFICATIONS_KEY)!;
 const appStore = useAppStore();
 const { prepareAppListForInstallAndUpdate } = appStore;
-const { applicationsForInstallAndUpdate, installedApplications } = storeToRefs(appStore);
+const { applicationsForInstallAndUpdate } = storeToRefs(appStore);
 
 const isLoading = ref(false);
 const search = ref('');
@@ -87,8 +104,7 @@ onBeforeUnmount(() => {
         <application-view
           v-for="app in filteredApplicationsForInstallAndUpdate"
           :key="app.id"
-          block="update"
-          :installed-apps="installedApplications"
+          :installed-apps="[]"
           :application="app"
         />
       </template>

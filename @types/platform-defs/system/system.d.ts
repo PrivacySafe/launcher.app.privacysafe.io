@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2016 3NSoft Inc.
+ Copyright (C) 2024 3NSoft Inc.
 
  This program is free software: you can redistribute it and/or modify it under
  the terms of the GNU General Public License as published by the Free Software
@@ -15,6 +15,28 @@
  this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-/// <reference path="./system/system.d.ts" />
+/// <reference path="../w3n.d.ts" />
+/// <reference path="./apps.d.ts" />
+/// <reference path="./platform.d.ts" />
 
-declare const w3n: web3n.system.W3N;
+declare namespace web3n.system {
+
+	interface W3N extends web3n.caps.W3N {
+		/**
+		 * system object/namespace is used for capabilities/utilities that change
+		 * user's system, e.g. installing apps, updating apps and platform.
+		 * This object depends on platform's vendor choices, and will be mostly
+		 * used by platform's vendor own bundled apps.
+		 */
+		system?: SysUtils;
+	}
+
+	interface SysUtils {
+
+		apps?: apps.Apps;
+
+		platform?: platform.Platform;
+
+	}
+
+}

@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2016 3NSoft Inc.
+ Copyright (C) 2021, 2024 3NSoft Inc.
 
  This program is free software: you can redistribute it and/or modify it under
  the terms of the GNU General Public License as published by the Free Software
@@ -15,6 +15,22 @@
  this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-/// <reference path="./system/system.d.ts" />
-
-declare const w3n: web3n.system.W3N;
+export function makeRuntimeException<T extends web3n.RuntimeException>(
+	type: NonNullable<T['type']>, params: Partial<T>, flags: Partial<T>
+): T {
+	const exc = {
+		runtimeException: true,
+		type,
+	} as T;
+	for (const [field, val] of Object.entries(params)) {
+		if (val !== undefined) {
+			exc[field as keyof T] = val;
+		}
+	}
+	for (const [field, val] of Object.entries(flags)) {
+		if (val === true) {
+			exc[field as keyof T] = val;
+		}
+	}
+	return exc as T;
+}

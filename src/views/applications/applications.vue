@@ -1,3 +1,20 @@
+<!--
+ Copyright (C) 2024 3NSoft Inc.
+
+ This program is free software: you can redistribute it and/or modify it under
+ the terms of the GNU General Public License as published by the Free Software
+ Foundation, either version 3 of the License, or (at your option) any later
+ version.
+
+ This program is distributed in the hope that it will be useful, but
+ WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ See the GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License along with
+ this program. If not, see <http://www.gnu.org/licenses/>.
+-->
+
 <script lang="ts" setup>
 import { inject, onBeforeMount, onBeforeUnmount, ref } from 'vue';
 import { storeToRefs } from 'pinia';
@@ -11,17 +28,17 @@ import {
   VueBusPlugin,
 } from '@v1nt1248/3nclient-lib/plugins';
 import { useAppStore } from '@/store';
-import ApplicationView from '@/components/application-view.vue';
+import AppLaunchers from '@/components/app-launchers.vue';
 import { Ui3nProgressCircular } from '@v1nt1248/3nclient-lib';
-import type { GlobalEvents } from '@/types';
+import { UpdateAndInstallEvents } from '@/types';
+import { updateAppsLaunchersInfoInStore } from '@/ctrl-funcs/updateAppsLaunchersInfoInStore';
 
-const { $emitter } = inject<VueBusPlugin<GlobalEvents>>(VUEBUS_KEY)!;
+const { $emitter } = inject<VueBusPlugin<UpdateAndInstallEvents>>(VUEBUS_KEY)!;
 const { $createNotice } = inject<NotificationsPlugin>(NOTIFICATIONS_KEY)!;
 const { $tr } = inject<I18nPlugin>(I18N_KEY)!;
 
 const appStore = useAppStore();
-const { getInstalledApplications } = appStore;
-const { installedApplications } = storeToRefs(appStore);
+const { appLaunchers } = storeToRefs(appStore);
 
 const isLoading = ref(false);
 
@@ -30,7 +47,7 @@ $emitter.on('install:complete', loadInstalledApplicationsInfo);
 async function loadInstalledApplicationsInfo() {
   try {
     isLoading.value = true;
-    await getInstalledApplications();
+    await updateAppsLaunchersInfoInStore(true);
   } catch (err) {
     console.error('The load information installed applications error.', err);
     $createNotice({
@@ -59,17 +76,17 @@ onBeforeUnmount(() => {
 <template>
   <section :class="$style.applications">
     <div
-      v-if="isEmpty(installedApplications)"
+      v-if="isEmpty(appLaunchers)"
       :class="$style.empty"
     >
       {{ $tr('app.list.empty') }}
     </div>
 
     <template v-else>
-      <application-view
-        v-for="app in installedApplications"
-        :key="app.id"
-        :application="app"
+      <app-launchers
+        v-for="app in appLaunchers"
+        :key="app.appId+app.version"
+        :launchers="app"
       />
     </template>
 

@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2016 3NSoft Inc.
+ Copyright (C) 2021 - 2022, 2024 3NSoft Inc.
 
  This program is free software: you can redistribute it and/or modify it under
  the terms of the GNU General Public License as published by the Free Software
@@ -15,6 +15,17 @@
  this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-/// <reference path="./system/system.d.ts" />
+/// <reference path="../manifest.d.ts" />
 
-declare const w3n: web3n.system.W3N;
+declare namespace web3n.system {
+
+	interface RequestedCAPs extends caps.RequestedCAPs {
+		system?: {
+			apps?: AppsCAPSetting;
+			platform?: 'all';
+		};
+	}
+
+	type AppsCAPSetting = 'all' | (keyof apps.Apps)[];
+
+}

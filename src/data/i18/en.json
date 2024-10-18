@@ -1,5 +1,6 @@
 {
   "app.title": "Launcher",
+  "app.version.abbrev": "v",
   "app.status": "status",
   "app.status.connected.online": "online",
   "app.status.connected.offline": "offline",
@@ -9,6 +10,8 @@
   "app.settings.title": "settings",
   "app.settings.visualisation": "visualisation",
   "app.settings.account.settings": "account settings",
+  "app.settings.updates": "Updates",
+  "app.settings.label.autoupdates": "Automatic updates",
   "app.settings.label.theme": "theme",
   "app.settings.label.language": "language",
   "app.settings.save.success": "The apps settings save successful",

@@ -15,25 +15,23 @@
  this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-/// <reference path="./manifest.d.ts" />
+/// <reference path="../w3n.d.ts" />
 
 /**
  * This is used by system utility launcher app, and concerns only platform
  * developers, not app developers. Nonetheless, app developers have a standard
  * for distributing apps via http, and it necessarily reflects in the api here.
  */
-declare namespace web3n.apps {
+declare namespace web3n.system.apps {
 
 	interface Apps {
 		opener?: AppsOpener;
 		downloader?: AppsDownloader;
 		installer?: AppsInstaller;
-		platform?: Platform;
 	}
 
 	interface AppsOpener {
 		listApps(filter?: AppState[]): Promise<AppVersions[]>;
-		openApp(id: string, devTools?: boolean): Promise<void>;
 		getAppVersions(
 			id: string, filter?: AppState[]
 		): Promise<AppVersions|undefined>;
@@ -44,6 +42,12 @@ declare namespace web3n.apps {
 			id: string, path: string, version?: string
 		): Promise<Uint8Array|undefined>;
 		watchApps(observer: Observer<AppEvent>): () => void;
+		openApp(
+			id: string, entrypoint?: string, devTools?: boolean
+		): Promise<void>;
+		executeCommand(
+			id: string, cmd: shell.commands.CmdParams, devTools?: boolean
+		): Promise<void>;
 	}
 
 	interface AppVersions {
@@ -92,7 +96,7 @@ declare namespace web3n.apps {
 		};
 	}
 
-	type DistAppFileContent = 'bin/zip' | 'bin/unpacked' | 'src/zip';	
+	type DistAppFileContent = 'bin/zip' | 'bin/unpacked' | 'src/zip';
 
 	interface DownloadProgress {
 		totalFiles: number;
@@ -118,26 +122,5 @@ declare namespace web3n.apps {
 		numOfProcessed: number;
 		fileInProgress?: string;
 	}
-
-	interface Platform {
-		getCurrentVersion(): Promise<string>;
-		getChannels(): Promise<DistChannels>;
-		getLatestVersion(channel: string): Promise<string>;
-		getVersionList(version: string): Promise<AppDistributionList>;
-		availableUpdateType(): Promise<string|undefined>;
-		downloadAndApplyUpdate(
-			channel: string, observer: Observer<PlatformDownloadProgress>
-		): () => void;
-	}
-
-	type PlatformDownloadProgress = {
-		event: 'checking-for-update';
-	} | {
-		event: 'update-available';
-		totalSizeMBs: number;
-	} | {
-		event: 'download-progress';
-		percent: number;
-	};
 
 }

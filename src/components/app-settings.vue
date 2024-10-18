@@ -1,8 +1,26 @@
+<!--
+ Copyright (C) 2024 3NSoft Inc.
+
+ This program is free software: you can redistribute it and/or modify it under
+ the terms of the GNU General Public License as published by the Free Software
+ Foundation, either version 3 of the License, or (at your option) any later
+ version.
+
+ This program is distributed in the hope that it will be useful, but
+ WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ See the GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License along with
+ this program. If not, see <http://www.gnu.org/licenses/>.
+-->
+
 <script lang="ts" setup>
 import { useAppStore } from '@/store';
 import { Ui3nButton, Ui3nRadio, Ui3nSwitch } from '@v1nt1248/3nclient-lib';
 import { storeToRefs } from 'pinia';
 import { AVAILABLE_THEMES, AVAILABLE_LANGS } from '@/constants';
+import { ref } from 'vue';
 
 const appStore = useAppStore();
 const { updateAppConfig } = appStore;
@@ -12,6 +30,16 @@ function changeColorTheme(isDarkColorTheme: boolean) {
   updateAppConfig({
     colorTheme: isDarkColorTheme ? 'dark' : 'default',
   });
+}
+
+const autoupdatesEnabled = ref(true);
+
+function toggleAutoUpdateAndApply() {
+  autoupdatesEnabled.value = !autoupdatesEnabled.value;
+
+  // XXX updater service params
+  console.log(`🏗️ need to pass autoupdate flag value ${autoupdatesEnabled.value} to updater service`);
+
 }
 
 const emits = defineEmits<{
@@ -35,51 +63,70 @@ const emits = defineEmits<{
     </div>
 
     <div :class="$style.body">
-      <div>
-        <div :class="$style.row">
-          <div :class="$style.rowHeader">
-            {{ $tr('app.settings.visualisation') }}
-          </div>
-          <div :class="$style.rowBody">
-            <div :class="$style.rowBodyLabel">
-              {{ $tr('app.settings.label.theme') }}
-            </div>
 
-            <div :class="$style.rowBodyValue">
-              <span>{{ $tr(AVAILABLE_THEMES.default.label) }}</span>
-              <ui3n-switch
-                size="16"
-                :model-value="colorTheme === 'dark'"
-                @change="changeColorTheme"
-              />
-              <span>{{ $tr(AVAILABLE_THEMES.dark.label) }}</span>
-            </div>
-          </div>
+      <div :class="$style.row">
+        <div :class="$style.rowHeader">
+          {{ $tr('app.settings.visualisation') }}
         </div>
-
-        <div :class="$style.row">
-          <div :class="$style.rowHeader">
-            {{ $tr('app.settings.account.settings') }}
+        <div :class="$style.rowBody">
+          <div :class="$style.rowBodyLabel">
+            {{ $tr('app.settings.label.theme') }}
           </div>
-          <div :class="$style.rowBody">
-            <div :class="$style.rowBodyLabel">
-              {{ $tr('app.settings.label.language') }}
-            </div>
 
-            <div :class="$style.rowBodyValue">
-              <ui3n-radio
-                size="16"
-                :checked-value="AVAILABLE_LANGS.en.value"
-                :unchecked-value="AVAILABLE_LANGS.en.value"
-                :disabled="true"
-                :model-value="lang"
-              >
-                {{ AVAILABLE_LANGS[lang].label }}
-              </ui3n-radio>
-            </div>
+          <div :class="$style.rowBodyValue">
+            <span>{{ $tr(AVAILABLE_THEMES.default.label) }}</span>
+            <ui3n-switch
+              size="16"
+              :model-value="colorTheme === 'dark'"
+              @change="changeColorTheme"
+            />
+            <span>{{ $tr(AVAILABLE_THEMES.dark.label) }}</span>
           </div>
         </div>
       </div>
+
+      <div :class="$style.row">
+        <div :class="$style.rowHeader">
+          {{ $tr('app.settings.account.settings') }}
+        </div>
+        <div :class="$style.rowBody">
+          <div :class="$style.rowBodyLabel">
+            {{ $tr('app.settings.label.language') }}
+          </div>
+
+          <div :class="$style.rowBodyValue">
+            <ui3n-radio
+              size="16"
+              :checked-value="AVAILABLE_LANGS.en.value"
+              :unchecked-value="AVAILABLE_LANGS.en.value"
+              :disabled="true"
+              :model-value="lang"
+            >
+              {{ AVAILABLE_LANGS[lang].label }}
+            </ui3n-radio>
+          </div>
+        </div>
+      </div>
+
+      <div :class="$style.row">
+        <div :class="$style.rowHeader">
+          {{ $tr('app.settings.updates') }}
+        </div>
+        <div :class="$style.rowBody">
+          <div :class="$style.rowBodyLabel">
+            {{ $tr('app.settings.label.autoupdates') }}
+          </div>
+
+          <div :class="$style.rowBodyValue">
+            <ui3n-switch
+              size="16"
+              :modelValue=autoupdatesEnabled
+              @change=toggleAutoUpdateAndApply
+            />
+          </div>
+        </div>
+      </div>
+
     </div>
   </section>
 </template>
