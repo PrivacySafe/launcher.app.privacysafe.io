@@ -11,17 +11,33 @@
 import type { Store } from 'pinia';
 import type { Actions } from './actions/types';
 import type { AppGetters } from './getters/types';
-import type { AppLaunchers, AppView, AvailableColorTheme, AvailableLanguage, ConnectivityStatus } from '@/types';
+import type { AppLaunchers, AppInfo, AvailableColorTheme, AvailableLanguage, ConnectivityStatus, ChannelVersion } from '@/types';
+
+type ProgressInfo = web3n.system.platform.ProgressInfo;
 
 export interface AppStoreState {
   connectivityStatus: ConnectivityStatus;
   user: string;
   lang: AvailableLanguage;
   colorTheme: AvailableColorTheme;
-  // installedApplications: AppView[];
+  autoUpdate: boolean;
   appLaunchers: AppLaunchers[];
-  launchersCacheTS: number;
-  applicationsForInstallAndUpdate: AppView[];
+  cacheTS: number;
+  applicationsInSystem: AppInfo[];
+  platform: {
+    version: string;
+    bundledApps: { [appId: string]: string; };
+    bundledAppPacks: { [appId: string]: string; };
+    availableUpdates?: ChannelVersion[];
+    updateInProcess?: {
+      version: string;
+      progress?: ProgressInfo;
+    };
+  };
+  restart: null | {
+    apps?: string[];
+    platform?: true;
+  };
 }
 
 export type AppStore<G = AppGetters> = Store<'app', AppStoreState, G, Actions>;

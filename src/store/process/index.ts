@@ -9,19 +9,60 @@
 */
 
 import { defineStore } from 'pinia';
-import { set } from 'lodash';
 import type { ProcessStoreState, ProcessActions } from './types';
+import { getGlobalEventsSink } from '@/services';
+import { GlobalEvents } from '@/types';
 
 const upsertProcess: ProcessActions['upsertProcess'] = function (
-  appId: string,
-  processInfo: { process: 'downloading' | 'installing'; value?: number },
+  appId, processInfo, evToEmit
 ) {
-  set(this.processes, [appId], processInfo);
+  if (appId === null) {
+    appId = PLATFORM_ID;
+  }
+  const arr = this.processes[appId];
+  if (arr) {
+    const ind = arr.findIndex(
+      ({ procType }) => (processInfo.procType === procType)
+    );
+    if (ind < 0) {
+      arr.push(processInfo);
+    } else {
+      arr[ind] = processInfo;
+    }
+  } else {
+    this.processes[appId] = [ processInfo ];
+  }
+  emitEvent(evToEmit);
 };
 
-const delProcess: ProcessActions['delProcess'] = function (appId: string) {
-  delete this.processes[appId];
+const delProcess: ProcessActions['delProcess'] = function (
+  appId, procType, evToEmit
+) {
+  if (appId === null) {
+    appId = PLATFORM_ID;
+  }
+  const arr = this.processes[appId];
+  if (!arr) { return; }
+  const foundInd = arr.findIndex(info => (info.procType === procType));
+  if (foundInd < 0) { return; }
+  if (arr.length > 1) {
+    arr.splice(foundInd, 1);
+  } else {
+    delete this.processes[appId];
+  }
+  emitEvent(evToEmit);
 };
+
+function emitEvent(evToEmit: Partial<GlobalEvents>|undefined): void {
+  if (evToEmit) {
+    for (const [ event, content ] of Object.entries(evToEmit)) {
+      const $emit = getGlobalEventsSink();
+      $emit(event as keyof GlobalEvents, content);
+    }
+  }
+}
+
+export const PLATFORM_ID = 'platform';
 
 const actions: ProcessActions = {
   upsertProcess,

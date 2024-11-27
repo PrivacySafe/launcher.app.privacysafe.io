@@ -16,30 +16,38 @@
 */
 
 /// <reference path="../w3n.d.ts" />
-/// <reference path="./apps.d.ts" />
-/// <reference path="./platform.d.ts" />
-/// <reference path="./monitor.d.ts" />
 
-declare namespace web3n.system {
+/**
+ * This is used by system utility launcher app, and concerns only platform
+ * developers, not app developers.
+ */
+declare namespace web3n.system.monitor {
 
-	interface W3N extends web3n.caps.W3N {
-		/**
-		 * system object/namespace is used for capabilities/utilities that change
-		 * user's system, e.g. installing apps, updating apps and platform.
-		 * This object depends on platform's vendor choices, and will be mostly
-		 * used by platform's vendor own bundled apps.
-		 */
-		system?: SysUtils;
+	interface SystemMonitor {
+		listProcs(): Promise<OpenComponentInfo[]>;
+		listConnectionsToAppServices(
+			appId: string
+		): Promise<OpenConnectionInfo[]|undefined>;
 	}
 
-	interface SysUtils {
+	interface OpenComponentInfo {
+		appId: string;
+		version: string;
+		entrypoint: string;
+		runtime: caps.Runtime;
+		numOfInstances: number;
+	}
 
-		apps?: apps.Apps;
-
-		platform?: platform.Platform;
-
-		monitor?: monitor.SystemMonitor;
-
+	interface OpenConnectionInfo {
+		service: string;
+		entrypoint: string;
+		caller: {
+			thisAppComponent?: string;
+			otherApp?: {
+				appId: string;
+				component: string;
+			};
+		};
 	}
 
 }

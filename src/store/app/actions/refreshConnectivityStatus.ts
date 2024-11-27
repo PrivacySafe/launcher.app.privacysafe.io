@@ -8,8 +8,13 @@
  You should have received a copy of the GNU General Public License along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-import type { AppActions } from '@/store/app/actions/types';
+import type { AppActions } from './types';
+import type { ConnectivityStatus } from '@/types';
 
-export const setLang: AppActions['setLang'] = function (this, lang) {
-  this.lang = lang;
+export const refreshConnectivityStatus: AppActions['refreshConnectivityStatus'] = async function (this) {
+  const status = await w3n.connectivity!.isOnline();
+  if (status) {
+    const parsedStatus = status.split('_');
+    this.connectivityStatus = parsedStatus[0] as ConnectivityStatus;
+  }
 };

@@ -9,13 +9,14 @@
 */
 
 import type { AppActions } from '@/store/app/actions/types';
-import { type SettingsJSON, UISettings } from '@/services/ui-settings';
+import { type SettingsJSON, SystemSettings } from '@/services/ui-settings';
 
-export const updateAppConfig: AppActions['updateAppConfig'] = async function (appConfig: Partial<SettingsJSON>) {
-  const config = await UISettings.makeInternalService();
+export const updateSettings: AppActions['updateSettings'] = async function (appConfig: Partial<SettingsJSON>) {
+  const config = await SystemSettings.makeInternalService();
   const updatedAppConfig = {
     lang: this.lang,
     colorTheme: this.colorTheme,
+    autoUpdate: this.autoUpdate,
     ...appConfig,
   };
   try {
@@ -23,22 +24,19 @@ export const updateAppConfig: AppActions['updateAppConfig'] = async function (ap
       currentConfig: updatedAppConfig,
     });
 
-    if (updatedAppConfig.lang !== this.lang) {
-      this.setLang(updatedAppConfig.lang);
-    }
     if (updatedAppConfig.colorTheme !== this.colorTheme) {
       this.setColorTheme(updatedAppConfig.colorTheme);
     }
 
     this.$createNotice({
       type: 'success',
-      content: this.$i18n.tr('app.settings.save.success'),
+      content: this.$i18n.tr('settings.save.success'),
     });
   } catch (e) {
-    console.error('The apps settings save error: ', e);
+    console.error('Settings saving error: ', e);
     this.$createNotice({
       type: 'error',
-      content: this.$i18n.tr('app.settings.save.error'),
+      content: this.$i18n.tr('settings.save.error'),
     });
   }
 };

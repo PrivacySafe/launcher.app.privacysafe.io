@@ -10,17 +10,17 @@
 
 import type { PiniaActionTree } from '@v1nt1248/3nclient-lib/plugins';
 import type { AppStore } from '../types';
-import type { AvailableColorTheme, AvailableLanguage } from '@/types';
-import { AppConfigsInternal, SettingsJSON } from '@/services/ui-settings';
+import type { AppInfo, AvailableColorTheme } from '@/types';
+import { SettingsJSON } from '@/services/ui-settings';
 
 export type Actions = {
-  getConnectivityStatus(): Promise<void>;
-  getUser(): Promise<void>;
-  setLang(lang: AvailableLanguage): void;
+  initAppStore(): Promise<void>;
   setColorTheme(theme: AvailableColorTheme): void;
-  getAppConfig(): Promise<AppConfigsInternal | undefined>;
-  updateAppConfig(appConfig: Partial<SettingsJSON>): Promise<void>;
-  prepareAppListForInstallAndUpdate(): Promise<void>;
+  updateSettings(appConfig: Partial<SettingsJSON>): Promise<void>;
+  refreshConnectivityStatus(): Promise<void>;
+  getApp(appId: string): AppInfo;
+  setPlatformRestart(flag: boolean): void;
+  setAppsRestart(ids: string[]|undefined): void;
 };
 
 export type AppActions = PiniaActionTree<Actions, AppStore>;

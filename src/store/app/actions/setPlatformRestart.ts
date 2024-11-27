@@ -10,6 +10,17 @@
 
 import type { AppActions } from '@/store/app/actions/types';
 
-export const getUser: AppActions['getUser'] = async function (this) {
-  this.user = await w3n.mailerid!.getUserId();
+export const setPlatformRestart: AppActions['setPlatformRestart'] = function (this, flag) {
+  if (flag) {
+    if (!this.restart) {
+      this.restart = {};
+    }
+    this.restart.platform = true;
+  } else if (this.restart) {
+    if (this.restart.apps) {
+      delete this.restart.platform;
+    } else {
+      this.restart = null;
+    }
+  }
 };

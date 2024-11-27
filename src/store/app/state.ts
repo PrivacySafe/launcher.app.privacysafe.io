@@ -15,8 +15,14 @@ export const state: AppStoreState = {
   user: '',
   lang: 'en',
   colorTheme: 'default',
+  autoUpdate: false,
   appLaunchers: [],
-  launchersCacheTS: 0,
-  // installedApplications: [],
-  applicationsForInstallAndUpdate: [],
+  cacheTS: 0,
+  applicationsInSystem: [],
+  platform: {
+    version: '',
+    bundledAppPacks: {},
+    bundledApps: {},
+  },
+  restart: null
 };

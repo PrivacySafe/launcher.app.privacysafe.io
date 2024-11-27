@@ -10,14 +10,31 @@
 
 import type { Store } from 'pinia';
 import type { PiniaActionTree } from '@v1nt1248/3nclient-lib/plugins';
+import { GlobalEvents } from '@/types';
 
 export interface ProcessStoreState {
-  processes: Record<string, { process: 'downloading' | 'installing'; value?: number }>;
+  processes: Record<string, ProcessInfo[]>;
 }
 
+export interface ProcessInfo {
+  procType: ProcessType;
+  version?: string;
+  progressValue?: number;
+}
+
+export type AppProcessType = 'downloading' | 'unzipping' | 'installing' | 'update-checking';
+
+export type PlatformProcessType = 'platform-update-checking';
+
+export type ProcessType = AppProcessType | PlatformProcessType;
+
 export type Actions = {
-  upsertProcess(appId: string, processInfo: { process: 'downloading' | 'installing'; value?: number }): void;
-  delProcess(appId: string): void;
+  upsertProcess(
+    appId: string|null, processInfo: ProcessInfo, emit?: Partial<GlobalEvents>
+  ): void;
+  delProcess(
+    appId: string|null, procType: ProcessType, emit?: Partial<GlobalEvents>
+  ): void;
 };
 
 export type ProcessStore<G = unknown> = Store<'process', ProcessStoreState, G, Actions>;

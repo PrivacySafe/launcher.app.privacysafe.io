@@ -8,11 +8,6 @@
  You should have received a copy of the GNU General Public License along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-import { All_PRIVACYSAFE_APPLICATIONS } from '@/constants';
 import type { AppGetters } from './types';
 
-export const getters: AppGetters = {
-  applicationsIdsForInstallAndUpdate: function (this) {
-    return All_PRIVACYSAFE_APPLICATIONS.concat();
-  },
-};
+export const getters: AppGetters = {};

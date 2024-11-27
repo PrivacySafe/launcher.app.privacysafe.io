@@ -19,21 +19,34 @@
 
 /**
  * This is used by system utility launcher app, and concerns only platform
- * developers, not app developers. Nonetheless, app developers have a standard
- * for distributing apps via http, and it necessarily reflects in the api here.
+ * developers, not app developers.
  */
 declare namespace web3n.system.platform {
 
 	interface Platform {
-		getCurrentVersion(): Promise<string>;
+		getCurrentVersion(): Promise<BundleVersions>;
 		getChannels(): Promise<apps.DistChannels>;
-		getLatestVersion(channel: string): Promise<string>;
-		getVersionList(version: string): Promise<apps.AppDistributionList>;
-		availableUpdateType(): Promise<string|undefined>;
-		downloadAndApplyUpdate(
-			channel: string, observer: Observer<PlatformUpdateEvents>
+		getLatestVersion(channel: string): Promise<BundleVersions>;
+		setupUpdater(
+			newBundleVersion: string, observer: Observer<PlatformUpdateEvents>
 		): () => void;
+		downloadUpdate(): Promise<string[]|undefined>;
+		quitAndInstall(): Promise<void>;
 	}
+
+  interface BundleVersions {
+    platform: string;
+    apps: {
+      [ id: string ]: string;
+    };
+    'app-packs': {
+      [ id: string ]: string;
+    };
+    runtimes: {
+      [ rtName: string ]: string;
+    };
+    bundle: string;
+  }
 
 	type PlatformUpdateEvents = {
 		event: 'checking-for-update';
@@ -129,5 +142,5 @@ declare namespace web3n.system.platform {
 	interface UpdateFileInfo extends BlockMapDataHolder {
 		url: string;
 	}
-  
+
 }

@@ -18,33 +18,56 @@
 <script lang="ts" setup>
 import { computed } from 'vue';
 import { storeToRefs } from 'pinia';
-import { get } from 'lodash';
 import { Ui3nButton, Ui3nProgressCircular } from '@v1nt1248/3nclient-lib';
-import { useProcessStore } from '@/store';
+import { useAppStore, useProcessStore } from '@/store';
 import { AppLaunchers, Launcher } from '@/types';
 import AppIcon from './app-icon.vue';
-import ApplicationItemArea from './application-item-area.vue';
+import ApplicationItemArea from './app-item-area.vue';
+import { closeOldVersionApps } from '@/ctrl-funcs/closeOldVersionApps';
 
 const props = defineProps<{
   launchers: AppLaunchers;
 }>();
 const appId = props.launchers.appId;
 
+const appStore = useAppStore();
+const { restart } = storeToRefs(appStore);
+const needToCloseOldVersion = computed(
+  () => !!restart.value?.apps?.includes(appId)
+);
+
 const processStore = useProcessStore();
 const { processes } = storeToRefs(processStore);
 
-const currentProcess = computed(() => get(processes.value, [ appId ]));
+const appProcesses = computed(() => processes.value[ appId ]);
 
-async function startLauncher(l: Launcher) {
+const canBeLaunched = computed(() => (
+  !needToCloseOldVersion.value &&
+  (!appProcesses.value ||
+  !appProcesses.value.find(({ procType }) => (procType === 'installing')))
+));
+
+
+const appProcessToDisplay = computed(() => appProcesses.value?.find(
+  ({ procType }) => (
+    (procType === 'installing') || (procType === 'downloading') ||
+    (procType === 'unzipping')
+  ))
+);
+
+async function startLauncher(l: Launcher, devtools: boolean) {
   if (l.component) {
-    await w3n.system!.apps!.opener!.openApp(
-      appId, l.component
-    );
+    await w3n.system!.apps!.opener!.openApp(appId, l.component, devtools);
   } else if (l.startCmd) {
-    await w3n.system!.apps!.opener!.executeCommand(appId, l.startCmd);
+    await w3n.system!.apps!.opener!.executeCommand(appId, l.startCmd, devtools);
   } else {
     throw new Error(`Malformed launcher: neither component, nor command found`);
   }
+}
+
+function launchDefault(ev: Event) {
+  const devtools = (ev as PointerEvent).ctrlKey;
+  startLauncher(props.launchers.defaultLauncher!, devtools);
 }
 
 </script>
@@ -70,39 +93,36 @@ async function startLauncher(l: Launcher) {
         v-if="!!launchers.defaultLauncher"
       >
         <ui3n-button
+          v-if="canBeLaunched"
           :class="$style.btn"
           block
-          @click="startLauncher(launchers.defaultLauncher)"
+          @click="launchDefault"
         >
           {{ $tr('app.action.open') }}
+        </ui3n-button>
+        <ui3n-button
+          v-if="needToCloseOldVersion"
+          :class="$style.btn"
+          block
+          @click="closeOldVersionApps"
+        >
+          {{ $tr('app.action.close-old-version') }}
         </ui3n-button>
       </div>
     </template>
 
     <template #other>
 
-      <!-- <template v-if="block === 'update'">
-        <div :class="$style.description">
-          <span v-if="descriptionTitle">{{ descriptionTitle }}</span>
-          <span v-if="description">{{ description }}</span>
-          <span v-if="launchers.id" :class="$style.accented">{{ launchers.id }}</span>
-        </div>
-      </template>
-
-      <div v-if="!!currentProcess" :class="$style.loading">
+      <div :class="$style.progressOverlay"
+        v-if="!!appProcessToDisplay"
+      >
         <ui3n-progress-circular
-          v-if="currentProcess.process === 'installing'"
-          indeterminate
-          size="40"
-        />
-
-        <ui3n-progress-circular
-          v-if="currentProcess.process === 'downloading'"
           size="40"
           with-text
-          :value="currentProcess.value"
+          :value="appProcessToDisplay.progressValue"
         />
-      </div> -->
+      </div>
+
     </template>
 
   </application-item-area>
@@ -136,5 +156,17 @@ async function startLauncher(l: Launcher) {
   .btn {
     text-transform: capitalize;
   }
+}
+
+.progressOverlay {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.2);
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 </style>

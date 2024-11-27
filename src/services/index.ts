@@ -8,40 +8,65 @@
  You should have received a copy of the GNU General Public License along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
+import { VueEventBus } from '@v1nt1248/3nclient-lib/plugins';
 import { CachedAppFiles, CachedAppLaunchers, CachedSystemInfo } from './cached-system-info';
-import { AppConfigsInternal, UISettings } from './ui-settings';
+import { AppConfigsInternal, SystemSettings } from './ui-settings';
+import { AppInfo, GlobalEvents } from '@/types';
+import { AppDistInfoChecker, CachedAppDistributionInfo, CachedBundleDistributionInfo } from './app-distribution-info';
 
 export let settingsService: AppConfigsInternal;
 
-export async function initializationServices() {
+export async function initializationOfServices(
+  emitter: VueEventBus<GlobalEvents>
+): Promise<void> {
   try {
-    settingsService = await UISettings.makeInternalService();
+    settingsService = await SystemSettings.makeInternalService();
+
+    eventSink = emitter.emit.bind(emitter);
+
+    const sysInfoSrc = new CachedSystemInfo();
+    const appDistInfoSrc = new AppDistInfoChecker();
+    userSystem = {
+      getAppsInfoAndLaunchers: sysInfoSrc.getAppsInfoAndLaunchers.bind(
+        sysInfoSrc
+      ),
+      hasAppPacks: sysInfoSrc.hasAppPacks.bind(sysInfoSrc),
+      getAppDistInfo: appDistInfoSrc.getAppDistInfo.bind(appDistInfoSrc),
+      getBundleDistInfo: appDistInfoSrc.getBundleDistInfo.bind(appDistInfoSrc)
+    };
+
+    const files = new CachedAppFiles();
+    getCachedAppFiles = files.getFileBytes.bind(files);
+
+    appDistInfoSrc.init();
+    sysInfoSrc.init();
+
     console.info('\n--- initializationServices DONE---\n');
   } catch (e) {
     console.error('\nERROR into initializationServices: ', e);
   }
 }
 
-
-export let cacheSystemInfo: {
-  refreshAppVersions(): Promise<number>;
-  getAppLaunchers(): Promise<{
-    cacheTS: number; launchers: CachedAppLaunchers[];
+export let userSystem: {
+  getAppsInfoAndLaunchers(refreshCache?: true): Promise<{
+    cacheTS: number; launchers: CachedAppLaunchers[]; apps: AppInfo[];
   }>;
+  hasAppPacks(): Promise<boolean>;
+  getAppDistInfo(
+    appId: string, forceInfoDownload?: boolean
+  ): Promise<CachedAppDistributionInfo|undefined>
+  getBundleDistInfo(
+    forceInfoDownload?: boolean
+  ): Promise<CachedBundleDistributionInfo|undefined>
+};
+
+export type GlobalEventSink = VueEventBus<GlobalEvents>['emit'];
+let eventSink: GlobalEventSink;
+export function getGlobalEventsSink(): GlobalEventSink {
+  return eventSink as any;
 }
 
 export let getCachedAppFiles: (
   appId: string, version: string, path: string
 ) => Promise<Uint8Array|undefined>;
 
-export async function initServices(): Promise<void> {
-  const sysInfoSrc = new CachedSystemInfo();
-  cacheSystemInfo = {
-    getAppLaunchers: sysInfoSrc.getAppLaunchers.bind(sysInfoSrc),
-    refreshAppVersions: sysInfoSrc.refreshAppVersions.bind(sysInfoSrc)
-  };
-  const files = new CachedAppFiles();
-  getCachedAppFiles = files.getFileBytes.bind(files);
-
-  sysInfoSrc.init();
-}

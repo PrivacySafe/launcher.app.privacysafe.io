@@ -8,8 +8,8 @@
  You should have received a copy of the GNU General Public License along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-export class Updater {
-
-}
-
-export const updater = new Updater();
+export { downloadAndInstallApp } from './downloadAndInstallApp';
+export { installBundledApp } from './installBundledApp';
+export { updateAppsAndLaunchersInfoInStore } from './updateAppsAndLaunchersInfoInStore';
+export { checkForAllUpdates } from './checkForAllUpdates';
+export { checkAndInstallAllUpdates } from './checkAndInstallAllUpdates';

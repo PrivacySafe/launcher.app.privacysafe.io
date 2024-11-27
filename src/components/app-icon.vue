@@ -36,13 +36,13 @@ onBeforeUnmount(() => {
 
 <template>
   <div :class="$style.iconWrapper">
-    <img v-if="iconBytes" :src="url" alt="icon" width="24" height="24" />
+    <img v-if="iconBytes" :src="url" alt="icon" width="32" height="32" />
 
     <ui3n-icon
       v-else
       icon="round-info"
-      width="24"
-      height="24"
+      width="32"
+      height="32"
       color="var(--grey-50)"
     />
   </div>
@@ -51,10 +51,10 @@ onBeforeUnmount(() => {
 <style lang="scss" module>
 .iconWrapper {
   position: relative;
-  width: var(--spacing-ml);
-  min-width: var(--spacing-ml);
-  height: var(--spacing-ml);
-  min-height: var(--spacing-ml);
+  width: var(--spacing-l);
+  min-width: var(--spacing-l);
+  height: var(--spacing-l);
+  min-height: var(--spacing-l);
   border-radius: 50%;
   background-color: var(--grey-15);
   display: flex;

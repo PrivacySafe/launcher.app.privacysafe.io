@@ -23,6 +23,7 @@ declare namespace web3n.system {
 		system?: {
 			apps?: AppsCAPSetting;
 			platform?: 'all';
+			monitor?: 'all';
 		};
 	}
 

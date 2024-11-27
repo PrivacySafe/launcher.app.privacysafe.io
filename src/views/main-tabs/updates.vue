@@ -16,68 +16,34 @@
 -->
 
 <script lang="ts" setup>
-import { computed, inject, onBeforeMount, onBeforeUnmount, ref } from 'vue';
+import { computed, inject, ref } from 'vue';
 import { storeToRefs } from 'pinia';
 import { isEmpty } from 'lodash';
 import {
   I18N_KEY,
   I18nPlugin,
-  NOTIFICATIONS_KEY,
-  NotificationsPlugin,
-  VUEBUS_KEY,
-  VueBusPlugin,
 } from '@v1nt1248/3nclient-lib/plugins';
 import { Ui3nInput, Ui3nProgressCircular } from '@v1nt1248/3nclient-lib';
 import { useAppStore } from '@/store';
-import ApplicationView from '@/components/application-view.vue';
-import { UpdateAndInstallEvents } from '@/types';
+import AppView from '@/components/app-view.vue';
+import PlatformView from '@/components/platform-view.vue';
 
 const { $tr } = inject<I18nPlugin>(I18N_KEY)!;
-const { $emitter } = inject<VueBusPlugin<UpdateAndInstallEvents>>(VUEBUS_KEY)!;
-const { $createNotice } = inject<NotificationsPlugin>(NOTIFICATIONS_KEY)!;
 const appStore = useAppStore();
-const { prepareAppListForInstallAndUpdate } = appStore;
-const { applicationsForInstallAndUpdate } = storeToRefs(appStore);
+const { applicationsInSystem } = storeToRefs(appStore);
 
 const isLoading = ref(false);
 const search = ref('');
 
-const filteredApplicationsForInstallAndUpdate = computed(() => applicationsForInstallAndUpdate.value.filter(a => {
-  if (!search.value.trim()) return true;
-
-  const { manifest } = a;
-  if (!manifest) return applicationsForInstallAndUpdate.value;
-
-  const { name = '' } = manifest;
-  return name.toLowerCase().includes(search.value.trim().toLowerCase());
+const filteredApps = computed(() => applicationsInSystem.value.filter(({
+  name
+}) => {
+  const searchStr = search.value.trim().toLowerCase();
+  return name.toLowerCase().includes(searchStr);
 }));
 
-async function loadData() {
-  try {
-    isLoading.value = true;
-    await prepareAppListForInstallAndUpdate();
-  } catch (err) {
-    console.error('The load information update applications error. ', err);
-    $createNotice({
-      type: 'warning',
-      content: $tr('app.update.load.info.error'),
-    });
-  }
+const showPlatformItem = computed(() => (search.value.trim().length === 0));
 
-  finally {
-    isLoading.value = false;
-  }
-}
-
-$emitter.on('install:complete:next', loadData);
-
-onBeforeMount(async () => {
-  await loadData()
-});
-
-onBeforeUnmount(() => {
-  $emitter.off('install:complete:next', loadData);
-});
 </script>
 
 <template>
@@ -93,19 +59,20 @@ onBeforeUnmount(() => {
     </div>
 
     <div :class="$style.content">
+      <platform-view />
+
       <div
-        v-if="isEmpty(filteredApplicationsForInstallAndUpdate)"
+        v-if="isEmpty(filteredApps)"
         :class="$style.empty"
       >
         {{ $tr('app.list.empty') }}
       </div>
 
       <template v-else>
-        <application-view
-          v-for="app in filteredApplicationsForInstallAndUpdate"
-          :key="app.id"
-          :installed-apps="[]"
-          :application="app"
+        <app-view
+          v-for="app in filteredApps"
+          :key="app.appId"
+          :app-info="app"
         />
       </template>
     </div>

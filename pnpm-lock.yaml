@@ -8,15 +8,21 @@ importers:
 
   .:
     dependencies:
+      '@types/semver':
+        specifier: ^7.5.8
+        version: 7.5.8
       '@v1nt1248/3nclient-lib':
-        specifier: 0.1.29
-        version: 0.1.29(pinia@2.2.2(typescript@5.5.4)(vue@3.5.5(typescript@5.5.4)))(vue@3.5.5(typescript@5.5.4))
+        specifier: 0.1.30
+        version: 0.1.30(pinia@2.2.2(typescript@5.5.4)(vue@3.5.5(typescript@5.5.4)))(vue@3.5.5(typescript@5.5.4))
       lodash:
         specifier: 4.17.21
         version: 4.17.21
       pinia:
         specifier: 2.2.2
         version: 2.2.2(typescript@5.5.4)(vue@3.5.5(typescript@5.5.4))
+      semver:
+        specifier: ^7.6.3
+        version: 7.6.3
       vue:
         specifier: 3.5.5
         version: 3.5.5(typescript@5.5.4)
@@ -946,6 +952,9 @@ packages:
   '@types/responselike@1.0.3':
     resolution: {integrity: sha512-H/+L+UkTV33uf49PH5pCAUBVPNj2nDBXTN+qS1dOwyyg24l3CcicicCA7ca+HMvJBZcFgl5r8e+RR6elsb4Lyw==}
 
+  '@types/semver@7.5.8':
+    resolution: {integrity: sha512-I8EUhyrgfLrcTkzV3TSsGyl1tSuPrEDzr0yd5m90UgNxQkyDXULk3b6MlQqTCpZpNtWe1K0hzclnZkTcLBe2UQ==}
+
   '@types/stack-utils@2.0.3':
     resolution: {integrity: sha512-9aEbYZ3TbYMznPdcdr3SmIrLXwC/AKZXQeCf9Pgao5CKb8CyHuEX5jzWPTkvregvhRJHcpRO6BFoGW9ycaOkYw==}
 
@@ -1079,8 +1088,8 @@ packages:
     resolution: {integrity: sha512-ba0lNI19awqZ5ZNKh6wCModMwoZs457StTebQ0q1NP58zSi2F6MOZRXwfKZy+jB78JNJ/WH8GSh2IQNzXX8Nag==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
-  '@v1nt1248/3nclient-lib@0.1.29':
-    resolution: {integrity: sha512-Lq/YDXbfAg4Ho7S2fB/TfL0j/2q2RD+o81Wcu0v5boK4iUJgmHbGCzKPvqHlJJ0JcfKgdFCLXh5xAeduf8WwAw==}
+  '@v1nt1248/3nclient-lib@0.1.30':
+    resolution: {integrity: sha512-kXtMbWjw6UI8vIU2AqVdr0lBipTVGBNcC/6WN/bd8FOBkwOe8+v9+kNpuuu2+KL0XA2gPvFQH1D/SmeeUZNG4Q==}
     peerDependencies:
       pinia: 2.2.2
       vue: 3.5.5
@@ -5176,6 +5185,8 @@ snapshots:
     dependencies:
       '@types/node': 20.14.2
 
+  '@types/semver@7.5.8': {}
+
   '@types/stack-utils@2.0.3': {}
 
   '@types/strip-bom@3.0.0': {}
@@ -5355,7 +5366,7 @@ snapshots:
       '@typescript-eslint/types': 8.1.0
       eslint-visitor-keys: 3.4.3
 
-  '@v1nt1248/3nclient-lib@0.1.29(pinia@2.2.2(typescript@5.5.4)(vue@3.5.5(typescript@5.5.4)))(vue@3.5.5(typescript@5.5.4))':
+  '@v1nt1248/3nclient-lib@0.1.30(pinia@2.2.2(typescript@5.5.4)(vue@3.5.5(typescript@5.5.4)))(vue@3.5.5(typescript@5.5.4))':
     dependencies:
       '@floating-ui/vue': 1.1.4(vue@3.5.5(typescript@5.5.4))
       dayjs: 1.11.12

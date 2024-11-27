@@ -16,30 +16,37 @@
 -->
 
 <script lang="ts" setup>
-import { computed, onBeforeMount, onBeforeUnmount, ref } from 'vue';
+import { computed, inject, onBeforeMount, ref } from 'vue';
 import { storeToRefs } from 'pinia';
-import { Ui3nButton, Ui3nMenu, Ui3nTabs, Ui3nRipple } from '@v1nt1248/3nclient-lib';
-import { initializationServices } from '@/services';
+import { Ui3nButton, Ui3nMenu, Ui3nTabs, Ui3nRipple as vUi3nRipple } from '@v1nt1248/3nclient-lib';
+import { initializationOfServices } from '@/services';
 import { useAppStore } from '@/store';
-import { mainTabs } from './constants';
 import prLogo from '@/assets/images/privacysafe-logo.svg';
 import ContactIcon from '@/components/contact-icon.vue';
-import AppSettings from '@/components/app-settings.vue';
-import Applications from '@/views/applications/applications.vue';
-import Updates from '@/views/updates/updates.vue';
+import SystemSettings from '@/components/system-settings.vue';
+import Applications from '@/views/main-tabs/applications.vue';
+import Updates from '@/views/main-tabs/updates.vue';
+import { I18N_KEY, I18nPlugin, NOTIFICATIONS_KEY, NotificationsPlugin, VUEBUS_KEY, VueBusPlugin } from '@v1nt1248/3nclient-lib/plugins';
+import { GlobalEvents } from '@/types';
+import { checkAndInstallAllUpdates, checkForAllUpdates, updateAppsAndLaunchersInfoInStore } from '@/ctrl-funcs';
 
-const vUi3nRipple = Ui3nRipple;
+const { $tr } = inject<I18nPlugin>(I18N_KEY)!;
+
+const mainTabs = [
+  { label: 'app.tabs.applications' },
+  { label: 'app.tabs.update' }
+];
 
 const appStore = useAppStore();
 const { user, connectivityStatus } = storeToRefs(appStore);
-const { getAppConfig, getUser, getConnectivityStatus } = appStore;
+const { initAppStore } = appStore;
 
 const currentTab = ref(0);
-const connectivityTimerId = ref<ReturnType<typeof setInterval> | undefined>();
 const isSettingsShow = ref(false);
 
 const connectivityStatusText = computed(() =>
-  connectivityStatus.value === 'online' ? 'app.status.connected.online' : 'app.status.connected.offline',
+  connectivityStatus.value === 'online' ?
+  'app.status.connected.online' : 'app.status.connected.offline'
 );
 
 const appVersion = ref('');
@@ -48,31 +55,81 @@ w3n.myVersion().then(v => {
 });
 
 async function appExit() {
-  w3n.closeSelf!();
+  w3n.closeSelf();
+}
+
+async function checkForUpdate() {
+  try {
+    checkProcIsOn.value = true;
+    $createNotice({
+      content: $tr('update-check.start'),
+      type: 'info'
+    });
+    await checkForAllUpdates(true);
+    let numOfUpdates = appStore.applicationsInSystem
+    .filter(app => !!app.updates).length;
+    if (appStore.platform.availableUpdates) {
+      numOfUpdates += 1;
+    }
+    let content = ((numOfUpdates > 0) ?
+      $tr('update-check.updates-found', { numOfUpdates: `${numOfUpdates}` }) :
+      $tr('update-check.no-updates')
+    );
+    $createNotice({ content, type: 'success' });
+  } finally {
+    checkProcIsOn.value = false;
+  }
+}
+const checkProcIsOn = ref(false);
+
+const { $emitter } = inject<VueBusPlugin<GlobalEvents>>(VUEBUS_KEY)!;
+const { $createNotice } = inject<NotificationsPlugin>(NOTIFICATIONS_KEY)!;
+
+$emitter.once('init-setup:start', ev => $createNotice({
+  content: $tr('system.init-setup-start', {
+    appsList: ev.bundledAppsForInstall.join(', ')
+  }),
+  type: 'info'
+}));
+
+$emitter.once('init-setup:done', ev => $createNotice({
+  content: $tr('system.init-setup-done'),
+  type: 'success'
+}));
+
+const needPlatformRestartAfterUpdate = computed(
+  () => !!appStore.restart?.platform
+);
+
+function quitAndInstall() {
+  w3n.system!.platform!.quitAndInstall();
+}
+
+function triggerOnStart(): void {
+  // trigger, but don't wait here
+  updateAppsAndLaunchersInfoInStore()
+  .then(async () => {
+    if (connectivityStatus.value === 'online') {
+      await checkAndInstallAllUpdates();
+    }
+  });
 }
 
 onBeforeMount(async () => {
   try {
     await Promise.all([
-      initializationServices(),
-
-      getUser(),
-      getAppConfig(),
-      getConnectivityStatus()
+      initializationOfServices($emitter),
+      initAppStore(),
     ]);
 
-    connectivityTimerId.value = setInterval(getConnectivityStatus, 60000);
+    triggerOnStart();
+
   } catch (e) {
-    console.error('MOUNTED ERROR: ', e);
+    console.error('App view mounting error:', e);
     throw e;
   }
 });
 
-onBeforeUnmount(() => {
-  if (connectivityTimerId.value) {
-    clearInterval(connectivityTimerId.value);
-  }
-});
 </script>
 
 <template>
@@ -87,7 +144,9 @@ onBeforeUnmount(() => {
         <div :class="$style.delimiter">/</div>
         <div :class="$style.info">
           {{ $tr('app.title') }}
-          <div :class="$style.version"> {{ $tr('app.version.abbrev') }} {{ appVersion }}</div>
+          <div :class="$style.version">
+            {{ $tr('version', { version: appVersion }) }}
+          </div>
         </div>
       </div>
 
@@ -144,8 +203,7 @@ onBeforeUnmount(() => {
         </div>
       </ui3n-tabs>
 
-      <ui3n-button
-        :class="$style.settingsBtn"
+      <ui3n-button :class=$style.settingsBtn
         type="custom"
         color="var(--color-bg-button-tritery-default)"
         icon="outline-settings"
@@ -153,6 +211,23 @@ onBeforeUnmount(() => {
         icon-color="var(--color-icon-button-tritery-default)"
         @click="isSettingsShow = true"
       />
+
+      <ui3n-button :class=$style.checkUpdates
+        v-if="(currentTab === 0) && needPlatformRestartAfterUpdate"
+        type="tertiary"
+        @click="quitAndInstall"
+      >
+        {{ $tr('btn.restart-platform') }}
+      </ui3n-button>
+
+      <ui3n-button :class=$style.checkUpdates
+        v-if="(currentTab === 1) && (connectivityStatus === 'online')"
+        type="tertiary"
+        :disabled="checkProcIsOn"
+        @click="checkForUpdate"
+      >
+        {{ $tr('btn.check-update') }}
+      </ui3n-button>
     </div>
 
     <div :class="$style.content">
@@ -170,7 +245,7 @@ onBeforeUnmount(() => {
         v-if="isSettingsShow"
         :class="[$style.settings, isSettingsShow && $style.settingsOpened]"
       >
-        <app-settings @close="isSettingsShow = false" />
+        <system-settings @close="isSettingsShow = false" />
       </section>
     </transition>
 
@@ -179,7 +254,7 @@ onBeforeUnmount(() => {
 </template>
 
 <style lang="scss" module>
-@import '../../assets/styles/mixins';
+@import '../assets/styles/mixins';
 
 .app {
   --main-toolbar-height: 72px;
@@ -334,6 +409,14 @@ onBeforeUnmount(() => {
   padding-left: var(--spacing-s) !important;
   position: absolute;
   left: var(--spacing-m);
+}
+
+.checkUpdates {
+  gap: 0 !important;
+  padding-right: var(--spacing-m);
+  padding-left: var(--spacing-m);
+  position: absolute;
+  right: var(--spacing-m);
 }
 
 .content {

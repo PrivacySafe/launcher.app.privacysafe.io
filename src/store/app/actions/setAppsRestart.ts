@@ -8,4 +8,19 @@
  You should have received a copy of the GNU General Public License along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-export const mainTabs = [{ label: 'app.tabs.applications' }, { label: 'app.tabs.update' }];
+import type { AppActions } from '@/store/app/actions/types';
+
+export const setAppsRestart: AppActions['setAppsRestart'] = function (this, ids) {
+  if (ids && (ids.length > 0)) {
+    if (!this.restart) {
+      this.restart = {};
+    }
+    this.restart.apps = ids;
+  } else if (this.restart) {
+    if (this.restart.platform) {
+      delete this.restart.apps;
+    } else {
+      this.restart = null;
+    }
+  }
+};

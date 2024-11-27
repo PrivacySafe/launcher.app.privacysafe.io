@@ -8,18 +8,18 @@
  You should have received a copy of the GNU General Public License along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-import { UISettings } from '@/services/ui-settings';
-import type { AppActions } from '@/store/app/actions/types';
+import { useAppStore } from "@/store";
+import { debouncedFnCall } from "@/utils";
 
-export const getAppConfig: AppActions['getAppConfig'] = async function (this) {
-  try {
-    const config = await UISettings.makeInternalService();
-    const lang = await config.getCurrentLanguage();
-    const colorTheme = await config.getCurrentColorTheme();
-    this.setLang(lang);
-    this.setColorTheme(colorTheme);
-    return config;
-  } catch (e) {
-    console.error('Load the app config error: ', e);
+export const closeOldVersionApps = debouncedFnCall(async () => {
+  const appStore = useAppStore();
+  const appsToClose = appStore.restart?.apps;
+  if (!appsToClose) {
+    return;
   }
-};
+  appStore.setAppsRestart(undefined);
+  if (appsToClose.length === 0) {
+    return;
+  }
+  await w3n.system!.apps!.opener!.closeAppsAfterUpdate(appsToClose);
+});

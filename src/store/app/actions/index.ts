@@ -9,20 +9,20 @@
 */
 
 import type { AppActions } from './types';
-import { getConnectivityStatus } from './getConnectivityStatus';
-import { getUser } from './getUser';
-import { setLang } from './setLang';
+import { refreshConnectivityStatus } from './refreshConnectivityStatus';
 import { setColorTheme } from './setColorTheme';
-import { getAppConfig } from './getAppConfig';
-import { updateAppConfig } from './updateAppConfig';
-import { prepareAppListForInstallAndUpdate } from './prepareAppListForInstallAndUpdate';
+import { initAppStore } from './initAppStore';
+import { updateSettings } from './updateSettings';
+import { getApp } from './getApp';
+import { setAppsRestart } from './setAppsRestart';
+import { setPlatformRestart } from './setPlatformRestart';
 
 export const appActions: AppActions = {
-  getConnectivityStatus,
-  getUser,
-  setLang,
+  initAppStore,
+  updateSettings,
+  refreshConnectivityStatus,
+  getApp,
   setColorTheme,
-  getAppConfig,
-  updateAppConfig,
-  prepareAppListForInstallAndUpdate,
+  setAppsRestart,
+  setPlatformRestart
 };

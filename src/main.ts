@@ -26,14 +26,11 @@ import '@/assets/styles/main.css';
 
 import en from './data/i18/en.json';
 
-import App from '@/views/app/app.vue';
-import { initServices } from './services';
+import App from '@/views/app.vue';
 
 const mode = process.env.NODE_ENV;
 
 function init() {
-  initServices();
-
   const pinia = createPinia();
   pinia.use(storeI18n);
   pinia.use(storeNotifications);

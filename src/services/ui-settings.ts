@@ -9,6 +9,7 @@
 */
 
 import type { AppConfig, AvailableLanguage, AvailableColorTheme } from '@/types';
+import { SingleProc } from '@v1nt1248/3nclient-lib/utils';
 
 export interface AppConfigsInternal {
   getSettingsFile: () => Promise<AppSettings>;
@@ -26,6 +27,7 @@ export interface AppConfigs {
 export interface SettingsJSON {
   lang: AvailableLanguage;
   colorTheme: AvailableColorTheme;
+  autoUpdate: boolean;
 }
 
 export interface AppSettings {
@@ -36,26 +38,42 @@ const resourceName = 'ui-settings';
 const resourceApp = 'launcher.app.privacysafe.io';
 const settingsPath = '/constants/settings.json';
 
-export class UISettings implements AppConfigs, AppConfigsInternal {
-  private constructor(private readonly file: web3n.files.File) {}
+export class SystemSettings implements AppConfigs, AppConfigsInternal {
+
+  private syncProc: SingleProc|undefined = undefined;
+
+  private constructor(
+    private readonly file: web3n.files.File
+  ) {}
 
   static async makeInternalService(): Promise<AppConfigsInternal> {
     // this implicitly initializes resource, and will fail if it isn't launcher
     await w3n.shell!.getFSResource!(undefined, resourceName);
     const localStore = await w3n.storage!.getAppLocalFS!();
     const file = await localStore.writableFile(settingsPath);
-    return new UISettings(file);
+    if (file.isNew) {
+      const defaultSettings = await (await fetch(settingsPath)).json();
+      await file.writeJSON(defaultSettings);
+    }
+    return new SystemSettings(file);
   }
 
   static async makeResourceReader(): Promise<AppConfigs> {
-    console.log('makeResourceReader!');
     const file = await w3n.shell!.getFSResource!(resourceApp, resourceName);
-    return new UISettings(file as web3n.files.ReadonlyFile);
+    return new SystemSettings(file as web3n.files.ReadonlyFile);
   }
 
-  private get writableFile(): web3n.files.WritableFile {
+  private get writableFile(): {
+    file: web3n.files.WritableFile; syncProc: SingleProc;
+  } {
     if (this.file.writable) {
-      return this.file as web3n.files.WritableFile;
+      if (!this.syncProc) {
+        this.syncProc = new SingleProc();
+      }
+      return {
+        file: this.file as web3n.files.WritableFile,
+        syncProc: this.syncProc
+      };
     } else {
       throw Error(`This instance can only read ${resourceName} file resource provided by ${resourceApp}`);
     }
@@ -68,7 +86,8 @@ export class UISettings implements AppConfigs, AppConfigsInternal {
 
   async saveSettingsFile(data: AppSettings): Promise<void> {
     const settingsJSON = data.currentConfig as SettingsJSON;
-    await this.writableFile.writeJSON(settingsJSON);
+    const { file, syncProc } = this.writableFile;
+    await syncProc.startOrChain(() => file.writeJSON(settingsJSON));
   }
 
   async getCurrentLanguage(): Promise<AvailableLanguage> {

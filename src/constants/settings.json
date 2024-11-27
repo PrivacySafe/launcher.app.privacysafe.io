@@ -1,4 +1,5 @@
 {
 	"lang": "en",
-	"colorTheme": "dark"
+	"colorTheme": "dark",
+	"autoUpdate": true
 }

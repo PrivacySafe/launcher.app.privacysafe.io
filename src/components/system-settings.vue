@@ -20,11 +20,10 @@ import { useAppStore } from '@/store';
 import { Ui3nButton, Ui3nRadio, Ui3nSwitch } from '@v1nt1248/3nclient-lib';
 import { storeToRefs } from 'pinia';
 import { AVAILABLE_THEMES, AVAILABLE_LANGS } from '@/constants';
-import { ref } from 'vue';
 
 const appStore = useAppStore();
-const { updateAppConfig } = appStore;
-const { colorTheme, lang } = storeToRefs(appStore);
+const { updateSettings: updateAppConfig } = appStore;
+const { colorTheme, lang, autoUpdate } = storeToRefs(appStore);
 
 function changeColorTheme(isDarkColorTheme: boolean) {
   updateAppConfig({
@@ -32,14 +31,11 @@ function changeColorTheme(isDarkColorTheme: boolean) {
   });
 }
 
-const autoupdatesEnabled = ref(true);
-
 function toggleAutoUpdateAndApply() {
-  autoupdatesEnabled.value = !autoupdatesEnabled.value;
-
-  // XXX updater service params
-  console.log(`🏗️ need to pass autoupdate flag value ${autoupdatesEnabled.value} to updater service`);
-
+  autoUpdate.value = !autoUpdate.value;
+  updateAppConfig({
+    autoUpdate: autoUpdate.value
+  });
 }
 
 const emits = defineEmits<{
@@ -50,7 +46,7 @@ const emits = defineEmits<{
 <template>
   <section :class="$style.appSettings">
     <div :class="$style.toolbar">
-      {{ $tr('app.settings.title') }}
+      {{ $tr('settings.title') }}
       <ui3n-button
         :class="$style.close"
         type="icon"
@@ -66,11 +62,11 @@ const emits = defineEmits<{
 
       <div :class="$style.row">
         <div :class="$style.rowHeader">
-          {{ $tr('app.settings.visualisation') }}
+          {{ $tr('settings.section.appearance') }}
         </div>
         <div :class="$style.rowBody">
           <div :class="$style.rowBodyLabel">
-            {{ $tr('app.settings.label.theme') }}
+            {{ $tr('settings.label.theme') }}
           </div>
 
           <div :class="$style.rowBodyValue">
@@ -86,12 +82,9 @@ const emits = defineEmits<{
       </div>
 
       <div :class="$style.row">
-        <div :class="$style.rowHeader">
-          {{ $tr('app.settings.account.settings') }}
-        </div>
         <div :class="$style.rowBody">
           <div :class="$style.rowBodyLabel">
-            {{ $tr('app.settings.label.language') }}
+            {{ $tr('settings.label.language') }}
           </div>
 
           <div :class="$style.rowBodyValue">
@@ -105,24 +98,28 @@ const emits = defineEmits<{
               {{ AVAILABLE_LANGS[lang].label }}
             </ui3n-radio>
           </div>
+
+
         </div>
       </div>
 
       <div :class="$style.row">
         <div :class="$style.rowHeader">
-          {{ $tr('app.settings.updates') }}
+          {{ $tr('settings.updates') }}
         </div>
         <div :class="$style.rowBody">
           <div :class="$style.rowBodyLabel">
-            {{ $tr('app.settings.label.autoupdates') }}
+            {{ $tr('settings.label.autoupdates') }}
           </div>
 
           <div :class="$style.rowBodyValue">
+            <span>{{ $tr('settings.label.off') }}</span>
             <ui3n-switch
               size="16"
-              :modelValue=autoupdatesEnabled
+              :modelValue=autoUpdate
               @change=toggleAutoUpdateAndApply
             />
+            <span>{{ $tr('settings.label.on') }}</span>
           </div>
         </div>
       </div>

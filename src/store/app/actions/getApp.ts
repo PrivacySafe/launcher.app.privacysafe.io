@@ -8,13 +8,12 @@
  You should have received a copy of the GNU General Public License along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-import type { AppActions } from './types';
-import type { ConnectivityStatus } from '@/types';
+import type { AppActions } from '@/store/app/actions/types';
 
-export const getConnectivityStatus: AppActions['getConnectivityStatus'] = async function (this) {
-  const status = await w3n.connectivity!.isOnline();
-  if (status) {
-    const parsedStatus = status.split('_');
-    this.connectivityStatus = parsedStatus[0] as ConnectivityStatus;
+export const getApp: AppActions['getApp'] = function (this, appId) {
+  const app = this.applicationsInSystem.find(({ appId: id }) => (id === appId));
+  if (!app) {
+    throw new Error(`Can't find app wit id ${appId}`);
   }
+  return app;
 };

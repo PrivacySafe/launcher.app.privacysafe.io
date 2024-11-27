@@ -1,14 +1,14 @@
 {
   "name": "Apps Launcher",
   "appDomain": "launcher.app.privacysafe.io",
-  "version": "0.7.7",
+  "version": "0.8.6",
   "components": {
     "/index.html": {
       "startedBy": "user",
       "runtime": "web-gui",
       "capsRequested": {
         "logout": "all",
-        "log": "all",
+        "logToPlatform": true,
         "mailerid": true,
         "storage": {
           "appFS": [
@@ -28,14 +28,15 @@
         "connectivity": "check",
         "system": {
           "apps": "all",
-          "platform": "all"
+          "platform": "all",
+          "monitor": "all"
         }
       },
       "windowOpts": {
         "width": 800,
         "height": 700,
-        "minWidth": 800,
-        "minHeight": 600,
+        "minWidth": 480,
+        "minHeight": 400,
         "maxWidth": 1000
       },
       "icon": "logo.png"

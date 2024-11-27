@@ -10,19 +10,13 @@
 
 import type { AvailableColorTheme, AvailableLanguage } from '@/types';
 
-export const All_PRIVACYSAFE_APPLICATIONS = [
-  'contacts.app.privacysafe.io',
-  'chat.app.privacysafe.io',
-  'files.app.privacysafe.io',
-];
-
 export const AVAILABLE_THEMES: Record<AvailableColorTheme, { label: string; cssClass: string }> = {
   default: {
-    label: 'app.color.theme.light',
+    label: 'settings.theme.light',
     cssClass: 'default-theme',
   },
   dark: {
-    label: 'app.color.theme.dark',
+    label: 'settings.theme.dark',
     cssClass: 'dark-theme',
   },
 };
@@ -30,3 +24,5 @@ export const AVAILABLE_THEMES: Record<AvailableColorTheme, { label: string; cssC
 export const AVAILABLE_LANGS: Record<AvailableLanguage, { value: AvailableLanguage; label: string }> = {
   en: { value: 'en', label: 'English' },
 };
+
+export const UPDATE_INFO_CACHE_TTL_SECONDS = 12*60*60;
