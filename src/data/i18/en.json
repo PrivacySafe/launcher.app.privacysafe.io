@@ -5,10 +5,14 @@
   "app.status.connected.online": "online",
   "app.status.connected.offline": "offline",
   "app.exit": "Exit",
+
   "app.tabs.applications": "Applications",
   "app.tabs.update": "Add & Update",
+
   "btn.check-update": "Check for Updates",
+  "btn.checking-for-update": "Checking for Updates",
   "btn.restart-platform": "Restart to Update",
+
   "settings.title": "settings",
   "settings.section.appearance": "Appearance",
   "settings.updates": "Updates",

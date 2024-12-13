@@ -226,7 +226,10 @@ onBeforeMount(async () => {
         :disabled="checkProcIsOn"
         @click="checkForUpdate"
       >
-        {{ $tr('btn.check-update') }}
+        {{ checkProcIsOn ?
+          $tr('btn.checking-for-update') :
+          $tr('btn.check-update')
+        }}
       </ui3n-button>
     </div>
 

@@ -34,7 +34,7 @@ export const downloadPlatformUpdate = debouncedFnCall(async (
         if (ev.event === 'download-progress') {
           procsStore.upsertProcess(null, {
             procType: 'downloading', version: newBundleVersion,
-            progressValue: ev.info.percent
+            progressValue: Math.floor(ev.info.percent)
           });
           appStore.platform.updateInProcess!.progress = ev.info;
         }
