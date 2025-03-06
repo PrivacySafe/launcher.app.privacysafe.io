@@ -289,6 +289,7 @@ onBeforeMount(async () => {
   position: relative;
   top: -2px;
   margin-right: var(--spacing-m);
+  height: var(--spacing-l);
 }
 
 .delimiter {
