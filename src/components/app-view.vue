@@ -23,14 +23,11 @@ import {
   I18nPlugin,
 } from '@v1nt1248/3nclient-lib/plugins';
 import { Ui3nButton, Ui3nProgressCircular } from '@v1nt1248/3nclient-lib';
-import { useAppStore, useProcessStore } from '@/store';
 import { AppInfo } from '@/types';
 import AppIcon from './app-icon.vue';
 import AppItemArea from './app-item-area.vue';
-import { installBundledApp, updateAppsAndLaunchersInfoInStore } from '@/ctrl-funcs';
-import { downloadAndInstallApp } from '@/ctrl-funcs';
-import { updateVersionIn } from '@/utils';
-import { closeOldVersionApps } from '@/ctrl-funcs/closeOldVersionApps';
+import { updateVersionIn } from '@/utils/versions';
+import { useAppsStore } from '@/store/apps.store';
 
 const props = defineProps<{
   appInfo: AppInfo;
@@ -39,14 +36,15 @@ const { appId } = props.appInfo;
 
 const { $tr } = inject<I18nPlugin>(I18N_KEY)!;
 
-const appStore = useAppStore();
-const { restart } = storeToRefs(appStore);
+const appsStore = useAppsStore();
+const {
+  downloadAndInstallApp, installBundledApp, closeOldVersionApps,
+  updateAppsAndLaunchersInfo
+} = appsStore;
+const { restart, processes } = storeToRefs(appsStore);
 const needToCloseOldVersion = computed(
   () => !!restart.value?.apps?.includes(appId)
 );
-
-const processStore = useProcessStore();
-const { processes } = storeToRefs(processStore);
 const appProcesses = computed(() => processes.value[appId]);
 
 const installProc = computed(() => appProcesses.value?.find(
@@ -77,10 +75,10 @@ async function update() {
     if (isBundledVersion) {
       await installBundledApp(appId, version);
     } else {
-      await downloadAndInstallApp(props.appInfo, version, processStore);
+      await downloadAndInstallApp(props.appInfo, version);
     }
   } finally {
-    await updateAppsAndLaunchersInfoInStore();
+    await updateAppsAndLaunchersInfo();
   }
 }
 

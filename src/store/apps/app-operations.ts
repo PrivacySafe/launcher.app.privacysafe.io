@@ -8,16 +8,18 @@
  You should have received a copy of the GNU General Public License along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-import { ProcessStore } from "@/store/process/types";
+import { ProcessesPlace } from "@/store/apps/processes";
 import { defer } from "@v1nt1248/3nclient-lib/utils";
 
 type PostInstallState = web3n.system.apps.PostInstallState;
 
 export async function installApp(
-  appId: string, version: string, procsStore: ProcessStore,
+  appId: string, version: string,
+  delProcess: ProcessesPlace['delProcess'],
+  upsertProcess: ProcessesPlace['upsertProcess']
 ): Promise<PostInstallState> {
   try {
-    procsStore.upsertProcess(appId, {
+    upsertProcess(appId, {
       procType: 'installing', version
     });
     const postInstallState = await w3n.system!.apps!.installer!.installApp(
@@ -27,22 +29,24 @@ export async function installApp(
   } catch  (err) {
     throw err;
   } finally {
-    procsStore.delProcess(appId, 'installing');
+    delProcess(appId, 'installing');
   }
 }
 
 export async function downloadApp(
-  appId: string, version: string, procsStore: ProcessStore,
+  appId: string, version: string,
+  delProcess: ProcessesPlace['delProcess'],
+  upsertProcess: ProcessesPlace['upsertProcess']
 ): Promise<void> {
   const deferred = defer<void>();
-  procsStore.upsertProcess(appId, {
+  upsertProcess(appId, {
     procType: 'downloading', version, progressValue: 0
   });
   w3n.system!.apps!.downloader!.downloadWebApp(appId, version, {
     next: ev => {
       const { totalBytes, bytesLeft } = ev;
       const progressValue = Math.floor((totalBytes - bytesLeft)/totalBytes*100);
-      procsStore.upsertProcess(appId, {
+      upsertProcess(appId, {
         procType: 'downloading', version, progressValue
       });
     },
@@ -54,6 +58,6 @@ export async function downloadApp(
   try {
     await deferred.promise;
   } finally {
-    procsStore.delProcess(appId, 'downloading');
+    delProcess(appId, 'downloading');
   }
 }

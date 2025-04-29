@@ -24,23 +24,22 @@ import {
   I18nPlugin,
 } from '@v1nt1248/3nclient-lib/plugins';
 import { Ui3nInput, Ui3nProgressCircular } from '@v1nt1248/3nclient-lib';
-import { useAppStore } from '@/store';
+import { useAppsStore } from '@/store/apps.store';
 import AppView from '@/components/app-view.vue';
 import PlatformView from '@/components/platform-view.vue';
 
 const { $tr } = inject<I18nPlugin>(I18N_KEY)!;
-const appStore = useAppStore();
-const { applicationsInSystem } = storeToRefs(appStore);
+const { applicationsInSystem } = storeToRefs(useAppsStore());
 
 const isLoading = ref(false);
 const search = ref('');
 
-const filteredApps = computed(() => applicationsInSystem.value.filter(({
-  name
-}) => {
-  const searchStr = search.value.trim().toLowerCase();
-  return name.toLowerCase().includes(searchStr);
-}));
+const filteredApps = computed(() => applicationsInSystem.value
+  .filter(({ name }) => {
+    const searchStr = search.value.trim().toLowerCase();
+    return name.toLowerCase().includes(searchStr);
+  })
+);
 
 const showPlatformItem = computed(() => (search.value.trim().length === 0));
 

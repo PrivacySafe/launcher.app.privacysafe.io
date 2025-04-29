@@ -27,7 +27,6 @@ export interface AppConfigs {
 export interface SettingsJSON {
   lang: AvailableLanguage;
   colorTheme: AvailableColorTheme;
-  autoUpdate: boolean;
 }
 
 export interface AppSettings {

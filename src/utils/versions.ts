@@ -9,7 +9,6 @@
 */
 
 import { AppInfo } from "@/types";
-import { NamedProcs, SingleProc } from "@v1nt1248/3nclient-lib/utils";
 import { compare as compareSemVer } from 'semver';
 
 export function userNameFromUserId(userId: string): string {
@@ -52,33 +51,6 @@ export function updateVersionIn(
     return { version: verOnServer, isBundledVersion: false };
   } else {
     return { version: updateFromBundle, isBundledVersion: true };
-  }
-}
-
-export function debouncedFnCall<T extends Function>(
-  func: T, callKeyGen?: (...args: any[]) => string
-): T {
-  if (callKeyGen) {
-    const procs = new NamedProcs();
-    return ((...args: any[]) => {
-      const callKey = callKeyGen(...args);
-      const inProgress = procs.getP<void>(callKey);
-      if (inProgress) {
-        return inProgress;
-      } else {
-        return procs.addStarted(callKey, func.apply(undefined, args));
-      }
-    }) as any as T;
-  } else {
-    const proc = new SingleProc();
-    return ((...args: any[]) => {
-      const inProgress = proc.getP<void>();
-      if (inProgress) {
-        return inProgress;
-      } else {
-        return proc.addStarted(func.apply(undefined, args));
-      }
-    }) as any as T;
   }
 }
 

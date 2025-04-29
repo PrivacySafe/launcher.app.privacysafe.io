@@ -9,41 +9,20 @@
 */
 
 import { userSystem } from "@/services";
-import { useAppStore, useProcessStore } from "@/store";
-import { AppStore } from "@/store/app/types";
-import { ProcessStore } from "@/store/process/types";
 import { AppInfo, ChannelVersion } from "@/types";
-import { debouncedFnCall } from "@/utils";
 import { compare as compareSemVer } from 'semver';
+import { ProcessesPlace } from "./processes";
+import { AppsStore } from "../apps.store";
 
 type BundleVersions = web3n.system.platform.BundleVersions;
 
-/**
- * This "controller" function checks all installed apps for updates.
- * It updates apps' info in AppStore.
- */
-export const checkForAllUpdates = debouncedFnCall(async (
-  forceInfoDownload = false
-): Promise<void> => {
-
-  const appStore = useAppStore();
-  const processStore = useProcessStore();
-
-  const installedApps = appStore.applicationsInSystem
-  .filter(({ versions: { current } }) => !!current);
-  for (const app of installedApps) {
-    await checkAppUpdates(app, processStore, forceInfoDownload);
-  }
-
-  await checkPlatformUpdates(appStore, processStore, forceInfoDownload);
-
-});
-
-async function checkAppUpdates(
-  app: AppInfo, processStore: ProcessStore, forceInfoDownload: boolean
+export async function checkAppUpdates(
+  app: AppInfo, forceInfoDownload: boolean,
+  delProcess: ProcessesPlace['delProcess'],
+  upsertProcess: ProcessesPlace['upsertProcess'],
 ): Promise<void> {
   const { appId, versions: { latest: current } } = app;
-  processStore.upsertProcess(appId, {
+  upsertProcess(appId, {
     procType: 'update-checking'
   });
   try {
@@ -67,14 +46,16 @@ async function checkAppUpdates(
     }
 
   } finally {
-    processStore.delProcess(appId, 'update-checking');
+    delProcess(appId, 'update-checking');
   }
 }
 
-async function checkPlatformUpdates(
-  appStore: AppStore, processStore: ProcessStore, forceInfoDownload: boolean
+export async function checkPlatformUpdates(
+  platform: AppsStore['platform'], forceInfoDownload: boolean,
+  delProcess: ProcessesPlace['delProcess'],
+  upsertProcess: ProcessesPlace['upsertProcess'],
 ): Promise<void> {
-  processStore.upsertProcess(null, {
+  upsertProcess(null, {
     procType: 'update-checking'
   });
   try {
@@ -94,11 +75,11 @@ async function checkPlatformUpdates(
       }
     }
     if (updateOpts.length > 0) {
-      appStore.platform.availableUpdates = updateOpts;
+      platform.availableUpdates = updateOpts;
     }
 
   } finally {
-    processStore.delProcess(null, 'update-checking');
+    delProcess(null, 'update-checking');
   }
 }
 

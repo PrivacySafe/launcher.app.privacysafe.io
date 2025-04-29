@@ -55,14 +55,8 @@ onBeforeUnmount(() => {
   min-width: var(--spacing-l);
   height: var(--spacing-l);
   min-height: var(--spacing-l);
-  border-radius: 50%;
-  background-color: var(--grey-15);
   display: flex;
   justify-content: center;
   align-items: center;
-
-  img {
-    border-radius: 50%;
-  }
 }
 </style>

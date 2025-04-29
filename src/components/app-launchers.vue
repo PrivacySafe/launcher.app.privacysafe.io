@@ -19,26 +19,22 @@
 import { computed } from 'vue';
 import { storeToRefs } from 'pinia';
 import { Ui3nButton, Ui3nProgressCircular } from '@v1nt1248/3nclient-lib';
-import { useAppStore, useProcessStore } from '@/store';
 import { AppLaunchers, Launcher } from '@/types';
 import AppIcon from './app-icon.vue';
 import ApplicationItemArea from './app-item-area.vue';
-import { closeOldVersionApps } from '@/ctrl-funcs/closeOldVersionApps';
+import { useAppsStore } from '@/store/apps.store';
 
 const props = defineProps<{
   launchers: AppLaunchers;
 }>();
 const appId = props.launchers.appId;
 
-const appStore = useAppStore();
-const { restart } = storeToRefs(appStore);
+const appsStore = useAppsStore();
+const { closeOldVersionApps } = appsStore;
+const { restart, processes } = storeToRefs(appsStore);
 const needToCloseOldVersion = computed(
   () => !!restart.value?.apps?.includes(appId)
 );
-
-const processStore = useProcessStore();
-const { processes } = storeToRefs(processStore);
-
 const appProcesses = computed(() => processes.value[ appId ]);
 
 const canBeLaunched = computed(() => (

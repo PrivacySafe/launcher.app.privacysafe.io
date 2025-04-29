@@ -1,5 +1,5 @@
 <!--
- Copyright (C) 2024 3NSoft Inc.
+ Copyright (C) 2024 - 2025 3NSoft Inc.
 
  This program is free software: you can redistribute it and/or modify it under
  the terms of the GNU General Public License as published by the Free Software
@@ -24,25 +24,23 @@ import {
 } from '@v1nt1248/3nclient-lib/plugins';
 import { Ui3nButton, Ui3nProgressCircular } from '@v1nt1248/3nclient-lib';
 import psIcon from '@/assets/images/platform-icon.png';
-import { useAppStore, useProcessStore } from '@/store';
 import AppItemArea from './app-item-area.vue';
-import { PLATFORM_ID } from '@/store/process';
-import { downloadPlatformUpdate } from '@/ctrl-funcs/downloadPlatform';
+import { PLATFORM_ID } from '@/store/apps/processes';
+import { useAppsStore } from '@/store/apps.store';
 
 const { $tr } = inject<I18nPlugin>(I18N_KEY)!;
 
-const processStore = useProcessStore();
-const { processes } = storeToRefs(processStore);
 const platformProc = computed(() => processes.value[PLATFORM_ID]);
 
 const downloadProc = computed(() => platformProc.value?.find(
   ({ procType }) => (procType === 'downloading')
 ));
 
-const appStore = useAppStore();
-const { platform } = storeToRefs(appStore);
+const appsStore = useAppsStore();
+const { platform, restart, processes } = storeToRefs(appsStore);
+const { downloadPlatformUpdate } = appsStore;
 
-const needToRestartAfterUpdate = computed(() => !!appStore.restart?.platform);
+const needToRestartAfterUpdate = computed(() => !!restart.value?.platform);
 
 const canBeUpdated = computed(() => (
   !platformProc.value && !!platform.value.availableUpdates &&
@@ -50,7 +48,7 @@ const canBeUpdated = computed(() => (
 ));
 
 async function update() {
-  await downloadPlatformUpdate(appStore, processStore);
+  await downloadPlatformUpdate();
 }
 
 function quitAndInstall() {

@@ -1,13 +1,15 @@
 {
-  "name": "Apps Launcher",
+  "name": "Dashboard",
   "appDomain": "launcher.app.privacysafe.io",
-  "version": "0.8.11",
+  "version": "0.9.5",
+  "icon": "logo.png",
+  "description": "Dashboard/Launcher manages and launches your apps.",
+
   "components": {
     "/index.html": {
       "startedBy": "user",
       "runtime": "web-gui",
       "capsRequested": {
-        "logout": "all",
         "logToPlatform": true,
         "mailerid": true,
         "storage": {
@@ -29,7 +31,8 @@
         "system": {
           "apps": "all",
           "platform": "all",
-          "monitor": "all"
+          "monitor": "all",
+          "logout": true
         }
       },
       "windowOpts": {
@@ -38,8 +41,7 @@
         "minWidth": 480,
         "minHeight": 400,
         "maxWidth": 1000
-      },
-      "icon": "logo.png"
+      }
     }
   },
   "exposedFSResources": {

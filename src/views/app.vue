@@ -1,5 +1,5 @@
 <!--
- Copyright (C) 2024 3NSoft Inc.
+ Copyright (C) 2024 - 2025 3NSoft Inc.
 
  This program is free software: you can redistribute it and/or modify it under
  the terms of the GNU General Public License as published by the Free Software
@@ -16,124 +16,38 @@
 -->
 
 <script lang="ts" setup>
-import { computed, inject, onBeforeMount, ref } from 'vue';
-import { storeToRefs } from 'pinia';
+import { onBeforeMount, onBeforeUnmount, ref } from 'vue';
 import { Ui3nButton, Ui3nMenu, Ui3nTabs, Ui3nRipple as vUi3nRipple } from '@v1nt1248/3nclient-lib';
-import { initializationOfServices } from '@/services';
-import { useAppStore } from '@/store';
 import prLogo from '@/assets/images/privacysafe-logo.svg';
 import ContactIcon from '@/components/contact-icon.vue';
 import SystemSettings from '@/components/system-settings.vue';
 import Applications from '@/views/main-tabs/applications.vue';
 import Updates from '@/views/main-tabs/updates.vue';
-import { I18N_KEY, I18nPlugin, NOTIFICATIONS_KEY, NotificationsPlugin, VUEBUS_KEY, VueBusPlugin } from '@v1nt1248/3nclient-lib/plugins';
-import { GlobalEvents } from '@/types';
-import { checkAndInstallAllUpdates, checkForAllUpdates, updateAppsAndLaunchersInfoInStore } from '@/ctrl-funcs';
-
-const { $tr } = inject<I18nPlugin>(I18N_KEY)!;
+import { useAppView } from './useAppView';
 
 const mainTabs = [
   { label: 'app.tabs.applications' },
   { label: 'app.tabs.update' }
 ];
-
-const appStore = useAppStore();
-const { user, connectivityStatus } = storeToRefs(appStore);
-const { initAppStore } = appStore;
-
 const currentTab = ref(0);
 const isSettingsShow = ref(false);
 
-const connectivityStatusText = computed(() =>
-  connectivityStatus.value === 'online' ?
-  'app.status.connected.online' : 'app.status.connected.offline'
-);
+const {
+  appElement, appVersion, user, connectivityStatus, connectivityStatusText,
+  needPlatformRestartAfterUpdate, checkProcIsOn,
+  appExit, quitAndInstall, checkForUpdate,
+  doBeforeMount, doBeforeUnmount
+} = useAppView();
 
-const appVersion = ref('');
-w3n.myVersion().then(v => {
-  appVersion.value = v;
-});
-
-async function appExit() {
-  w3n.closeSelf();
-}
-
-async function checkForUpdate() {
-  try {
-    checkProcIsOn.value = true;
-    $createNotice({
-      content: $tr('update-check.start'),
-      type: 'info'
-    });
-    await checkForAllUpdates(true);
-    let numOfUpdates = appStore.applicationsInSystem
-    .filter(app => !!app.updates).length;
-    if (appStore.platform.availableUpdates) {
-      numOfUpdates += 1;
-    }
-    let content = ((numOfUpdates > 0) ?
-      $tr('update-check.updates-found', { numOfUpdates: `${numOfUpdates}` }) :
-      $tr('update-check.no-updates')
-    );
-    $createNotice({ content, type: 'success' });
-  } finally {
-    checkProcIsOn.value = false;
-  }
-}
-const checkProcIsOn = ref(false);
-
-const { $emitter } = inject<VueBusPlugin<GlobalEvents>>(VUEBUS_KEY)!;
-const { $createNotice } = inject<NotificationsPlugin>(NOTIFICATIONS_KEY)!;
-
-$emitter.once('init-setup:start', ev => $createNotice({
-  content: $tr('system.init-setup-start', {
-    appsList: ev.bundledAppsForInstall.join(', ')
-  }),
-  type: 'info'
-}));
-
-$emitter.once('init-setup:done', ev => $createNotice({
-  content: $tr('system.init-setup-done'),
-  type: 'success'
-}));
-
-const needPlatformRestartAfterUpdate = computed(
-  () => !!appStore.restart?.platform
-);
-
-function quitAndInstall() {
-  w3n.system!.platform!.quitAndInstall();
-}
-
-function triggerOnStart(): void {
-  // trigger, but don't wait here
-  updateAppsAndLaunchersInfoInStore()
-  .then(async () => {
-    if (connectivityStatus.value === 'online') {
-      await checkAndInstallAllUpdates();
-    }
-  });
-}
-
-onBeforeMount(async () => {
-  try {
-    await Promise.all([
-      initializationOfServices($emitter),
-      initAppStore(),
-    ]);
-
-    triggerOnStart();
-
-  } catch (e) {
-    console.error('App view mounting error:', e);
-    throw e;
-  }
-});
-
+onBeforeMount(doBeforeMount);
+onBeforeUnmount(doBeforeUnmount);
 </script>
 
 <template>
-  <div :class="$style.app">
+  <div
+    ref="appElement"
+    :class="$style.app"
+  >
     <div :class="$style.toolbar">
       <div :class="$style.toolbarTitle">
         <img

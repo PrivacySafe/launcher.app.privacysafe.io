@@ -22,17 +22,16 @@ import {
   I18N_KEY,
   I18nPlugin,
 } from '@v1nt1248/3nclient-lib/plugins';
-import { useAppStore, useProcessStore } from '@/store';
 import AppLaunchers from '@/components/app-launchers.vue';
 import AppView from '@/components/app-view.vue';
+import { useAppsStore } from '@/store/apps.store';
 
 const { $tr } = inject<I18nPlugin>(I18N_KEY)!;
 
-const appStore = useAppStore();
-const { appLaunchers, applicationsInSystem: allApps } = storeToRefs(appStore);
-
-const procsStore = useProcessStore();
-const { processes } = storeToRefs(procsStore);
+const appsStore = useAppsStore();
+const {
+  appLaunchers, applicationsInSystem, processes
+} = storeToRefs(appsStore);
 
 const newApps = computed(
   () => Object.entries(processes.value)
@@ -44,7 +43,9 @@ const newApps = computed(
       (procType === 'installing')
     )
   ))
-  .map(([ appId ]) => allApps.value.find(app => (app.appId === appId))!)
+  .map(([ appId ]) => applicationsInSystem.value.find(
+    app => (app.appId === appId)
+  )!)
   .filter(app => !!app)
 );
 
