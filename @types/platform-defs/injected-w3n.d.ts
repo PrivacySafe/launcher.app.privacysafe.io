@@ -15,6 +15,6 @@
  this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-/// <reference path="./system/system.d.ts" />
+/// <reference path="./w3n.d.ts" />
 
-declare const w3n: web3n.system.W3N;
+declare const w3n: web3n.caps.W3N;

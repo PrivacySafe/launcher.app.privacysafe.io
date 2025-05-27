@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2021 - 2022, 2024 3NSoft Inc.
+ Copyright (C) 2021 - 2022, 2024 - 2025 3NSoft Inc.
 
  This program is free software: you can redistribute it and/or modify it under
  the terms of the GNU General Public License as published by the Free Software
@@ -24,6 +24,7 @@ declare namespace web3n.system {
 			apps?: AppsCAPSetting;
 			platform?: 'all';
 			monitor?: 'all';
+			logout?: true;
 		};
 	}
 

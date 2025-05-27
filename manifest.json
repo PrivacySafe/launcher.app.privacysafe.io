@@ -1,12 +1,12 @@
 {
   "name": "Dashboard",
   "appDomain": "launcher.app.privacysafe.io",
-  "version": "0.9.5",
+  "version": "0.9.7",
   "icon": "logo.png",
   "description": "Dashboard/Launcher manages and launches your apps.",
 
   "components": {
-    "/index.html": {
+    "/index-desktop.html": {
       "startedBy": "user",
       "runtime": "web-gui",
       "capsRequested": {
@@ -42,8 +42,48 @@
         "minHeight": 400,
         "maxWidth": 1000
       }
+    },
+
+    "/index-mobile.html": {
+      "startedBy": "user",
+      "runtime": "web-gui",
+      "capsRequested": {
+        "logToPlatform": true,
+        "mailerid": true,
+        "storage": {
+          "appFS": [
+            {
+              "domain": "launcher.app.privacysafe.io",
+              "storage": "local"
+            }
+          ]
+        },
+        "shell": {
+          "fileDialog": "all",
+          "userNotifications": true,
+          "fsResource": {
+            "thisApp": "ui-settings"
+          }
+        },
+        "connectivity": "check",
+        "system": {
+          "apps": "all",
+          "platform": "all",
+          "monitor": "all",
+          "logout": true
+        }
+      },
+      "windowOpts": {
+        "width": 360,
+        "height": 768,
+        "minWidth": 360,
+        "minHeight": 768,
+        "maxWidth": 360,
+        "maxHeight": 768
+      }
     }
   },
+
   "exposedFSResources": {
     "ui-settings": {
       "allow": {
@@ -55,5 +95,23 @@
       "itemType": "file",
       "initValueSrc": "/constants/settings.json"
     }
-  }
+  },
+
+  "launchers": [
+    {
+      "name": "Dashboard",
+      "icon": "logo.png",
+      "description": "Dashboard/Launcher manages and launches your apps.",
+      "component": "/index.html",
+      "formFactor": "desktop"
+    },
+    {
+      "name": "Dashboard",
+      "icon": "logo.png",
+      "description": "Dashboard/Launcher manages and launches your apps.",
+      "component": "/index-mobile.html",
+      "formFactor": "phone"
+    }
+  ]
+
 }

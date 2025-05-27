@@ -27,14 +27,14 @@ declare namespace web3n.system.apps {
 	/**
 	 * Apps CAP allows opening apps and modification of what is installed in
 	 * "user's system".
-	 *
+	 * 
 	 * User's system's synchronized storage has standard system folders:
 	 *  - 'App&Lib Packs' contains packs/folders with different apps' versions.
 	 *  - 'Apps Code' is a folder from which app's components' code is loaded to
 	 *    run in respective runtimes. Every app can have only one version
 	 *    "installed". And "install" is implemented by linking a respective
 	 *    app version from packs into code folders tree.
-	 *
+	 * 
 	 * In addition, platform distribution can come with bundled zipped app packs
 	 * that simplify first time system setup.
 	 * Platform also comes with unzipped bundled apps for startup and launcher,
