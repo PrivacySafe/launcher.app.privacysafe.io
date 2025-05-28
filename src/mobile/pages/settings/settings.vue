@@ -54,8 +54,8 @@
 
         <div :class="$style.value">
           <span
-            v-touch="() => _changeColorTheme(false)"
             :class="$style.pointer"
+            @click="_changeColorTheme(false)"
           >
             {{ $tr(AVAILABLE_THEMES.default.label) }}
           </span>
@@ -67,8 +67,8 @@
           />
 
           <span
-            v-touch="() => _changeColorTheme(true)"
             :class="$style.pointer"
+            @click="_changeColorTheme(true)"
           >
             {{ $tr(AVAILABLE_THEMES.dark.label) }}
           </span>
@@ -112,8 +112,8 @@
 
         <div :class="$style.value">
           <span
-            v-touch="() => changeAutoUpdate(false)"
             :class="$style.pointer"
+            @click="changeAutoUpdate(false)"
           >
             {{ $tr('settings.label.off') }}
           </span>
@@ -125,8 +125,8 @@
           />
 
           <span
-            v-touch="() => changeAutoUpdate(true)"
             :class="$style.pointer"
+            @click="changeAutoUpdate(true)"
           >
             {{ $tr('settings.label.on') }}
           </span>

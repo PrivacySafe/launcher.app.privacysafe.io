@@ -56,12 +56,12 @@ function toggleMenu() {
       <div :class="$style.toolbar">
         <transition>
           <ui3n-button
-            v-touch="toggleMenu"
             type="icon"
             :color="isMenuOpen ? 'transparent' : 'var(--color-bg-block-primary-default)'"
             :icon="isMenuOpen ? 'round-close' : 'round-menu'"
             :icon-color="isMenuOpen ? 'var(--color-icon-block-secondary-default)' : 'var(--color-icon-block-primary-default)'"
             icon-size="20"
+            @click="toggleMenu"
           />
         </transition>
 

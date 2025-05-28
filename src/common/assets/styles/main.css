@@ -32,7 +32,8 @@ div {
   box-sizing: border-box;
 }
 
-#main {
+#main,
+#mobile {
   position: fixed;
   inset: 0;
   background-color: var(--color-bg-block-primary-default);

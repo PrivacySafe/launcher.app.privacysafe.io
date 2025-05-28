@@ -1,12 +1,12 @@
 {
   "name": "Dashboard",
   "appDomain": "launcher.app.privacysafe.io",
-  "version": "0.9.7",
+  "version": "0.9.11",
   "icon": "logo.png",
   "description": "Dashboard/Launcher manages and launches your apps.",
 
   "components": {
-    "/index-desktop.html": {
+    "/index.html": {
       "startedBy": "user",
       "runtime": "web-gui",
       "capsRequested": {

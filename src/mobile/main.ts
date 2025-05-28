@@ -10,7 +10,6 @@
 
 import { createApp } from 'vue';
 import { createPinia } from 'pinia';
-import Vue3TouchEvents, { type Vue3TouchEventsOptions } from 'vue3-touch-events';
 import {
   i18n,
   I18nOptions,
@@ -47,7 +46,6 @@ function init() {
 
   app
     .use(pinia)
-    .use<Vue3TouchEventsOptions>(Vue3TouchEvents, { disableClick: false })
     .use<I18nOptions>(i18n, { lang: 'en', messages: { en } })
     .use(vueBus)
     .use(notifications)

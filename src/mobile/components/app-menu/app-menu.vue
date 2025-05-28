@@ -51,9 +51,9 @@ async function goToMenuItem(item: AppMenuItem) {
         :key="menuItem.id"
       >
         <div
-          v-touch="() => goToMenuItem(menuItem)"
           tabindex="1"
           :class="[$style.menuItem, isMenuItemSelected(menuItem) && $style.menuItemSelected]"
+          @click="goToMenuItem(menuItem)"
         >
           <ui3n-icon
             :class="$style.menuItemIcon"
