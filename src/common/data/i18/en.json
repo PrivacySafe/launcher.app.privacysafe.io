@@ -21,6 +21,10 @@
   "settings.label.off": "Off",
   "settings.label.theme": "Theme",
   "settings.label.language": "Language",
+  "settings.label.system.folders": "Show system folders",
+  "settings.label.system.folders.yes": "Yes",
+  "settings.label.system.folders.no": "No",
+
   "settings.save.success": "The apps settings save successful",
   "settings.save.error": "The apps settings save error",
   "settings.theme.light": "Light",
@@ -39,5 +43,7 @@
   "platform.description": "Core platform required for your apps to work.",
   "platform.action.restart": "Restart to Update",
   "system.init-setup-start": "Setting up your system on the first startup with bundled apps {appsList}",
-  "system.init-setup-done": "System setup is done"
+  "system.init-setup-done": "System setup is done",
+  "system.data-removal.section": "Data removal",
+  "system.data-removal.wipe-from-device": "Wipe data from this device"
 }

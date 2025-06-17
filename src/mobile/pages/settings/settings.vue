@@ -15,7 +15,7 @@
  this program. If not, see <http://www.gnu.org/licenses/>.
 -->
 <script lang="ts" setup>
-  import { Ui3nRadio, Ui3nSwitch } from '@v1nt1248/3nclient-lib';
+  import { Ui3nButton, Ui3nRadio, Ui3nSwitch } from '@v1nt1248/3nclient-lib';
   import { AVAILABLE_THEMES, AVAILABLE_LANGS } from '@/common/constants';
   import { useSettings } from '@/common/composables/useSettings';
 
@@ -23,9 +23,12 @@
     $tr,
     colorTheme,
     lang,
+    systemFoldersDisplaying,
     autoUpdate,
     changeColorTheme,
+    changeSystemFoldersDisplaying,
     toggleAutoUpdate,
+    wipeDataFromDevice
   } = useSettings();
 
   function _changeColorTheme(isDarkColorTheme: boolean) {
@@ -102,6 +105,40 @@
 
     <div :class="$style.block">
       <div :class="$style.title">
+        {{ $tr('settings.label.system.folders') }}
+      </div>
+
+      <div :class="$style.row">
+        <h4 :class="$style.label">
+          {{ $tr('settings.label.system.folders') }}
+        </h4>
+
+        <div :class="$style.value">
+          <span
+            :class="$style.pointer"
+            @click="changeSystemFoldersDisplaying(false)"
+          >
+            {{ $tr('settings.label.system.folders.no') }}
+          </span>
+
+          <ui3n-switch
+            size="16"
+            :model-value="systemFoldersDisplaying"
+            @change="changeSystemFoldersDisplaying"
+          />
+
+          <span
+            :class="$style.pointer"
+            @click="changeSystemFoldersDisplaying(true)"
+          >
+            {{ $tr('settings.label.system.folders.yes') }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div :class="$style.block">
+      <div :class="$style.title">
         {{ $tr('settings.updates') }}
       </div>
 
@@ -131,6 +168,20 @@
             {{ $tr('settings.label.on') }}
           </span>
         </div>
+      </div>
+    </div>
+
+    <div :class="$style.block">
+      <div :class="$style.title">
+        {{ $tr('system.data-removal.section') }}
+      </div>
+      <div :class="$style.row">
+        <ui3n-button
+          type="tertiary"
+          @click="wipeDataFromDevice"
+        >
+          {{ $tr('system.data-removal.wipe-from-device') }}
+        </ui3n-button>
       </div>
     </div>
   </div>

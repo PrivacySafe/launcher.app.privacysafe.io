@@ -18,9 +18,9 @@ export interface AppInfo {
   iconBytes?: Uint8Array;
   readonly versions: {
     latest: string;
-    current: AppVersions['current'],
-    bundled?: string,
-    packs: AppVersions['packs'],
+    current: AppVersions['current'];
+    bundled?: string;
+    packs: AppVersions['packs'];
     afterRestart?: string;
   };
   updates?: ChannelVersion[];
@@ -55,19 +55,20 @@ export type AvailableColorTheme = 'default' | 'dark';
 export type AppConfig = {
   lang: AvailableLanguage;
   colorTheme: AvailableColorTheme;
+  systemFoldersDisplaying?: boolean;
 };
 
 export type ConnectivityStatus = 'offline' | 'online';
 
 export interface GlobalEvents {
-  "init-setup:start": {
+  'init-setup:start': {
     bundledAppsForInstall: string[];
   };
-  "init-setup:done": null;
-  "platform:restart-to-update": null;
+  'init-setup:done': null;
+  'platform:restart-to-update': null;
 }
 
 export interface AppEventData {
-  appId: string|null;
+  appId: string | null;
   version: string;
 }

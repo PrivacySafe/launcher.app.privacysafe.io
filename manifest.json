@@ -1,7 +1,7 @@
 {
   "name": "Dashboard",
   "appDomain": "launcher.app.privacysafe.io",
-  "version": "0.9.11",
+  "version": "0.9.13",
   "icon": "logo.png",
   "description": "Dashboard/Launcher manages and launches your apps.",
 

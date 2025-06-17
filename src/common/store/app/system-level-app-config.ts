@@ -25,6 +25,7 @@ export function useSystemLevelAppConfig() {
   const user = ref<string>('');
   const lang = ref<AvailableLanguage>('en');
   const colorTheme = ref<AvailableColorTheme>('default');
+  const systemFoldersDisplaying = ref(false);
 
   function setLang(value: AvailableLanguage) {
     lang.value = value;
@@ -41,6 +42,10 @@ export function useSystemLevelAppConfig() {
     htmlEl.classList.add(curColorThemeCssClass);
   }
 
+  function setSystemFoldersDisplaying(value: boolean) {
+    systemFoldersDisplaying.value = value;
+  }
+
   let unsubFromConfigWatch: (() => void) | undefined = undefined;
 
   async function readAndStartWatchingAppConfig() {
@@ -48,13 +53,16 @@ export function useSystemLevelAppConfig() {
       const config = await SystemSettings.makeResourceReader();
       const lang = await config.getCurrentLanguage();
       const colorTheme = await config.getCurrentColorTheme();
+      const flagValue = await config.getSystemFoldersDisplaying();
       setLang(lang);
       setColorTheme(colorTheme);
+      setSystemFoldersDisplaying(flagValue);
       unsubFromConfigWatch = config.watchConfig({
         next: appConfig => {
-          const { lang, colorTheme } = appConfig;
+          const { lang, colorTheme, systemFoldersDisplaying } = appConfig;
           setLang(lang);
           setColorTheme(colorTheme);
+          setSystemFoldersDisplaying(!!systemFoldersDisplaying);
         },
       });
     } catch (e) {
@@ -85,6 +93,7 @@ export function useSystemLevelAppConfig() {
     user: toRO(user),
     lang: toRO(lang),
     colorTheme: toRO(colorTheme),
+    systemFoldersDisplaying: toRO(systemFoldersDisplaying),
 
     initialize,
     stopWatching,

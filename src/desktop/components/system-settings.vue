@@ -27,9 +27,12 @@ const {
   $tr,
   colorTheme,
   lang,
+  systemFoldersDisplaying,
   autoUpdate,
   changeColorTheme,
+  changeSystemFoldersDisplaying,
   toggleAutoUpdate,
+  wipeDataFromDevice
 } = useSettings();
 </script>
 
@@ -91,6 +94,26 @@ const {
       </div>
 
       <div :class="$style.row">
+        <div :class="$style.rowBody">
+          <div :class="$style.rowBodyLabel">
+            {{ $tr('settings.label.system.folders') }}
+          </div>
+
+          <div :class="$style.rowBodyValue">
+            <span>{{ $tr('settings.label.system.folders.no') }}</span>
+
+            <ui3n-switch
+              size="16"
+              :model-value="systemFoldersDisplaying"
+              @change="changeSystemFoldersDisplaying"
+            />
+
+            <span>{{ $tr('settings.label.system.folders.yes') }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div :class="$style.row">
         <div :class="$style.rowHeader">
           {{ $tr('settings.updates') }}
         </div>
@@ -108,6 +131,20 @@ const {
             />
             <span>{{ $tr('settings.label.on') }}</span>
           </div>
+        </div>
+      </div>
+
+      <div :class="$style.row">
+        <div :class="$style.rowHeader">
+          {{ $tr('system.data-removal.section') }}
+        </div>
+        <div :class="$style.rowBody">
+          <ui3n-button
+            type="tertiary"
+            @click="wipeDataFromDevice"
+          >
+            {{ $tr('system.data-removal.wipe-from-device') }}
+          </ui3n-button>
         </div>
       </div>
     </div>

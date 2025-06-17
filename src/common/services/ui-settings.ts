@@ -16,17 +16,20 @@ export interface AppConfigsInternal {
   saveSettingsFile: (data: AppSettings) => Promise<void>;
   getCurrentLanguage: () => Promise<AvailableLanguage>;
   getCurrentColorTheme: () => Promise<AvailableColorTheme>;
+  getSystemFoldersDisplaying: () => Promise<boolean>;
 }
 
 export interface AppConfigs {
   getCurrentLanguage: () => Promise<AvailableLanguage>;
   getCurrentColorTheme: () => Promise<AvailableColorTheme>;
+  getSystemFoldersDisplaying: () => Promise<boolean>;
   watchConfig(obs: web3n.Observer<AppConfig>): () => void;
 }
 
 export interface SettingsJSON {
   lang: AvailableLanguage;
   colorTheme: AvailableColorTheme;
+  systemFoldersDisplaying: boolean;
 }
 
 export interface AppSettings {
@@ -97,6 +100,11 @@ export class SystemSettings implements AppConfigs, AppConfigsInternal {
     return colorTheme;
   }
 
+  async getSystemFoldersDisplaying(): Promise<boolean> {
+    const { systemFoldersDisplaying } = await this.file.readJSON<SettingsJSON>();
+    return systemFoldersDisplaying;
+  }
+
   watchConfig(obs: web3n.Observer<AppConfig>): () => void {
     return this.file.watch({
       next: obs.next
@@ -104,7 +112,8 @@ export class SystemSettings implements AppConfigs, AppConfigsInternal {
             if (event.type === 'file-change') {
               const lang = await this.getCurrentLanguage();
               const colorTheme = await this.getCurrentColorTheme();
-              obs.next!({ lang, colorTheme });
+              const systemFoldersDisplaying = await this.getSystemFoldersDisplaying();
+              obs.next!({ lang, colorTheme, systemFoldersDisplaying });
             }
           }
         : undefined,
