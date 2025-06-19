@@ -28,9 +28,11 @@ const {
   colorTheme,
   lang,
   systemFoldersDisplaying,
+  allowShowingDevtool,
   autoUpdate,
   changeColorTheme,
   changeSystemFoldersDisplaying,
+  changeAllowShowingDevtool,
   toggleAutoUpdate,
   wipeDataFromDevice
 } = useSettings();
@@ -56,6 +58,7 @@ const {
         <div :class="$style.rowHeader">
           {{ $tr('settings.section.appearance') }}
         </div>
+        <!-- theme -->
         <div :class="$style.rowBody">
           <div :class="$style.rowBodyLabel">
             {{ $tr('settings.label.theme') }}
@@ -71,9 +74,7 @@ const {
             <span>{{ $tr(AVAILABLE_THEMES.dark.label) }}</span>
           </div>
         </div>
-      </div>
-
-      <div :class="$style.row">
+        <!-- languages -->
         <div :class="$style.rowBody">
           <div :class="$style.rowBodyLabel">
             {{ $tr('settings.label.language') }}
@@ -91,16 +92,14 @@ const {
             </ui3n-radio>
           </div>
         </div>
-      </div>
-
-      <div :class="$style.row">
+        <!-- showing system folders -->
         <div :class="$style.rowBody">
           <div :class="$style.rowBodyLabel">
             {{ $tr('settings.label.system.folders') }}
           </div>
 
           <div :class="$style.rowBodyValue">
-            <span>{{ $tr('settings.label.system.folders.no') }}</span>
+            <span>{{ $tr('settings.label.no') }}</span>
 
             <ui3n-switch
               size="16"
@@ -108,7 +107,25 @@ const {
               @change="changeSystemFoldersDisplaying"
             />
 
-            <span>{{ $tr('settings.label.system.folders.yes') }}</span>
+            <span>{{ $tr('settings.label.yes') }}</span>
+          </div>
+        </div>
+        <!-- showing devtool -->
+        <div :class="$style.rowBody">
+          <div :class="$style.rowBodyLabel">
+            {{ $tr('settings.label.showing.devtool') }}
+          </div>
+
+          <div :class="$style.rowBodyValue">
+            <span>{{ $tr('settings.label.no') }}</span>
+
+            <ui3n-switch
+              size="16"
+              :model-value="allowShowingDevtool"
+              @change="changeAllowShowingDevtool"
+            />
+
+            <span>{{ $tr('settings.label.yes') }}</span>
           </div>
         </div>
       </div>
@@ -212,7 +229,7 @@ const {
 .rowBody {
   display: flex;
   width: 100%;
-  height: var(--spacing-l);
+  height: var(--spacing-xl);
   padding: 0 var(--spacing-m);
   justify-content: space-between;
   align-items: center;

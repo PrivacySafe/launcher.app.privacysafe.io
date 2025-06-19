@@ -2,13 +2,16 @@ import { computed, ComputedRef } from 'vue';
 import { storeToRefs } from 'pinia';
 import { AppLaunchers, Launcher } from '@/common/types';
 import { useAppsStore } from '@/common/store/apps.store';
+import { useAppStore } from '@/common/store/app.store';
 
 export function useAppLauncher(props: ComputedRef<AppLaunchers>) {
-  const appId = computed(() => props.value.appId);
-
   const appsStore = useAppsStore();
   const { closeOldVersionApps } = appsStore;
   const { restart, processes } = storeToRefs(appsStore);
+
+  const { allowShowingDevtool } = storeToRefs(useAppStore());
+
+  const appId = computed(() => props.value.appId);
   const needToCloseOldVersion = computed(() => !!restart.value?.apps?.includes(appId.value));
   const appProcesses = computed(() => processes.value[appId.value]);
 
@@ -36,7 +39,7 @@ export function useAppLauncher(props: ComputedRef<AppLaunchers>) {
 
   function launchDefault(ev: Event) {
     const devtools = (ev as PointerEvent).ctrlKey;
-    startLauncher(props.value.defaultLauncher!, devtools);
+    startLauncher(props.value.defaultLauncher!, devtools || allowShowingDevtool.value);
   }
 
   return {

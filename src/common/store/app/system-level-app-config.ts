@@ -26,6 +26,7 @@ export function useSystemLevelAppConfig() {
   const lang = ref<AvailableLanguage>('en');
   const colorTheme = ref<AvailableColorTheme>('default');
   const systemFoldersDisplaying = ref(false);
+  const allowShowingDevtool = ref(false);
 
   function setLang(value: AvailableLanguage) {
     lang.value = value;
@@ -46,6 +47,10 @@ export function useSystemLevelAppConfig() {
     systemFoldersDisplaying.value = value;
   }
 
+  function setAllowShowingDevtool(value: boolean) {
+    allowShowingDevtool.value = value;
+  }
+
   let unsubFromConfigWatch: (() => void) | undefined = undefined;
 
   async function readAndStartWatchingAppConfig() {
@@ -54,15 +59,18 @@ export function useSystemLevelAppConfig() {
       const lang = await config.getCurrentLanguage();
       const colorTheme = await config.getCurrentColorTheme();
       const flagValue = await config.getSystemFoldersDisplaying();
-      setLang(lang);
+      const allowShowingDevtoolValue = await config.getAllowShowingDevtool();
       setColorTheme(colorTheme);
       setSystemFoldersDisplaying(flagValue);
+      setAllowShowingDevtool(allowShowingDevtoolValue);
+
       unsubFromConfigWatch = config.watchConfig({
         next: appConfig => {
-          const { lang, colorTheme, systemFoldersDisplaying } = appConfig;
+          const { lang, colorTheme, systemFoldersDisplaying, allowShowingDevtool } = appConfig;
           setLang(lang);
           setColorTheme(colorTheme);
           setSystemFoldersDisplaying(!!systemFoldersDisplaying);
+          setAllowShowingDevtool(!!allowShowingDevtool);
         },
       });
     } catch (e) {
@@ -94,6 +102,7 @@ export function useSystemLevelAppConfig() {
     lang: toRO(lang),
     colorTheme: toRO(colorTheme),
     systemFoldersDisplaying: toRO(systemFoldersDisplaying),
+    allowShowingDevtool: toRO(allowShowingDevtool),
 
     initialize,
     stopWatching,

@@ -1,4 +1,6 @@
 {
 	"language": "en",
-	"theme": "default"
+	"theme": "default",
+	"systemFoldersDisplaying": false,
+	"allowShowingDevtool": false
 }

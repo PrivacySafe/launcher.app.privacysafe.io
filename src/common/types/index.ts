@@ -56,6 +56,7 @@ export type AppConfig = {
   lang: AvailableLanguage;
   colorTheme: AvailableColorTheme;
   systemFoldersDisplaying?: boolean;
+  allowShowingDevtool?: boolean;
 };
 
 export type ConnectivityStatus = 'offline' | 'online';

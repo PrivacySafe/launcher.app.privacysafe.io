@@ -22,7 +22,7 @@ export const useAppStore = defineStore('app', () => {
   const { connectivityStatus } = connectivity;
 
   const commonAppConfs = useSystemLevelAppConfig();
-  const { appVersion, user, lang, colorTheme, systemFoldersDisplaying } = commonAppConfs;
+  const { appVersion, user, lang, colorTheme, systemFoldersDisplaying, allowShowingDevtool } = commonAppConfs;
 
   async function initialize() {
     await Promise.all([connectivity.initialize(), commonAppConfs.initialize()]);
@@ -40,6 +40,7 @@ export const useAppStore = defineStore('app', () => {
       lang: lang.value,
       colorTheme: colorTheme.value,
       systemFoldersDisplaying: !!systemFoldersDisplaying.value,
+      allowShowingDevtool: !!allowShowingDevtool.value,
       ...appConfig,
     };
     await config.saveSettingsFile({
@@ -54,6 +55,7 @@ export const useAppStore = defineStore('app', () => {
     lang,
     colorTheme,
     systemFoldersDisplaying,
+    allowShowingDevtool,
     connectivityStatus,
     initialize,
     stopWatching,

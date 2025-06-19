@@ -8,7 +8,7 @@ import { SettingsJSON } from '@/common/services/ui-settings';
 export function useSettings() {
   const appStore = useAppStore();
   const { updateSettings } = appStore;
-  const { colorTheme, lang, systemFoldersDisplaying } = storeToRefs(appStore);
+  const { colorTheme, lang, systemFoldersDisplaying, allowShowingDevtool } = storeToRefs(appStore);
 
   const appsStore = useAppsStore();
   const { toggleAutoUpdate } = appsStore;
@@ -45,6 +45,12 @@ export function useSettings() {
     });
   }
 
+  function changeAllowShowingDevtool(val: boolean) {
+    updateSettings({
+      allowShowingDevtool: val,
+    });
+  }
+
   function wipeDataFromDevice() {
     w3n.system.platform?.wipeFromThisDevice();
   }
@@ -54,9 +60,11 @@ export function useSettings() {
     colorTheme,
     lang,
     systemFoldersDisplaying,
+    allowShowingDevtool,
     autoUpdate,
     changeColorTheme,
     changeSystemFoldersDisplaying,
+    changeAllowShowingDevtool,
     toggleAutoUpdate,
     wipeDataFromDevice,
   };

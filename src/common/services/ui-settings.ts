@@ -17,12 +17,14 @@ export interface AppConfigsInternal {
   getCurrentLanguage: () => Promise<AvailableLanguage>;
   getCurrentColorTheme: () => Promise<AvailableColorTheme>;
   getSystemFoldersDisplaying: () => Promise<boolean>;
+  getAllowShowingDevtool: () => Promise<boolean>;
 }
 
 export interface AppConfigs {
   getCurrentLanguage: () => Promise<AvailableLanguage>;
   getCurrentColorTheme: () => Promise<AvailableColorTheme>;
   getSystemFoldersDisplaying: () => Promise<boolean>;
+  getAllowShowingDevtool: () => Promise<boolean>;
   watchConfig(obs: web3n.Observer<AppConfig>): () => void;
 }
 
@@ -30,6 +32,7 @@ export interface SettingsJSON {
   lang: AvailableLanguage;
   colorTheme: AvailableColorTheme;
   systemFoldersDisplaying: boolean;
+  allowShowingDevtool: boolean;
 }
 
 export interface AppSettings {
@@ -105,6 +108,11 @@ export class SystemSettings implements AppConfigs, AppConfigsInternal {
     return systemFoldersDisplaying;
   }
 
+  async getAllowShowingDevtool(): Promise<boolean> {
+    const { allowShowingDevtool } = await this.file.readJSON<SettingsJSON>();
+    return allowShowingDevtool;
+  }
+
   watchConfig(obs: web3n.Observer<AppConfig>): () => void {
     return this.file.watch({
       next: obs.next
@@ -113,7 +121,8 @@ export class SystemSettings implements AppConfigs, AppConfigsInternal {
               const lang = await this.getCurrentLanguage();
               const colorTheme = await this.getCurrentColorTheme();
               const systemFoldersDisplaying = await this.getSystemFoldersDisplaying();
-              obs.next!({ lang, colorTheme, systemFoldersDisplaying });
+              const allowShowingDevtool = await this.getAllowShowingDevtool();
+              obs.next!({ lang, colorTheme, systemFoldersDisplaying, allowShowingDevtool });
             }
           }
         : undefined,

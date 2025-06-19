@@ -24,9 +24,11 @@
     colorTheme,
     lang,
     systemFoldersDisplaying,
+    allowShowingDevtool,
     autoUpdate,
     changeColorTheme,
     changeSystemFoldersDisplaying,
+    changeAllowShowingDevtool,
     toggleAutoUpdate,
     wipeDataFromDevice
   } = useSettings();
@@ -45,6 +47,7 @@
 
 <template>
   <div :class="$style.settings">
+    <!-- theme -->
     <div :class="$style.block">
       <div :class="$style.title">
         {{ $tr('settings.section.appearance') }}
@@ -78,7 +81,7 @@
         </div>
       </div>
     </div>
-
+    <!-- languages -->
     <div :class="$style.block">
       <div :class="$style.title">
         {{ $tr('settings.label.language') }}
@@ -102,7 +105,7 @@
         </div>
       </div>
     </div>
-
+    <!-- show system folders -->
     <div :class="$style.block">
       <div :class="$style.title">
         {{ $tr('settings.label.system.folders') }}
@@ -118,7 +121,7 @@
             :class="$style.pointer"
             @click="changeSystemFoldersDisplaying(false)"
           >
-            {{ $tr('settings.label.system.folders.no') }}
+            {{ $tr('settings.label.no') }}
           </span>
 
           <ui3n-switch
@@ -131,7 +134,41 @@
             :class="$style.pointer"
             @click="changeSystemFoldersDisplaying(true)"
           >
-            {{ $tr('settings.label.system.folders.yes') }}
+            {{ $tr('settings.label.yes') }}
+          </span>
+        </div>
+      </div>
+    </div>
+    <!-- allow devtool  -->
+    <div :class="$style.block">
+      <div :class="$style.title">
+        {{ $tr('settings.label.showing.devtool') }}
+      </div>
+
+      <div :class="$style.row">
+        <h4 :class="$style.label">
+          {{ $tr('settings.label.showing.devtool') }}
+        </h4>
+
+        <div :class="$style.value">
+          <span
+            :class="$style.pointer"
+            @click="changeAllowShowingDevtool(false)"
+          >
+            {{ $tr('settings.label.no') }}
+          </span>
+
+          <ui3n-switch
+            size="16"
+            :model-value="allowShowingDevtool"
+            @change="changeAllowShowingDevtool"
+          />
+
+          <span
+            :class="$style.pointer"
+            @click="changeAllowShowingDevtool(true)"
+          >
+            {{ $tr('settings.label.yes') }}
           </span>
         </div>
       </div>
