@@ -1,6 +1,6 @@
 {
   "name": "launcher.app.privacysafe.io",
-  "version": "0.9.14",
+  "version": "0.10.0",
   "license": "GPL-3.0-or-later",
   "type": "module",
   "scripts": {
@@ -8,6 +8,9 @@
     "clean:dist": "rm -rf app/",
     "copy:settings": "mkdir -p app/constants && cp -r src/common/constants/settings.json app/constants/settings.json",
     "build": "pnpm run clean:dist && vue-tsc --noEmit && vite build && pnpm run copy:settings",
+    "tests:build": "bash tests-app/compile-and-build.sh",
+    "tests:build-all": "pnpm run build && pnpm run tests:build",
+    "tests:run-on": "bash tests-app/run-tests-on.sh",
     "serve": "vite preview",
     "stylelint": "stylelint --config .stylelint.config.cjs 'src/**/*.{vue,scss}'",
     "stylelint:fix": "stylelint --config .stylelint.config.cjs --fix 'src/**/*.{vue,scss}'",
@@ -17,7 +20,7 @@
   },
   "dependencies": {
     "@types/semver": "^7.7.0",
-    "@v1nt1248/3nclient-lib": "0.2.12",
+    "@v1nt1248/3nclient-lib": "0.2.14",
     "lodash": "4.17.21",
     "pinia": "3.0.3",
     "semver": "^7.7.2",

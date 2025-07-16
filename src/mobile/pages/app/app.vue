@@ -15,7 +15,7 @@
  this program. If not, see <http://www.gnu.org/licenses/>.
 -->
 <script lang="ts" setup>
-import { computed, ref } from 'vue';
+import { computed, onBeforeMount, onBeforeUnmount, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { Ui3nButton } from '@v1nt1248/3nclient-lib';
 import { useAppPage } from '@/common/composables/useAppPage';
@@ -24,7 +24,12 @@ import { APP_MENU_DATA } from '@/mobile/components/app-menu/constants';
 
 const route = useRoute();
 
-const { user, connectivityStatusText } = useAppPage();
+const {
+  user,
+  connectivityStatusText,
+  doBeforeMount,
+  doBeforeUnmount
+} = useAppPage();
 
 const isMenuOpen = ref(false);
 
@@ -35,6 +40,10 @@ const currentMenuItem = computed(() => {
 function toggleMenu() {
   isMenuOpen.value = !isMenuOpen.value;
 }
+
+onBeforeMount(doBeforeMount);
+onBeforeUnmount(doBeforeUnmount);
+
 </script>
 
 <template>

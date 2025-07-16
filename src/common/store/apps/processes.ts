@@ -8,9 +8,9 @@
  You should have received a copy of the GNU General Public License along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-import { getGlobalEventsSink } from '@/common/services';
+import { VUEBUS_KEY, VueBusPlugin } from '@v1nt1248/3nclient-lib/plugins';
 import { GlobalEvents } from '@/common/types';
-import { ref } from 'vue';
+import { inject, ref } from 'vue';
 import { toRO } from '@/common/utils/readonly';
 
 export type AppProcessType = 'downloading' | 'unzipping' | 'installing' | 'update-checking';
@@ -28,13 +28,14 @@ export interface ProcessInfo {
 export const PLATFORM_ID = 'platform';
 
 export function makeProcessesPlace() {
+  const { $emitter } = inject<VueBusPlugin<GlobalEvents>>(VUEBUS_KEY)!;
+
   const processes = ref<Record<string, ProcessInfo[]>>({});
 
   function emitEvent(evToEmit: Partial<GlobalEvents> | undefined): void {
     if (evToEmit) {
       for (const [event, content] of Object.entries(evToEmit)) {
-        const $emit = getGlobalEventsSink();
-        $emit(event as keyof GlobalEvents, content);
+        $emitter.emit(event as any as keyof GlobalEvents, content);
       }
     }
   }
@@ -82,6 +83,7 @@ export function makeProcessesPlace() {
 
     delProcess,
     upsertProcess,
+    emitEvent
   };
 }
 

@@ -3,7 +3,7 @@ import { storeToRefs } from 'pinia';
 import { useAppsStore } from '@/common/store/apps.store';
 import { inject } from 'vue';
 import { I18N_KEY, NOTIFICATIONS_KEY } from '@v1nt1248/3nclient-lib/plugins';
-import { SettingsJSON } from '@/common/services/ui-settings';
+import { SettingsJSON } from '@/common/store/app/ui-settings';
 
 export function useSettings() {
   const appStore = useAppStore();

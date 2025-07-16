@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2024 3NSoft Inc.
+ Copyright (C) 2024 - 2025 3NSoft Inc.
 
  This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 
@@ -14,12 +14,10 @@ import {
   getDynamicLaunchersLocations,
   getLaunchersForUser,
 } from '@/common/lib-common/manifest-utils';
-import { WeakCache } from '@/common/lib-common/weak-cache';
 import { AppInfo } from '@/common/types';
-import { NamedProcs, SingleProc } from '@v1nt1248/3nclient-lib/utils';
+import { SingleProc } from '@v1nt1248/3nclient-lib/utils';
 import { compare as compareSemVer } from 'semver';
 
-type AppVersions = web3n.system.apps.AppVersions;
 type WritableFS = web3n.files.WritableFS;
 type FileException = web3n.files.FileException;
 type Launcher = web3n.caps.Launcher;
@@ -27,9 +25,8 @@ type AppManifest = web3n.caps.AppManifest;
 type DynamicLaunchers = web3n.caps.DynamicLaunchers;
 
 interface CachedAppVersions {
-  formatVer: 1;
+  formatVer: 2;
   stateTS: number;
-  appVersions: AppVersions[];
   apps: {
     [appId: string]: AppInfo;
   };
@@ -53,13 +50,17 @@ const appVersionsPath = '/cached/app-versions.json';
 
 export class CachedSystemInfo {
   private stateTS = 0;
-  private appVersions: AppVersions[] = [];
   private launchers: CachedAppVersions['launchers'] = {};
   private apps: CachedAppVersions['apps'] = {};
   private fs: WritableFS | undefined = undefined;
   private readonly refreshProc = new SingleProc();
 
-  constructor() {
+  constructor(
+    private readonly onInfoEvent: (
+      appEvent: { upsert?: AppInfo; remove?: string; }|undefined,
+      launchersEvent: { upsert?: CachedAppLaunchers; remove?: string; }|undefined
+    ) => void
+  ) {
     Object.seal(this);
   }
 
@@ -67,13 +68,15 @@ export class CachedSystemInfo {
     return this.refreshProc.start(async () => {
       this.fs = await w3n.storage!.getAppLocalFS!();
       try {
-        const { formatVer, stateTS, appVersions, launchers, apps } =
-          await this.fs.readJSONFile<CachedAppVersions>(appVersionsPath);
-        if (formatVer === 1) {
+        const {
+          formatVer, stateTS, launchers, apps
+        } = await this.fs.readJSONFile<CachedAppVersions>(appVersionsPath);
+        if (formatVer === 2) {
           this.stateTS = stateTS;
-          this.appVersions = appVersions;
           this.launchers = launchers;
+          Object.values(this.launchers).forEach(l => this.onInfoEvent(undefined, { upsert: l }));
           this.apps = apps;
+          Object.values(this.apps).forEach(app => this.onInfoEvent({ upsert: app }, undefined));
         } else {
           await this.unsyncedAppVersionsRefresh();
         }
@@ -87,14 +90,13 @@ export class CachedSystemInfo {
   }
 
   private async unsyncedAppVersionsRefresh(): Promise<number> {
-    const lst = await w3n.system.apps!.opener!.listApps();
+    const appVersions = await getAppVersionsFromW3N();
+    const { addedOrChanged, removed } = diffAppVersions(appVersions, this.apps);
 
-    if (deepEqual(lst, this.appVersions)) {
+    if ((addedOrChanged.size === 0) && (removed.size === 0)) {
       return this.stateTS;
     }
 
-    const { addedOrChanged, removed } = diffAppVersions(lst, this.appVersions);
-    this.appVersions = lst;
     this.stateTS = Date.now();
 
     // remove removed apps
@@ -104,25 +106,28 @@ export class CachedSystemInfo {
     }
 
     // create new values for added or changed apps
-    for (const id of addedOrChanged) {
-      const info = await getAppInfo(id, this.appVersions.find(verInfo => verInfo.id === id)!);
+    for (const [ id, appVersions ] of addedOrChanged.entries()) {
+      const info = await getAppInfo(id, appVersions);
       if (info) {
         const { appInfo, currentManif } = info;
         this.apps[id] = appInfo;
         const appLaunchers = await getAppLaunchers(id, currentManif);
         if (appLaunchers) {
           this.launchers[id] = appLaunchers;
+          this.onInfoEvent({ upsert: appInfo }, { upsert: appLaunchers });
         } else {
           delete this.launchers[id];
+          this.onInfoEvent({ upsert: appInfo }, { remove: id });
         }
       } else {
         delete this.apps[id];
         delete this.launchers[id];
+        this.onInfoEvent({ remove: id }, { remove: id });
       }
     }
 
     await this.fs!.writeJSONFile(appVersionsPath, {
-      appVersions: this.appVersions,
+      formatVer: 2,
       stateTS: this.stateTS,
       launchers: this.launchers,
       apps: this.apps,
@@ -149,10 +154,12 @@ export class CachedSystemInfo {
     };
   }
 
-  async hasAppPacks(): Promise<boolean> {
+  async needInitialSetup(): Promise<boolean> {
     await this.refreshProc.getP();
-    const foundAppWithPacks = !!this.appVersions.find(({ packs }) => Array.isArray(packs) && packs.length > 0);
-    return foundAppWithPacks;
+    const foundAppWithPacks = !!Object.values(this.apps).find(
+      app => (app.versions.packs && (app.versions.packs.length > 0))
+    );
+    return !foundAppWithPacks;
   }
 
   async getAppsInfo(): Promise<{
@@ -167,42 +174,15 @@ export class CachedSystemInfo {
   }
 }
 
-function diffAppVersions(
-  newApps: AppVersions[],
-  prevApps: AppVersions[],
-): {
-  addedOrChanged: Set<string>;
-  removed: Set<string>;
-} {
-  const addedOrChanged = new Set<string>();
-  const same = new Set<string>();
-  const removed = new Set<string>();
-  for (const app of newApps) {
-    const prevApp = prevApps.find(({ id }) => app.id === id);
-    if (!prevApp || !deepEqual(app, prevApp)) {
-      addedOrChanged.add(app.id);
-    } else {
-      same.add(app.id);
-    }
-  }
-  for (const { id } of prevApps) {
-    if (!same.has(id) && !addedOrChanged.has(id)) {
-      removed.add(id);
-    }
-  }
-  return { addedOrChanged, removed };
-}
-
 async function getAppInfo(
-  id: string,
-  { current, packs }: AppVersions,
+  id: string, { bundled, current, packs }: AppVersions,
 ): Promise<{ appInfo: AppInfo; currentManif?: AppManifest } | undefined> {
-  const latest = latestVersionOf(current, packs);
+  const latest = latestVersionOf({ bundled, current, packs });
   if (!latest) {
     return;
   }
 
-  const m = await w3n.system!.apps!.opener!.getAppManifest(id, latest);
+  const m = await w3n.system!.apps!.installer!.getAppManifest(id, latest);
   if (!m) {
     return;
   }
@@ -222,16 +202,20 @@ async function getAppInfo(
       latest,
       current,
       packs,
+      bundled
     },
   };
 
   return { appInfo, currentManif: m.version === current ? m : undefined };
 }
 
-function latestVersionOf(current: string | undefined, packs: string[] | undefined): string | undefined {
+function latestVersionOf({ bundled, current, packs }: AppVersions): string | undefined {
   const all = packs ? packs.concat() : [];
   if (current) {
     all.push(current);
+  }
+  if (bundled) {
+    all.push(bundled);
   }
   if (all.length === 0) {
     return;
@@ -244,7 +228,7 @@ function latestVersionOf(current: string | undefined, packs: string[] | undefine
 
 async function getAppLaunchers(id: string, m: AppManifest | undefined): Promise<CachedAppLaunchers | undefined> {
   if (!m) {
-    m = await w3n.system!.apps!.opener!.getAppManifest(id);
+    m = await w3n.system!.apps!.opener!.getAppManifestOfCurrent(id);
   }
   if (!m) {
     return;
@@ -290,30 +274,81 @@ async function getAppLaunchers(id: string, m: AppManifest | undefined): Promise<
   return appLaunchers;
 }
 
-export class CachedAppFiles {
-  private cache = new WeakCache<string, Uint8Array>();
-  private readonly procs = new NamedProcs();
+type AppVersions = Pick<AppInfo['versions'], 'current' | 'bundled' | 'packs'>;
+type AppsVersions = { [id: string]: AppVersions; };
 
-  async getFileBytes(appId: string, version: string, path: string): Promise<Uint8Array | undefined> {
-    const key = this.keyFor(appId, version, path);
-    const fileBytes = this.cache.get(key);
-    if (fileBytes) {
-      return fileBytes;
-    }
-    const proc = this.procs.getP<Uint8Array | undefined>(key);
-    if (proc) {
-      return proc;
-    }
-    return this.procs.start(key, async () => {
-      const fileBytes = await w3n.system!.apps!.opener!.getAppFileBytes(appId, path, version);
-      if (fileBytes) {
-        this.cache.set(key, fileBytes);
-      }
-      return fileBytes;
-    });
+async function getAppVersionsFromW3N(): Promise<AppsVersions> {
+  const apps: AppsVersions = {};
+  for (const { id, version } of  await w3n.system.apps!.opener!.listCurrentApps()) {
+    apps[id] = {
+      current: version
+    };
   }
+  for (const { id, versions } of await w3n.system.apps!.installer!.listAllAppsPacks()) {
+    const app = apps[id];
+    if (app) {
+      app.packs = versions;
+    } else {
+      apps[id] = {
+        packs: versions
+      };
+    }
+  }
+  for (const { id, version } of await w3n.system.apps!.installer!.listBundledApps()) {
+    const app = apps[id];
+    if (app) {
+      app.bundled = version;
+    } else {
+      apps[id] = {
+        bundled: version
+      };
+    }
+  }
+  return apps;
+}
 
-  private keyFor(appId: string, version: string, path: string): string {
-    return `${appId}-${version}-${path}`;
+function diffAppVersions(newApps: AppsVersions, prevApps: CachedAppVersions['apps']): {
+  addedOrChanged: Map<string, AppVersions>;
+  removed: Set<string>;
+} {
+  const addedOrChanged = new Map<string, AppVersions>();
+  const same = new Set<string>();
+  const removed = new Set<string>();
+  for (const [ id, appVersions ] of Object.entries(newApps)) {
+    const prevApp = prevApps[id];
+    if (!prevApp || !areVersionsSame(prevApp.versions, appVersions)) {
+      addedOrChanged.set(id, appVersions);
+    } else {
+      same.add(id);
+    }
   }
+  for (const [ id ] of Object.entries(newApps)) {
+    if (!same.has(id) && !addedOrChanged.has(id)) {
+      removed.add(id);
+    }
+  }
+  return { addedOrChanged, removed };
+}
+
+// function areAppVersionsSame(appsVersions: AppsVersions, apps: CachedAppVersions['apps']): boolean {
+//   if (Object.keys(appsVersions).length !== Object.keys(apps).length) {
+//     return false;
+//   }
+//   for (const [ id, appVersions ] of Object.entries(appsVersions)) {
+//     const appInfo = apps[id];
+//     if (!appInfo) {
+//       return false;
+//     }
+//     const { bundled, current, packs } = appInfo.versions;
+//     if ((appVersions.bundled !== bundled) || (appVersions.current !== current)
+//     || !deepEqual(appVersions.packs, packs)) {
+//       return false;
+//     }
+//   }
+//   return true;
+// }
+
+function areVersionsSame(a: AppVersions, b: AppVersions): boolean {
+  return ((a.bundled === b.bundled) && (a.current === b.current) && deepEqual(a.packs, b.packs));
+
 }

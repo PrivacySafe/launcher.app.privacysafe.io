@@ -15,24 +15,22 @@
  this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-import { computed, inject, onBeforeMount, onBeforeUnmount, ref } from 'vue';
+import { computed, inject, ref } from 'vue';
 import { storeToRefs } from 'pinia';
 import {
   I18N_KEY,
-  I18nPlugin,
   NOTIFICATIONS_KEY,
-  NotificationsPlugin,
   VUEBUS_KEY,
   VueBusPlugin,
 } from '@v1nt1248/3nclient-lib/plugins';
-import { initializationOfServices } from '@/common/services';
 import { useAppStore } from '@/common/store/app.store';
 import { useAppsStore } from '@/common/store/apps.store';
 import { GlobalEvents } from '@/common/types';
 
-// export type AppViewInstance = ReturnType<typeof useAppPage>;
+export type AppViewInstance = ReturnType<typeof useAppPage>;
 
 export function useAppPage() {
+
   const appStore = useAppStore();
   const { appVersion, user, connectivityStatus, appElement } = storeToRefs(appStore);
 
@@ -40,9 +38,9 @@ export function useAppPage() {
   const { restart, applicationsInSystem, platform } = storeToRefs(appsStore);
   const { checkAndInstallAllUpdates, updateAppsAndLaunchersInfo, checkForAllUpdates } = appsStore;
 
-  const { $tr } = inject<I18nPlugin>(I18N_KEY)!;
+  const { $tr } = inject(I18N_KEY)!;
   const { $emitter } = inject<VueBusPlugin<GlobalEvents>>(VUEBUS_KEY)!;
-  const { $createNotice } = inject<NotificationsPlugin>(NOTIFICATIONS_KEY)!;
+  const { $createNotice } = inject(NOTIFICATIONS_KEY)!;
 
   const checkProcIsOn = ref(false);
 
@@ -107,20 +105,23 @@ export function useAppPage() {
     });
   }
 
-  onBeforeMount(async () => {
+  async function doBeforeMount() {
     try {
-      await Promise.all([initializationOfServices($emitter), appStore.initialize(), appsStore.initialize()]);
+      await Promise.all([
+        appStore.initialize(),
+        appsStore.initialize()
+      ]);
 
       triggerOnStart();
     } catch (e) {
       console.error('App view mounting error:', e);
       throw e;
     }
-  });
+  }
 
-  onBeforeUnmount(() => {
+  function doBeforeUnmount() {
     appStore.stopWatching();
-  });
+  }
 
   return {
     appVersion,
@@ -134,5 +135,8 @@ export function useAppPage() {
     appExit,
     quitAndInstall,
     checkForUpdate,
+
+    doBeforeMount,
+    doBeforeUnmount
   };
 }

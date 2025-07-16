@@ -18,13 +18,13 @@
 import { computed, inject, ref } from 'vue';
 import { storeToRefs } from 'pinia';
 import { isEmpty } from 'lodash';
-import { I18N_KEY, I18nPlugin } from '@v1nt1248/3nclient-lib/plugins';
+import { I18N_KEY } from '@v1nt1248/3nclient-lib/plugins';
 import { Ui3nInput } from '@v1nt1248/3nclient-lib';
 import { useAppsStore } from '@/common/store/apps.store';
 import AppView from '@/desktop/components/app-view.vue';
 import PlatformView from '@/desktop/components/platform-view.vue';
 
-const { $tr } = inject<I18nPlugin>(I18N_KEY)!;
+const { $tr } = inject(I18N_KEY)!;
 const { applicationsInSystem } = storeToRefs(useAppsStore());
 
 const search = ref('');

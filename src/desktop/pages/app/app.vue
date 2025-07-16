@@ -15,7 +15,7 @@
  this program. If not, see <http://www.gnu.org/licenses/>.
 -->
 <script lang="ts" setup>
-import { ref } from 'vue';
+import { onBeforeMount, onBeforeUnmount, ref } from 'vue';
 import { Ui3nButton, Ui3nMenu, Ui3nTabs, Ui3nRipple as vUi3nRipple } from '@v1nt1248/3nclient-lib';
 import { useAppPage } from '@/common/composables/useAppPage';
 import prLogo from '@/common/assets/images/privacysafe-logo.svg';
@@ -40,10 +40,16 @@ const {
   appExit,
   quitAndInstall,
   checkForUpdate,
+  doBeforeMount,
+  doBeforeUnmount
 } = useAppPage();
 
 const currentTab = ref(0);
 const isSettingsShow = ref(false);
+
+onBeforeMount(doBeforeMount);
+onBeforeUnmount(doBeforeUnmount);
+
 </script>
 
 <template>

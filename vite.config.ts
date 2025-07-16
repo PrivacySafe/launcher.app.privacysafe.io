@@ -1,5 +1,5 @@
 import { resolve } from 'node:path';
-import { defineConfig } from 'vite';
+import { defineConfig, UserConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import vueDevTools from 'vite-plugin-vue-devtools';
 
@@ -7,10 +7,8 @@ function _resolve(dir: string) {
   return resolve(__dirname, dir);
 }
 
-// https://vitejs.dev/config/
-// @ts-ignore
-export default defineConfig(config => {
-  const isDev = config.mode === 'development';
+export const makeConfig = ({ mode }: UserConfig) => {
+  const isDev = mode === 'development';
   // const isProd = mode === 'production'
 
   const server = {
@@ -61,4 +59,8 @@ export default defineConfig(config => {
       },
     },
   };
-});
+}
+
+// https://vitejs.dev/config/
+// @ts-ignore
+export default defineConfig(makeConfig);

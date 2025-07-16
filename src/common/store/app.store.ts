@@ -12,7 +12,7 @@ import { defineStore } from 'pinia';
 import { useAppSize } from './app/app-size';
 import { useConnectivityStatus } from './app/connectivity';
 import { useSystemLevelAppConfig } from './app/system-level-app-config';
-import { SettingsJSON, SystemSettings } from '@/common/services/ui-settings';
+import { SettingsJSON, SystemSettings } from '@/common/store/app/ui-settings';
 
 export const useAppStore = defineStore('app', () => {
   const appSize = useAppSize();

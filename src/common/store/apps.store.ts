@@ -11,26 +11,33 @@
 import { ref } from 'vue';
 import { defineStore } from 'pinia';
 import { makeProcessesPlace } from './apps/processes';
-import { AppInfo } from '@/common/types';
+import { AppInfo, ChannelVersion } from '@/common/types';
 import { downloadApp, installApp } from './apps/app-operations';
 import { SingleProc, defer, makeSyncedFunc } from '@v1nt1248/3nclient-lib/utils';
 import { makeRestartInfoPlace } from './apps/restart-info';
 import { makeAppsAndLaunchersInfoPlace } from './apps/apps-and-launchers-info';
 import { makePlatform } from './apps/platform';
+import { compare as compareSemVer } from 'semver';
 import { debouncedFnCall } from '@/common/utils/debounce';
-import { checkAppUpdates, checkPlatformUpdates } from './apps/checking-updates';
-import { getGlobalEventsSink, userSystem } from '@/common/services';
 import { toRO } from '@/common/utils/readonly';
+import { Confs } from './apps/system-info/confs';
 
 type PostInstallState = web3n.system.apps.PostInstallState;
+type BundleVersions = web3n.system.platform.BundleVersions;
 
 export const useAppsStore = defineStore('apps', () => {
-  const { processes, delProcess, upsertProcess } = makeProcessesPlace();
+  const confs = new Confs();
+  const { processes, delProcess, upsertProcess, emitEvent } = makeProcessesPlace();
 
   const autoUpdate = ref(true);
-  const { appLaunchers, applicationsInSystem, getApp, fetchAppsInfo } = makeAppsAndLaunchersInfoPlace();
+  const {
+    appLaunchers, applicationsInSystem, getApp, fetchAppsInfo, initializeCached,
+    needInitialSetup, getAppDistInfo, getBundleDistInfo
+  } = makeAppsAndLaunchersInfoPlace();
   const { restart, setAppsRestart, setPlatformRestart } = makeRestartInfoPlace();
-  const { platform, downloadPlatformUpdate } = makePlatform(delProcess, upsertProcess, restart, setPlatformRestart);
+  const {
+    platform, downloadPlatformUpdate
+  } = makePlatform(delProcess, upsertProcess, restart, setPlatformRestart);
 
   function toggleAutoUpdate(value?: boolean): void {
     if (typeof value === 'boolean') {
@@ -38,28 +45,89 @@ export const useAppsStore = defineStore('apps', () => {
     } else {
       autoUpdate.value = !autoUpdate.value;
     }
-    // XXX we need to save this to file, but don't have to wait here
+    confs.setAutoUpdate(autoUpdate.value);
   }
 
   async function initialize(): Promise<void> {
-    // XXX read autoUpdate value from some value, or set default value
+    await Promise.all([
+      initializeCached(),
 
-    platform.value.version = (await w3n.system!.platform!.getCurrentVersion()).bundle;
+      confs.init().then(async () => {
+        autoUpdate.value = await confs.getAutoUpdate();
+      }).catch(err => w3n.log('error', `Initializing launcher confs threw an error`, err)),
+
+      w3n.system!.platform!.getCurrentVersion().then(v => {
+        platform.value.version = v.bundle;
+      }).catch(err => w3n.log('error', `Initializing launcher info threw an error`, err))
+    ]);
+  }
+
+  async function checkAppUpdates(app: AppInfo, forceInfoDownload: boolean): Promise<void> {
+    const {
+      appId,
+      versions: { latest: current },
+    } = app;
+    upsertProcess(appId, {
+      procType: 'update-checking',
+    });
+    try {
+      const distInfo = await getAppDistInfo(appId, forceInfoDownload);
+      if (!distInfo) {
+        app.updates = undefined;
+        return;
+      }
+
+      const updateOpts: NonNullable<AppInfo['updates']> = [];
+      for (const [channel, version] of Object.entries(distInfo.versions)) {
+        if (compareSemVer(current, version) < 0) {
+          updateOpts.push({ channel, version });
+        }
+      }
+      if (updateOpts.length > 0) {
+        app.updates = updateOpts;
+      } else if (app.updates) {
+        app.updates = undefined;
+      }
+    } finally {
+      delProcess(appId, 'update-checking');
+    }
+  }
+
+  async function checkPlatformUpdates(forceInfoDownload: boolean): Promise<void> {
+    upsertProcess(null, {
+      procType: 'update-checking',
+    });
+    try {
+      const distInfo = await getBundleDistInfo(forceInfoDownload);
+      if (!distInfo) {
+        return;
+      }
+
+      const currentVer = await w3n.system!.platform!.getCurrentVersion();
+      const updateOpts: ChannelVersion[] = [];
+      for (const [channel, latestChannelVer] of Object.entries(distInfo.versions)) {
+        if (canUpdateBundle(currentVer, latestChannelVer)) {
+          updateOpts.push({ channel, version: latestChannelVer.bundle });
+        }
+      }
+      if (updateOpts.length > 0) {
+        platform.value.availableUpdates = updateOpts;
+      }
+    } finally {
+      delProcess(null, 'update-checking');
+    }
   }
 
   const downloadAndInstallApp = debouncedFnCall(async function downloadAndInstallApp(
-    app: AppInfo,
-    version: string,
+    app: AppInfo, version: string,
   ): Promise<PostInstallState | undefined> {
     try {
       if (!app.versions.packs || !app.versions.packs.includes(version)) {
         await downloadApp(app.appId, version, delProcess, upsertProcess);
       }
-
       return await installApp(app.appId, version, delProcess, upsertProcess);
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
-      w3n.log('error', `Failed to download and install app ${app.appId} version ${version}`);
+      await w3n.log('error', `Failed to download and install app ${app.appId} version ${version}`, err);
     }
   });
 
@@ -69,7 +137,7 @@ export const useAppsStore = defineStore('apps', () => {
       procType: 'unzipping',
       progressValue: 0,
     });
-    w3n.system!.apps!.installer!.unpackBundledApp(appId, {
+    w3n.system!.apps!.installer!.addPackFromBundledApps(appId, {
       next: ev => {
         const { numOfFiles, numOfProcessed } = ev;
         const progressValue = Math.floor((numOfProcessed / numOfFiles) * 100);
@@ -93,11 +161,18 @@ export const useAppsStore = defineStore('apps', () => {
   const installBundledApp = debouncedFnCall(
     async function installBundledApp(appId: string, version: string): Promise<void> {
       try {
-        await unpackBundledApp(appId);
-        await installApp(appId, version, delProcess, upsertProcess);
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      } catch (err) {
-        w3n.log('error', `Failed to install app ${appId} version ${version}`);
+        try {
+          await unpackBundledApp(appId)
+        } catch (err) {
+            await w3n.log('error', `Failed to unpack bundled version of app ${appId}`, err);
+            return;
+        }
+        try {
+          await installApp(appId, version, delProcess, upsertProcess);
+        } catch (err) {
+          await w3n.log('error', `Failed to install app ${appId} version ${version}`, err);
+          return;
+        }
       } finally {
         await updateAppsAndLaunchersInfo();
       }
@@ -110,9 +185,9 @@ export const useAppsStore = defineStore('apps', () => {
   ): Promise<void> {
     const installedApps = applicationsInSystem.value.filter(({ versions: { current } }) => !!current);
     for (const app of installedApps) {
-      await checkAppUpdates(app, forceInfoDownload, delProcess, upsertProcess);
+      await checkAppUpdates(app, forceInfoDownload);
     }
-    await checkPlatformUpdates(platform.value, forceInfoDownload, delProcess, upsertProcess);
+    await checkPlatformUpdates(forceInfoDownload);
   });
 
   async function checkAndInstallAllUpdates(applyUpdates?: boolean): Promise<void> {
@@ -159,35 +234,36 @@ export const useAppsStore = defineStore('apps', () => {
 
   const updateAppsAndLaunchersInfo = makeSyncedFunc(new SingleProc(), undefined, async () => {
     await fetchAppsInfo(platform.value);
-    if (appLaunchers.value.length === 0 && (await userSystem.hasAppPacks())) {
+    if (appLaunchers.value.length === 0 && (await needInitialSetup())) {
       // trigger installation in a new system, which will call this func again
       installBundledAppsIntoNewSystem();
       return;
     }
   });
 
-  const installBundledAppsIntoNewSystem = debouncedFnCall(async () => {
+  const installBundledAppsIntoNewSystem = debouncedFnCall(async function installBundledAppsIntoNewSystem() {
     const { 'app-packs': appPacks } = await w3n.system!.platform!.getCurrentVersion();
     const bundledAppsForInstall = Object.entries(appPacks).map(([id, version]) => ({ id, version }));
 
     if (bundledAppsForInstall.length === 0) {
-      // there is nothing to install
+      console.log(`There are no bundled apps to install on first run`);
       return;
     }
 
-    const $emit = getGlobalEventsSink();
+    emitEvent({ 'init-setup:start': {
+      bundledAppsForInstall: bundledAppsForInstall.map(({ id }) => id)
+    }});
 
-    $emit('init-setup:start', {
-      bundledAppsForInstall: bundledAppsForInstall.map(({ id }) => id),
-    });
+    for (const { id, version } of bundledAppsForInstall) {
+      try {
+        await installBundledApp(id, version);
+        await updateAppsAndLaunchersInfo();
+      } catch (err) {
+        console.error(`Error occured during installation of bundled app ${id}, version ${version}`, err);
+      }
+    }
 
-    const installProcs = bundledAppsForInstall
-      .map(({ id, version }) => installBundledApp(id, version))
-      .map(proc => proc.then(updateAppsAndLaunchersInfo).catch(noop));
-
-    await Promise.all(installProcs);
-
-    $emit('init-setup:done', null);
+    emitEvent({ 'init-setup:done': null });
 
     w3n.system!.apps!.opener!.triggerAllStartupLaunchers();
 
@@ -218,4 +294,27 @@ export const useAppsStore = defineStore('apps', () => {
 
 export type AppsStore = ReturnType<typeof useAppsStore>;
 
-function noop() {}
+function canUpdateBundle(current: BundleVersions, latestAvailable: BundleVersions): boolean {
+  const platDiff = compareSemVer(current.platform, latestAvailable.platform);
+  if (platDiff < 0) {
+    return true;
+  } else if (platDiff > 0) {
+    return false;
+  }
+
+  const currBundleNum = parseInt(current.bundle.substring(current.bundle.indexOf('+') + 1));
+  const latestBundleNum = parseInt(latestAvailable.bundle.substring(latestAvailable.bundle.indexOf('+') + 1));
+  if (currBundleNum >= latestBundleNum) {
+    return false;
+  }
+
+  for (const [appId, version] of Object.entries(latestAvailable.apps)) {
+    const currVer = current.apps[appId];
+    if (currVer === undefined || compareSemVer(currVer, version) < 0) {
+      return true;
+    }
+  }
+
+  return false;
+}
+

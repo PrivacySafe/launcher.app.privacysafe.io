@@ -1,7 +1,7 @@
 {
   "name": "Dashboard",
   "appDomain": "launcher.app.privacysafe.io",
-  "version": "0.9.14",
+  "version": "0.10.1",
   "icon": "logo.png",
   "description": "Dashboard/Launcher manages and launches your apps.",
 
@@ -16,7 +16,7 @@
           "appFS": [
             {
               "domain": "launcher.app.privacysafe.io",
-              "storage": "local"
+              "storage": "synced-n-local"
             }
           ]
         },
@@ -54,7 +54,7 @@
           "appFS": [
             {
               "domain": "launcher.app.privacysafe.io",
-              "storage": "local"
+              "storage": "synced-n-local"
             }
           ]
         },

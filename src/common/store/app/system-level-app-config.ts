@@ -16,7 +16,7 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
 import { toRO } from '@/common/utils/readonly';
-import { SystemSettings } from '@/common/services/ui-settings';
+import { SystemSettings } from '@/common/store/app/ui-settings';
 import { AvailableColorTheme, AvailableLanguage } from '@/common/types';
 import { ref } from 'vue';
 
