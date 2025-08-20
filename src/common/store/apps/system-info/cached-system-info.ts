@@ -10,7 +10,6 @@
 
 import { deepEqual } from '@/common/lib-common/json-utils';
 import {
-  MAIN_GUI_ENTRYPOINT,
   getDynamicLaunchersLocations,
   getLaunchersForUser,
 } from '@/common/lib-common/manifest-utils';
@@ -25,6 +24,7 @@ type AppManifest = web3n.caps.AppManifest;
 type DynamicLaunchers = web3n.caps.DynamicLaunchers;
 
 interface CachedAppVersions {
+  createdByVersion: string;
   formatVer: 2;
   stateTS: number;
   apps: {
@@ -49,6 +49,7 @@ export interface CachedAppLaunchers {
 const appVersionsPath = '/cached/app-versions.json';
 
 export class CachedSystemInfo {
+  private myVersion = '';
   private stateTS = 0;
   private launchers: CachedAppVersions['launchers'] = {};
   private apps: CachedAppVersions['apps'] = {};
@@ -64,21 +65,22 @@ export class CachedSystemInfo {
     Object.seal(this);
   }
 
-  init(): Promise<void> {
+  async init(): Promise<void> {
+    this.myVersion = await w3n.myVersion();
     return this.refreshProc.start(async () => {
       this.fs = await w3n.storage!.getAppLocalFS!();
       try {
         const {
-          formatVer, stateTS, launchers, apps
+          createdByVersion, formatVer, stateTS, launchers, apps
         } = await this.fs.readJSONFile<CachedAppVersions>(appVersionsPath);
-        if (formatVer === 2) {
+        if ((createdByVersion !== this.myVersion) || (formatVer !== 2)) {
+          await this.unsyncedAppVersionsRefresh();
+        } else {
           this.stateTS = stateTS;
           this.launchers = launchers;
           Object.values(this.launchers).forEach(l => this.onInfoEvent(undefined, { upsert: l }));
           this.apps = apps;
           Object.values(this.apps).forEach(app => this.onInfoEvent({ upsert: app }, undefined));
-        } else {
-          await this.unsyncedAppVersionsRefresh();
         }
       } catch (exc) {
         if (!(exc as FileException).notFound) {
@@ -103,6 +105,7 @@ export class CachedSystemInfo {
     for (const id of removed) {
       delete this.apps[id];
       delete this.launchers[id];
+      this.onInfoEvent({ remove: id }, { remove: id });
     }
 
     // create new values for added or changed apps
@@ -247,20 +250,8 @@ async function getAppLaunchers(id: string, m: AppManifest | undefined): Promise<
   if (!staticLaunchers && !dynLaunchers) {
     return;
   }
+  const defaultLauncher = staticLaunchers?.shift();
 
-  let defaultLauncher: CachedAppLaunchers['defaultLauncher'] = undefined;
-  if (staticLaunchers) {
-    let indOfDefault = staticLaunchers.findIndex(l => l.component === MAIN_GUI_ENTRYPOINT);
-    if (indOfDefault < 0) {
-      indOfDefault = 0;
-    }
-    defaultLauncher = staticLaunchers[indOfDefault];
-    if (staticLaunchers.length === 1) {
-      staticLaunchers = undefined;
-    } else {
-      staticLaunchers.splice(indOfDefault, 1);
-    }
-  }
   const appLaunchers: CachedAppLaunchers = {
     appId,
     version,

@@ -26,11 +26,14 @@
     systemFoldersDisplaying,
     allowShowingDevtool,
     autoUpdate,
+    customLogoSrc,
     changeColorTheme,
     changeSystemFoldersDisplaying,
     changeAllowShowingDevtool,
     toggleAutoUpdate,
-    wipeDataFromDevice
+    wipeDataFromDevice,
+    addCustomLogo,
+    removeCustomLogo
   } = useSettings();
 
   function _changeColorTheme(isDarkColorTheme: boolean) {
@@ -47,7 +50,7 @@
 
 <template>
   <div :class="$style.settings">
-    <!-- theme -->
+    <!-- appearance section/block -->
     <div :class="$style.block">
       <div :class="$style.title">
         {{ $tr('settings.section.appearance') }}
@@ -80,13 +83,8 @@
           </span>
         </div>
       </div>
-    </div>
-    <!-- languages -->
-    <div :class="$style.block">
-      <div :class="$style.title">
-        {{ $tr('settings.label.language') }}
-      </div>
 
+      <!-- languages -->
       <div :class="$style.row">
         <h4 :class="$style.label">
           {{ $tr('settings.label.language') }}
@@ -104,13 +102,75 @@
           </ui3n-radio>
         </div>
       </div>
+
+      <!-- custom logo -->
+      <div :class="$style.row">
+        <h4 :class="$style.label">
+          {{ $tr('settings.label.custom-logo') }}
+        </h4>
+        <div :class="$style.value">
+          <ui3n-button
+            v-if="!customLogoSrc"
+            type="primary"
+            icon="round-plus"
+            @click="addCustomLogo"
+          >
+            {{ $tr('settings.custom-logo.btn.add-logo') }}
+          </ui3n-button>
+
+          <img
+            v-if="!!customLogoSrc"
+            :src="customLogoSrc"
+            alt="logo"
+            :class="$style.customLogo"
+          />
+
+          <ui3n-button
+            v-if="!!customLogoSrc"
+            type="secondary"
+            icon="outline-delete"
+            @click="removeCustomLogo"
+          />
+        </div>
+      </div>
     </div>
-    <!-- show system folders -->
+
+    <!-- system section/block -->
     <div :class="$style.block">
       <div :class="$style.title">
-        {{ $tr('settings.label.system.folders') }}
+        {{ $tr('settings.system') }}
       </div>
 
+      <!-- autoupdates -->
+      <div :class="$style.row">
+        <h4 :class="$style.label">
+          {{ $tr('settings.label.autoupdates') }}
+        </h4>
+
+        <div :class="$style.value">
+          <span
+            :class="$style.pointer"
+            @click="changeAutoUpdate(false)"
+          >
+            {{ $tr('settings.label.off') }}
+          </span>
+
+          <ui3n-switch
+            size="16"
+            :model-value="autoUpdate"
+            @change="toggleAutoUpdate"
+          />
+
+          <span
+            :class="$style.pointer"
+            @click="changeAutoUpdate(true)"
+          >
+            {{ $tr('settings.label.on') }}
+          </span>
+        </div>
+      </div>
+
+      <!-- show system folders -->
       <div :class="$style.row">
         <h4 :class="$style.label">
           {{ $tr('settings.label.system.folders') }}
@@ -138,13 +198,8 @@
           </span>
         </div>
       </div>
-    </div>
-    <!-- allow devtool  -->
-    <div :class="$style.block">
-      <div :class="$style.title">
-        {{ $tr('settings.label.showing.devtool') }}
-      </div>
 
+      <!-- allow devtool  -->
       <div :class="$style.row">
         <h4 :class="$style.label">
           {{ $tr('settings.label.showing.devtool') }}
@@ -174,40 +229,7 @@
       </div>
     </div>
 
-    <div :class="$style.block">
-      <div :class="$style.title">
-        {{ $tr('settings.updates') }}
-      </div>
-
-      <div :class="$style.row">
-        <h4 :class="$style.label">
-          {{ $tr('settings.label.autoupdates') }}
-        </h4>
-
-        <div :class="$style.value">
-          <span
-            :class="$style.pointer"
-            @click="changeAutoUpdate(false)"
-          >
-            {{ $tr('settings.label.off') }}
-          </span>
-
-          <ui3n-switch
-            size="16"
-            :model-value="autoUpdate"
-            @change="toggleAutoUpdate"
-          />
-
-          <span
-            :class="$style.pointer"
-            @click="changeAutoUpdate(true)"
-          >
-            {{ $tr('settings.label.on') }}
-          </span>
-        </div>
-      </div>
-    </div>
-
+    <!-- Data section/block -->
     <div :class="$style.block">
       <div :class="$style.title">
         {{ $tr('system.data-removal.section') }}
@@ -221,6 +243,7 @@
         </ui3n-button>
       </div>
     </div>
+
   </div>
 </template>
 
@@ -285,5 +308,9 @@
 
 .pointer {
   cursor: pointer;
+}
+
+.customLogo {
+  max-height: var(--spacing-l);
 }
 </style>

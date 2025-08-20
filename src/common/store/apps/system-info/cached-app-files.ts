@@ -24,7 +24,9 @@ export class CachedAppFiles {
     }
     const proc = this.procs.getP<Uint8Array | undefined>(key);
     if (proc) {
-      return proc;
+      // ToDo this should've been returning promise, but, now it returns undefined, and we work around 
+      await proc;
+      return this.cache.get(key);
     }
     return this.procs.start(key, async () => {
       const fileBytes = await w3n.system!.apps!.installer!.getAppFileBytes(appId, path, version);

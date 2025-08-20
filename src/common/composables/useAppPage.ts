@@ -32,7 +32,7 @@ export type AppViewInstance = ReturnType<typeof useAppPage>;
 export function useAppPage() {
 
   const appStore = useAppStore();
-  const { appVersion, user, connectivityStatus, appElement } = storeToRefs(appStore);
+  const { appVersion, user, connectivityStatus, appElement, customLogoSrc } = storeToRefs(appStore);
 
   const appsStore = useAppsStore();
   const { restart, applicationsInSystem, platform } = storeToRefs(appsStore);
@@ -128,6 +128,7 @@ export function useAppPage() {
     appElement,
     connectivityStatus,
     connectivityStatusText,
+    customLogoSrc,
     needPlatformRestartAfterUpdate,
     checkProcIsOn,
     user,

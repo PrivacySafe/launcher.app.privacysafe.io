@@ -1,5 +1,5 @@
 <!--
- Copyright (C) 2024 3NSoft Inc.
+ Copyright (C) 2024 - 2025 3NSoft Inc.
 
  This program is free software: you can redistribute it and/or modify it under
  the terms of the GNU General Public License as published by the Free Software
@@ -30,11 +30,14 @@ const {
   systemFoldersDisplaying,
   allowShowingDevtool,
   autoUpdate,
+  customLogoSrc,
   changeColorTheme,
   changeSystemFoldersDisplaying,
   changeAllowShowingDevtool,
   toggleAutoUpdate,
-  wipeDataFromDevice
+  wipeDataFromDevice,
+  addCustomLogo,
+  removeCustomLogo
 } = useSettings();
 </script>
 
@@ -54,10 +57,13 @@ const {
     </div>
 
     <div :class="$style.body">
-      <div :class="$style.row">
-        <div :class="$style.rowHeader">
+
+      <!-- appearance section/block -->
+      <div :class="$style.block">
+        <div :class="$style.blockHeader">
           {{ $tr('settings.section.appearance') }}
         </div>
+
         <!-- theme -->
         <div :class="$style.rowBody">
           <div :class="$style.rowBodyLabel">
@@ -74,6 +80,7 @@ const {
             <span>{{ $tr(AVAILABLE_THEMES.dark.label) }}</span>
           </div>
         </div>
+
         <!-- languages -->
         <div :class="$style.rowBody">
           <div :class="$style.rowBodyLabel">
@@ -92,6 +99,63 @@ const {
             </ui3n-radio>
           </div>
         </div>
+
+        <!-- custom logo -->
+        <div :class="$style.rowBody">
+          <div :class="$style.rowBodyLabel">
+            {{ $tr('settings.label.custom-logo') }}
+          </div>
+
+          <div :class="$style.rowBodyValue">
+            <ui3n-button
+              v-if="!customLogoSrc"
+              type="primary"
+              icon="round-plus"
+              @click="addCustomLogo"
+            >
+              {{ $tr('settings.custom-logo.btn.add-logo') }}
+            </ui3n-button>
+
+            <img
+              v-if="!!customLogoSrc"
+              :src="customLogoSrc"
+              alt="logo"
+              :class="$style.customLogo"
+            />
+
+            <ui3n-button
+              v-if="!!customLogoSrc"
+              type="secondary"
+              icon="outline-delete"
+              @click="removeCustomLogo"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- system section/block -->
+      <div :class="$style.block">
+        <div :class="$style.blockHeader">
+          {{ $tr('settings.system') }}
+        </div>
+
+        <!-- autoupdates -->
+        <div :class="$style.rowBody">
+          <div :class="$style.rowBodyLabel">
+            {{ $tr('settings.label.autoupdates') }}
+          </div>
+
+          <div :class="$style.rowBodyValue">
+            <span>{{ $tr('settings.label.off') }}</span>
+            <ui3n-switch
+              size="16"
+              :model-value="autoUpdate"
+              @change="toggleAutoUpdate"
+            />
+            <span>{{ $tr('settings.label.on') }}</span>
+          </div>
+        </div>
+
         <!-- showing system folders -->
         <div :class="$style.rowBody">
           <div :class="$style.rowBodyLabel">
@@ -110,6 +174,7 @@ const {
             <span>{{ $tr('settings.label.yes') }}</span>
           </div>
         </div>
+
         <!-- showing devtool -->
         <div :class="$style.rowBody">
           <div :class="$style.rowBodyLabel">
@@ -130,29 +195,9 @@ const {
         </div>
       </div>
 
-      <div :class="$style.row">
-        <div :class="$style.rowHeader">
-          {{ $tr('settings.updates') }}
-        </div>
-        <div :class="$style.rowBody">
-          <div :class="$style.rowBodyLabel">
-            {{ $tr('settings.label.autoupdates') }}
-          </div>
-
-          <div :class="$style.rowBodyValue">
-            <span>{{ $tr('settings.label.off') }}</span>
-            <ui3n-switch
-              size="16"
-              :model-value="autoUpdate"
-              @change="toggleAutoUpdate"
-            />
-            <span>{{ $tr('settings.label.on') }}</span>
-          </div>
-        </div>
-      </div>
-
-      <div :class="$style.row">
-        <div :class="$style.rowHeader">
+      <!-- Data section/block -->
+      <div :class="$style.block">
+        <div :class="$style.blockHeader">
           {{ $tr('system.data-removal.section') }}
         </div>
         <div :class="$style.rowBody">
@@ -207,13 +252,13 @@ const {
   padding: var(--spacing-m);
 }
 
-.row {
+.block {
   position: relative;
   width: 100%;
   margin-bottom: var(--spacing-m);
 }
 
-.rowHeader {
+.blockHeader {
   display: flex;
   width: 100%;
   height: var(--spacing-ml);
@@ -256,5 +301,9 @@ const {
     color: var(--color-text-control-primary-default);
     text-transform: capitalize;
   }
+}
+
+.customLogo {
+  max-height: var(--spacing-l);
 }
 </style>

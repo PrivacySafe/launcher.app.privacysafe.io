@@ -15,7 +15,7 @@
  this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-/// <reference path="../core-defs/common-caps.d.ts" />
+/// <reference path="../../node_modules/core-3nweb-client-lib/build/api-defs/common-caps.d.ts" />
 
 declare namespace web3n.caps {
 
@@ -60,6 +60,16 @@ declare namespace web3n.caps {
 		exposedFSResources?: {
 			[resourceName: string]: FSResourceDescriptor;
 		};
+
+		// XXX 
+		// App that uses connectors (TBD) may want to provide default connector
+		// settings, allowing user to start with non-empty configuration that may
+		// evolve into some custom settings, e.g. Thunderbird will let one setup
+		// gmail with simple parameters of user name and password, indicating
+		// that technical details come from app.
+		// Besides having info here, we may see json format developing to allow
+		// easy passing of connectivity data from providers to their users.
+		// defaultConnections?: {}[];
 	}
 
 	/**
@@ -87,7 +97,7 @@ declare namespace web3n.caps {
 	 * desktop and mobile devices without expecting each component to be
 	 * cross-platform and cross-form-factor (has this ever existed?).
 	 */
-	interface Launcher {
+	interface Launcher extends FormFactorSetting {
 		/**
 		 * name that will be displayed with icon.
 		 * When app has several user-launchable components, different names with
@@ -113,6 +123,9 @@ declare namespace web3n.caps {
 		 * description is a place to tell user what this app/launcher does.
 		 */
 		description: string;
+	}
+
+	interface FormFactorSetting {
 		/**
 		 * formFactor is a form factor filter. When present, component can be
 		 * started only in enumerated user interface form factors. When filter is
@@ -124,7 +137,7 @@ declare namespace web3n.caps {
 	/**
 	 * Pointer to location with dynamically created launchers.
 	 */
-	interface DynamicLaunchers {
+	interface DynamicLaunchers extends FormFactorSetting {
 		/**
 		 * appStorage tells in which app storage file system is located.
 		 */
@@ -205,7 +218,7 @@ declare namespace web3n.caps {
 		sharedLibs?: SharedLibInfo[];
 	}
 
-	interface CommonGUIComponentSetting extends CommonComponentSetting {
+	interface CommonGUIComponentSetting extends CommonComponentSetting, FormFactorSetting {
 		runtime: GUIRuntime;
 		/**
 		 * icon is a path to icon file within app folder to use for opened window.
@@ -251,7 +264,8 @@ declare namespace web3n.caps {
 		fileDialog?: FileDialogsCAPSettings;
 		mountFS?: DeviceMountFSCAPSetting;
 		userNotifications?: true;
-		startAppCmds?: ResourcesRequest;
+		openDashboard?: true;
+		startAppCmds?: StartCmdDef;
 		fsResource?: ResourcesRequest;
 	}
 
@@ -265,6 +279,8 @@ declare namespace web3n.caps {
 		thisApp?: string|string[];
 		otherApps?: { [ appDomain: string ]: string|string[]; };
 	}
+
+	interface StartCmdDef extends ResourcesRequest, FormFactorSetting {}
 
 	interface MediaDevicesCAPSetting {
 		cameras?: 'all'|'select'|'use';

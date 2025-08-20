@@ -10,7 +10,6 @@
 
 import { CachedAppLaunchers, CachedSystemInfo } from '@/common/store/apps/system-info/cached-system-info';
 import { AppInfo, AppLaunchers, Launcher } from '@/common/types';
-import { toRO } from '@/common/utils/readonly';
 import { ref } from 'vue';
 import { compare as compareSemVer } from 'semver';
 import { PlatformInfo } from './platform';
@@ -79,6 +78,7 @@ export function makeAppsAndLaunchersInfoPlace() {
   }
 
   async function fetchAppsInfo(platform: PlatformInfo) {
+    // note that this call is sending events during await here
     const { cacheTS: dataTS, launchers, apps } = await sysInfoSrc.getAppsInfoAndLaunchers(true);
     if (cacheTS.value === dataTS) {
       return;
@@ -152,8 +152,7 @@ export function makeAppsAndLaunchersInfoPlace() {
   }
 
   async function appLauncherFromInfo(
-    appId: string,
-    version: string,
+    appId: string, version: string,
     { description, icon, name, component, formFactor, startCmd }: web3n.caps.Launcher,
   ): Promise<Launcher> {
     const iconBytes = icon ? await files.getFileBytes(appId, version, icon) : undefined;

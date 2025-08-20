@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2024 3NSoft Inc.
+ Copyright (C) 2024 - 2025 3NSoft Inc.
 
  This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 
@@ -12,8 +12,8 @@ import type { AppConfig, AvailableLanguage, AvailableColorTheme } from '@/common
 import { SingleProc } from '@v1nt1248/3nclient-lib/utils';
 
 export interface AppConfigsInternal {
-  getSettingsFile: () => Promise<AppSettings>;
-  saveSettingsFile: (data: AppSettings) => Promise<void>;
+  getAll: () => Promise<SettingsJSON>;
+  saveSettingsFile: (data: AppConfig) => Promise<void>;
   getCurrentLanguage: () => Promise<AvailableLanguage>;
   getCurrentColorTheme: () => Promise<AvailableColorTheme>;
   getSystemFoldersDisplaying: () => Promise<boolean>;
@@ -25,6 +25,7 @@ export interface AppConfigs {
   getCurrentColorTheme: () => Promise<AvailableColorTheme>;
   getSystemFoldersDisplaying: () => Promise<boolean>;
   getAllowShowingDevtool: () => Promise<boolean>;
+  getAll: () => Promise<SettingsJSON>;
   watchConfig(obs: web3n.Observer<AppConfig>): () => void;
 }
 
@@ -33,6 +34,7 @@ export interface SettingsJSON {
   colorTheme: AvailableColorTheme;
   systemFoldersDisplaying: boolean;
   allowShowingDevtool: boolean;
+  customLogo: AppConfig['customLogo'];
 }
 
 export interface AppSettings {
@@ -82,13 +84,9 @@ export class SystemSettings implements AppConfigs, AppConfigsInternal {
     }
   }
 
-  async getSettingsFile(): Promise<AppSettings> {
-    const currentConfig = await this.file.readJSON<SettingsJSON>();
-    return { currentConfig };
-  }
-
-  async saveSettingsFile(data: AppSettings): Promise<void> {
-    const settingsJSON = data.currentConfig as SettingsJSON;
+  async saveSettingsFile(data: AppConfig): Promise<void> {
+    console.log(`@ saveSettingsFile data is`, data);
+    const settingsJSON = data as SettingsJSON;
     const { file, syncProc } = this.writableFile;
     await syncProc.startOrChain(() => file.writeJSON(settingsJSON));
   }
@@ -113,21 +111,22 @@ export class SystemSettings implements AppConfigs, AppConfigsInternal {
     return allowShowingDevtool;
   }
 
+  async getAll(): Promise<SettingsJSON> {
+    return await this.file.readJSON<SettingsJSON>();
+  }
+
   watchConfig(obs: web3n.Observer<AppConfig>): () => void {
     return this.file.watch({
       next: obs.next
         ? async event => {
             if (event.type === 'file-change') {
-              const lang = await this.getCurrentLanguage();
-              const colorTheme = await this.getCurrentColorTheme();
-              const systemFoldersDisplaying = await this.getSystemFoldersDisplaying();
-              const allowShowingDevtool = await this.getAllowShowingDevtool();
-              obs.next!({ lang, colorTheme, systemFoldersDisplaying, allowShowingDevtool });
+              const confs = await this.getAll();
+              obs.next!({ ...confs });
             }
           }
         : undefined,
-      complete: obs.complete ? () => obs.complete!() : undefined,
-      error: err => (obs.error ? obs.error!(err) : undefined),
+      complete: obs.complete,
+      error: obs.error,
     });
   }
 }

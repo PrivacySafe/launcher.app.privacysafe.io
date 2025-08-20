@@ -35,6 +35,7 @@ const {
   user,
   connectivityStatus,
   connectivityStatusText,
+  customLogoSrc,
   needPlatformRestartAfterUpdate,
   checkProcIsOn,
   appExit,
@@ -60,7 +61,7 @@ onBeforeUnmount(doBeforeUnmount);
     <div :class="$style.toolbar">
       <div :class="$style.toolbarTitle">
         <img
-          :src="prLogo"
+          :src="customLogoSrc ? customLogoSrc : prLogo"
           alt="logo"
           :class="$style.toolbarLogo"
         />

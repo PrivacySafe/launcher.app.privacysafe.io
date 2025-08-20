@@ -22,7 +22,9 @@ export const useAppStore = defineStore('app', () => {
   const { connectivityStatus } = connectivity;
 
   const commonAppConfs = useSystemLevelAppConfig();
-  const { appVersion, user, lang, colorTheme, systemFoldersDisplaying, allowShowingDevtool } = commonAppConfs;
+  const {
+    appVersion, user, lang, colorTheme, systemFoldersDisplaying, allowShowingDevtool, customLogoSrc
+  } = commonAppConfs;
 
   async function initialize() {
     await Promise.all([connectivity.initialize(), commonAppConfs.initialize()]);
@@ -37,15 +39,12 @@ export const useAppStore = defineStore('app', () => {
   async function updateSettings(appConfig: Partial<SettingsJSON>) {
     const config = await SystemSettings.makeInternalService();
     const updatedAppConfig = {
-      lang: lang.value,
-      colorTheme: colorTheme.value,
-      systemFoldersDisplaying: !!systemFoldersDisplaying.value,
-      allowShowingDevtool: !!allowShowingDevtool.value,
+      // to current values
+      ...(await config.getAll()),
+      // add updates
       ...appConfig,
     };
-    await config.saveSettingsFile({
-      currentConfig: updatedAppConfig,
-    });
+    await config.saveSettingsFile(updatedAppConfig);
   }
 
   return {
@@ -57,6 +56,7 @@ export const useAppStore = defineStore('app', () => {
     systemFoldersDisplaying,
     allowShowingDevtool,
     connectivityStatus,
+    customLogoSrc,
     initialize,
     stopWatching,
     updateSettings,
