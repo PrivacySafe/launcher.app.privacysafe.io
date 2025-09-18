@@ -39,29 +39,26 @@ export interface CachedBundleDistributionInfo extends ChannelsInfo {
 const UPDATES_CACHE_DIR = '/cached/apps-dist-info';
 const UPDATE_INFO_FILE = 'bundle';
 
-export class AppDistInfoChecker {
-  private fs: WritableFS | undefined = undefined;
-  private readonly procSync = new NamedProcs();
-  private initProc: Promise<void> | undefined = undefined;
+export function makeAppDistInfo() {
 
-  constructor() {
-    Object.seal(this);
-  }
+  let fs: WritableFS | undefined = undefined;
+  const procSync = new NamedProcs();
+  let initProc: Promise<void> | undefined = undefined;
 
-  init(): Promise<void> {
-    this.initProc = w3n.storage!.getAppLocalFS!()
+  function init(): Promise<void> {
+    initProc = w3n.storage!.getAppLocalFS!()
       .then(appFS => appFS.writableSubRoot(UPDATES_CACHE_DIR))
-      .then(fs => {
-        this.fs = fs;
-        this.initProc = undefined;
+      .then(cacheDir => {
+        fs = cacheDir;
+        initProc = undefined;
       });
-    return this.initProc;
+    return initProc;
   }
 
-  private async getCachedData<T>(fName: string): Promise<T | undefined> {
-    await this.initProc;
+  async function getCachedData<T>(fName: string): Promise<T | undefined> {
+    await initProc;
     try {
-      return await this.fs!.readJSONFile<T>(fName);
+      return await fs!.readJSONFile<T>(fName);
     } catch (exc) {
       if ((exc as FileException).notFound) {
         return;
@@ -71,60 +68,64 @@ export class AppDistInfoChecker {
     }
   }
 
-  private async saveData<T>(fName: string, data: T): Promise<void> {
-    await this.initProc;
-    await this.fs!.writeJSONFile(fName, data);
+  async function saveData<T>(fName: string, data: T): Promise<void> {
+    await initProc;
+    await fs!.writeJSONFile(fName, data);
   }
 
-  private getCachedAppData(appId: string): Promise<CachedAppDistributionInfo | undefined> {
-    return this.getCachedData(appId);
+  function getCachedAppData(appId: string): Promise<CachedAppDistributionInfo | undefined> {
+    return getCachedData(appId);
   }
 
-  private async saveAppData(data: CachedAppDistributionInfo): Promise<void> {
-    await this.saveData(data.appId, data);
+  function getCachedBundleData(): Promise<CachedBundleDistributionInfo | undefined> {
+    return getCachedData(UPDATE_INFO_FILE);
   }
 
-  async getAppDistInfo(appId: string, forceInfoDownload = false): Promise<CachedAppDistributionInfo | undefined> {
-    const cachedInfo = await this.getCachedAppData(appId);
+  async function saveAppData(data: CachedAppDistributionInfo): Promise<void> {
+    await saveData(data.appId, data);
+  }
+
+  async function getAppDistInfo(
+    appId: string, forceInfoDownload = false
+  ): Promise<CachedAppDistributionInfo | undefined> {
+    const cachedInfo = await getCachedAppData(appId);
     if (!forceInfoDownload && cachedInfo && cacheIsRecent(cachedInfo.cacheTS, Date.now())) {
       return cachedInfo;
     }
-    return this.procSync
-      .startOrChain(appId, async () => {
-        const data = await downloadAppData(appId);
-        await this.saveAppData(data);
-        return data;
-      })
-      .catch(err => {
-        w3n.log('info', `Fail to check app ${appId} updates information`, err);
-        return cachedInfo;
-      });
+    return procSync.startOrChain(appId, async () => {
+      const data = await downloadAppData(appId);
+      await saveAppData(data);
+      return data;
+    }).catch(err => {
+      w3n.log('info', `Fail to check app ${appId} updates information`, err);
+      return cachedInfo;
+    });
   }
 
-  private getCachedBundleData(): Promise<CachedBundleDistributionInfo | undefined> {
-    return this.getCachedData(UPDATE_INFO_FILE);
+  async function saveBundleData(data: CachedBundleDistributionInfo): Promise<void> {
+    await saveData(UPDATE_INFO_FILE, data);
   }
 
-  private async saveBundleData(data: CachedBundleDistributionInfo): Promise<void> {
-    await this.saveData(UPDATE_INFO_FILE, data);
-  }
-
-  async getBundleDistInfo(forceInfoDownload = false): Promise<CachedBundleDistributionInfo | undefined> {
-    const cachedInfo = await this.getCachedBundleData();
+  async function getBundleDistInfo(forceInfoDownload = false): Promise<CachedBundleDistributionInfo | undefined> {
+    const cachedInfo = await getCachedBundleData();
     if (!forceInfoDownload && cachedInfo && cacheIsRecent(cachedInfo.cacheTS, Date.now())) {
       return cachedInfo;
     }
-    return this.procSync
-      .startOrChain(UPDATE_INFO_FILE, async () => {
-        const data = await downloadBundleData();
-        await this.saveBundleData(data);
-        return data;
-      })
-      .catch(err => {
-        w3n.log('info', `Fail to check platform updates information`, err);
-        return cachedInfo;
-      });
+    return procSync.startOrChain(UPDATE_INFO_FILE, async () => {
+      const data = await downloadBundleData();
+      await saveBundleData(data);
+      return data;
+    }).catch(err => {
+      w3n.log('info', `Fail to check platform updates information`, err);
+      return cachedInfo;
+    });
   }
+
+  return {
+    init,
+    getAppDistInfo,
+    getBundleDistInfo
+  };
 }
 
 async function downloadAppData(appId: string): Promise<CachedAppDistributionInfo> {

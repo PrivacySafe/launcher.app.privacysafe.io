@@ -20,52 +20,53 @@ interface SavedConfs {
 
 const confsPath = 'confs.json';
 
-export class Confs {
+export function makeConfs() {
 
-  private data: SavedConfs = {
+  let data: SavedConfs = {
     formatVer: 1,
     autoUpdate: true
   };
-  private fs: WritableFS | undefined = undefined;
-  private readonly refreshProc = new SingleProc();
+  let fs: WritableFS | undefined = undefined;
+  const refreshProc = new SingleProc();
 
-  constructor() {
-    Object.seal(this);
-  }
-
-  init(): Promise<void> {
-    return this.refreshProc.start(async () => {
-      this.fs = await w3n.storage!.getAppSyncedFS!();
+  async function init(): Promise<void> {
+    return refreshProc.start(async () => {
+      fs = await w3n.storage!.getAppSyncedFS!();
       try {
         const {
           formatVer, autoUpdate
-        } = await this.fs.readJSONFile<SavedConfs>(confsPath);
+        } = await fs.readJSONFile<SavedConfs>(confsPath);
         if (formatVer === 1) {
-          this.data.autoUpdate = autoUpdate;
+          data.autoUpdate = autoUpdate;
         } else {
-        await this.fs!.writeJSONFile(confsPath, this.data);
+        await fs!.writeJSONFile(confsPath, data);
         }
       } catch (exc) {
         if (!(exc as FileException).notFound) {
           throw exc;
         }
-        await this.fs!.writeJSONFile(confsPath, this.data);
+        await fs!.writeJSONFile(confsPath, data);
       }
     });
   }
 
-  async getAutoUpdate(): Promise<SavedConfs['autoUpdate']> {
-    await this.refreshProc.getP();
-    return this.data.autoUpdate;
+  async function getAutoUpdate(): Promise<SavedConfs['autoUpdate']> {
+    await refreshProc.getP();
+    return data.autoUpdate;
   }
 
-  async setAutoUpdate(value: boolean): Promise<void> {
-    await this.refreshProc.startOrChain(async () => {
-      if (this.data.autoUpdate !== value) {
-        this.data.autoUpdate = value;
-        await this.fs!.writeJSONFile(confsPath, this.data);
+  async function setAutoUpdate(value: boolean): Promise<void> {
+    await refreshProc.startOrChain(async () => {
+      if (data.autoUpdate !== value) {
+        data.autoUpdate = value;
+        await fs!.writeJSONFile(confsPath, data);
       }
     });
   }
 
+  return {
+    init,
+    getAutoUpdate,
+    setAutoUpdate
+  };
 }

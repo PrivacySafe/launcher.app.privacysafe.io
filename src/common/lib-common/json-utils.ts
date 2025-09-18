@@ -31,9 +31,10 @@ export function copy<T>(orig: T, excludeTopFields?: string[]): T {
   if (orig === null) {
     return null as any;
   }
-  if (Buffer.isBuffer(orig)) {
-    return orig as any;
-  }
+  // comment out node's stuff
+  // if (Buffer.isBuffer(orig)) {
+  //   return orig as any;
+  // }
   if (ArrayBuffer.isView(orig)) {
     return orig as any;
   }

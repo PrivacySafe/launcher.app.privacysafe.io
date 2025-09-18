@@ -57,7 +57,6 @@ const {
     </div>
 
     <div :class="$style.body">
-
       <!-- appearance section/block -->
       <div :class="$style.block">
         <div :class="$style.blockHeader">
@@ -71,13 +70,13 @@ const {
           </div>
 
           <div :class="$style.rowBodyValue">
-            <span>{{ $tr(AVAILABLE_THEMES.default.label) }}</span>
+            <span :class="$style.rowBodyText">{{ $tr(AVAILABLE_THEMES.default.label) }}</span>
             <ui3n-switch
               size="16"
               :model-value="colorTheme === 'dark'"
               @change="changeColorTheme"
             />
-            <span>{{ $tr(AVAILABLE_THEMES.dark.label) }}</span>
+            <span :class="$style.rowBodyText">{{ $tr(AVAILABLE_THEMES.dark.label) }}</span>
           </div>
         </div>
 
@@ -111,6 +110,7 @@ const {
               v-if="!customLogoSrc"
               type="primary"
               icon="round-plus"
+              icon-position="left"
               @click="addCustomLogo"
             >
               {{ $tr('settings.custom-logo.btn.add-logo') }}
@@ -121,7 +121,7 @@ const {
               :src="customLogoSrc"
               alt="logo"
               :class="$style.customLogo"
-            />
+            >
 
             <ui3n-button
               v-if="!!customLogoSrc"
@@ -146,13 +146,15 @@ const {
           </div>
 
           <div :class="$style.rowBodyValue">
-            <span>{{ $tr('settings.label.off') }}</span>
+            <span :class="$style.rowBodyText">{{ $tr('settings.label.off') }}</span>
+
             <ui3n-switch
               size="16"
               :model-value="autoUpdate"
               @change="toggleAutoUpdate"
             />
-            <span>{{ $tr('settings.label.on') }}</span>
+
+            <span :class="$style.rowBodyText">{{ $tr('settings.label.on') }}</span>
           </div>
         </div>
 
@@ -163,7 +165,7 @@ const {
           </div>
 
           <div :class="$style.rowBodyValue">
-            <span>{{ $tr('settings.label.no') }}</span>
+            <span :class="$style.rowBodyText">{{ $tr('settings.label.no') }}</span>
 
             <ui3n-switch
               size="16"
@@ -171,7 +173,7 @@ const {
               @change="changeSystemFoldersDisplaying"
             />
 
-            <span>{{ $tr('settings.label.yes') }}</span>
+            <span :class="$style.rowBodyText">{{ $tr('settings.label.yes') }}</span>
           </div>
         </div>
 
@@ -182,7 +184,7 @@ const {
           </div>
 
           <div :class="$style.rowBodyValue">
-            <span>{{ $tr('settings.label.no') }}</span>
+            <span :class="$style.rowBodyText">{{ $tr('settings.label.no') }}</span>
 
             <ui3n-switch
               size="16"
@@ -190,7 +192,7 @@ const {
               @change="changeAllowShowingDevtool"
             />
 
-            <span>{{ $tr('settings.label.yes') }}</span>
+            <span :class="$style.rowBodyText">{{ $tr('settings.label.yes') }}</span>
           </div>
         </div>
       </div>
@@ -294,13 +296,13 @@ const {
   justify-content: center;
   align-items: center;
   gap: var(--spacing-s);
+}
 
-  span {
-    font-size: var(--font-12);
-    font-weight: 500;
-    color: var(--color-text-control-primary-default);
-    text-transform: capitalize;
-  }
+.rowBodyText {
+  font-size: var(--font-12);
+  font-weight: 500;
+  color: var(--color-text-control-primary-default);
+  text-transform: capitalize;
 }
 
 .customLogo {

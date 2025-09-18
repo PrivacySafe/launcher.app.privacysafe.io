@@ -1,5 +1,5 @@
 <!--
- Copyright (C) 2024 3NSoft Inc.
+ Copyright (C) 2024 - 2025 3NSoft Inc.
 
  This program is free software: you can redistribute it and/or modify it under
  the terms of the GNU General Public License as published by the Free Software
@@ -16,7 +16,7 @@
 -->
 <script lang="ts" setup>
 import { onBeforeMount, onBeforeUnmount, ref } from 'vue';
-import { Ui3nButton, Ui3nMenu, Ui3nTabs, Ui3nRipple as vUi3nRipple } from '@v1nt1248/3nclient-lib';
+import { Ui3nButton, Ui3nMenu, Ui3nTabs, Ui3nTooltip, Ui3nRipple as vUi3nRipple } from '@v1nt1248/3nclient-lib';
 import { useAppPage } from '@/common/composables/useAppPage';
 import prLogo from '@/common/assets/images/privacysafe-logo.svg';
 import ContactIcon from '@/common/components/contact-icon.vue';
@@ -42,7 +42,8 @@ const {
   quitAndInstall,
   checkForUpdate,
   doBeforeMount,
-  doBeforeUnmount
+  doBeforeUnmount,
+  addAppFromFile
 } = useAppPage();
 
 const currentTab = ref(0);
@@ -50,6 +51,10 @@ const isSettingsShow = ref(false);
 
 onBeforeMount(doBeforeMount);
 onBeforeUnmount(doBeforeUnmount);
+
+function openSystemMap() {
+  w3n.shell!.startAppWithParams!(null, 'open-system-map');
+}
 
 </script>
 
@@ -128,15 +133,21 @@ onBeforeUnmount(doBeforeUnmount);
         </div>
       </ui3n-tabs>
 
-      <ui3n-button
-        :class=$style.settingsBtn
-        type="custom"
-        color="var(--color-bg-button-tritery-default)"
-        icon="outline-settings"
-        icon-size="24"
-        icon-color="var(--color-icon-button-tritery-default)"
-        @click="isSettingsShow = true"
-      />
+      <ui3n-tooltip
+        :content="$tr('setting.btn.open')"
+        position-strategy="fixed"
+        placement="top-start"
+      >
+        <ui3n-button
+          :class=$style.settingsBtn
+          type="custom"
+          color="var(--color-bg-button-tritery-default)"
+          icon="outline-settings"
+          icon-size="24"
+          icon-color="var(--color-icon-button-tritery-default)"
+          @click="isSettingsShow = true"
+        />
+      </ui3n-tooltip>
 
       <ui3n-button
         v-if="(currentTab === 0) && needPlatformRestartAfterUpdate"
@@ -147,15 +158,60 @@ onBeforeUnmount(doBeforeUnmount);
         {{ $tr('btn.restart-platform') }}
       </ui3n-button>
 
-      <ui3n-button
-        v-if="(currentTab === 1) && (connectivityStatus === 'online')"
-        :class=$style.checkUpdates
-        type="tertiary"
-        :disabled="checkProcIsOn"
-        @click="checkForUpdate"
+      <div
+        v-if="(currentTab === 1)"
+        :class=$style.btnsOnUpdateTab
       >
-        {{ checkProcIsOn ? $tr('btn.checking-for-update') : $tr('btn.check-update') }}
-      </ui3n-button>
+        <ui3n-tooltip
+          :content="$tr('add.app.tooltip')"
+          position-strategy="fixed"
+          placement="top-end"
+        >
+          <ui3n-button
+            type="custom"
+            color="var(--color-bg-button-tritery-default)"
+            icon="round-plus"
+            icon-size="24"
+            icon-color="var(--color-icon-button-tritery-default)"
+            :class="$style.updateBtn"
+            @click="addAppFromFile"
+          />
+        </ui3n-tooltip>
+
+        <ui3n-tooltip
+          :content="$tr('system.map.tooltip')"
+          position-strategy="fixed"
+          placement="top-end"
+        >
+          <ui3n-button
+            type="custom"
+            color="var(--color-bg-button-tritery-default)"
+            icon="binary-tree"
+            icon-size="24"
+            icon-color="var(--color-icon-button-tritery-default)"
+            :class="$style.updateBtn"
+            @click="openSystemMap"
+          />
+        </ui3n-tooltip>
+
+        <ui3n-tooltip
+          :content="checkProcIsOn ? $tr('btn.checking-for-update') : $tr('btn.check-update')"
+          position-strategy="fixed"
+          placement="top-end"
+        >
+          <ui3n-button
+            v-if="(connectivityStatus === 'online')"
+            type="custom"
+            color="var(--color-bg-button-tritery-default)"
+            icon="deployed-code-update"
+            icon-size="24"
+            icon-color="var(--color-icon-button-tritery-default)"
+            :disabled="checkProcIsOn"
+            :class="$style.updateBtn"
+            @click="checkForUpdate"
+          />
+        </ui3n-tooltip>
+      </div>
     </div>
 
     <div :class="$style.content">
@@ -340,12 +396,18 @@ onBeforeUnmount(doBeforeUnmount);
   left: var(--spacing-m);
 }
 
-.checkUpdates {
+.updateBtn {
   gap: 0 !important;
-  padding-right: var(--spacing-m);
-  padding-left: var(--spacing-m);
+  padding-left: var(--spacing-s) !important;
+}
+
+.btnsOnUpdateTab {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  column-gap: var(--spacing-s);
   position: absolute;
-  right: var(--spacing-m);
+  right: var(--spacing-ml);
 }
 
 .content {

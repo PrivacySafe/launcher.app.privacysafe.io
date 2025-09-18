@@ -30,6 +30,7 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
+      "@sys-map/*": ["src-system-map/*"],
       "@tests/*": ["tests-app/src/*"]
     },
     "plugins": [{
@@ -39,6 +40,7 @@
   "include": [
     "vite.config.ts",
     "src/**/*",
+    "src-system-map/**/*",
     "@types/**/*",
     "tests-app/src/**/*"
   ],

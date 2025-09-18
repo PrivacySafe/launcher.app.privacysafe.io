@@ -1,7 +1,7 @@
 {
   "name": "Dashboard",
   "appDomain": "launcher.app.privacysafe.io",
-  "version": "0.10.5",
+  "version": "0.11.5",
   "icon": "logo.png",
   "description": "Dashboard/Launcher manages and launches your apps.",
 
@@ -25,6 +25,11 @@
           "userNotifications": true,
           "fsResource": {
             "thisApp": "ui-settings"
+          },
+          "startAppCmds": {
+            "thisApp": [
+              "open-system-map"
+            ]
           }
         },
         "connectivity": "check",
@@ -41,6 +46,43 @@
         "minWidth": 480,
         "minHeight": 400,
         "maxWidth": 1000
+      }
+    },
+
+    "/system-map.html": {
+      "runtime": "web-gui",
+      "formFactor": [ "desktop", "tablet" ],
+      "capsRequested": {
+        "apps": "opener",
+        "log": "all",
+        "shell": {
+          "fsResource": {
+            "otherApps": {
+              "launcher.app.privacysafe.io": "ui-settings"
+            }
+          },
+          "openDashboard": true
+        },
+        "storage": {
+          "appFS": "default"
+        },
+        "system": {
+          "apps": [ "opener" ],
+          "monitor": "all"
+        }
+      },
+      "windowOpts": {
+        "width": 1200,
+        "height": 600,
+        "minWidth": 800,
+        "minHeight": 512
+      },
+      "startCmds": {
+        "open-system-map": {
+          "thisAppComponents": [
+            "/index.html"
+          ]
+        }
       }
     },
 
@@ -72,14 +114,6 @@
           "monitor": "all",
           "logout": true
         }
-      },
-      "windowOpts": {
-        "width": 360,
-        "height": 768,
-        "minWidth": 360,
-        "minHeight": 768,
-        "maxWidth": 360,
-        "maxHeight": 768
       }
     }
   },

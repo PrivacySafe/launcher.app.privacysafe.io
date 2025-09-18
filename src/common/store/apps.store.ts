@@ -20,13 +20,14 @@ import { makePlatform } from './apps/platform';
 import { compare as compareSemVer } from 'semver';
 import { debouncedFnCall } from '@/common/utils/debounce';
 import { toRO } from '@/common/utils/readonly';
-import { Confs } from './apps/system-info/confs';
+import { makeConfs } from './apps/system-info/confs';
+import { observerToGeneratorPipe } from '../utils/observer-utils';
 
 type PostInstallState = web3n.system.apps.PostInstallState;
 type BundleVersions = web3n.system.platform.BundleVersions;
 
 export const useAppsStore = defineStore('apps', () => {
-  const confs = new Confs();
+  const confs = makeConfs();
   const { processes, delProcess, upsertProcess, emitEvent } = makeProcessesPlace();
 
   const autoUpdate = ref(true);
@@ -65,7 +66,7 @@ export const useAppsStore = defineStore('apps', () => {
   async function checkAppUpdates(app: AppInfo, forceInfoDownload: boolean): Promise<void> {
     const {
       appId,
-      versions: { latest: current },
+      versions: { current },
     } = app;
     upsertProcess(appId, {
       procType: 'update-checking',
@@ -74,12 +75,15 @@ export const useAppsStore = defineStore('apps', () => {
       const distInfo = await getAppDistInfo(appId, forceInfoDownload);
       if (!distInfo) {
         app.updates = undefined;
+        if (app.versions.bundled && (compareSemVer(current!, app.versions.bundled) < 0)) {
+          app.updateFromBundle = app.versions.bundled;
+        }
         return;
       }
 
       const updateOpts: NonNullable<AppInfo['updates']> = [];
       for (const [channel, version] of Object.entries(distInfo.versions)) {
-        if (compareSemVer(current, version) < 0) {
+        if (compareSemVer(current!, version) < 0) {
           updateOpts.push({ channel, version });
         }
       }
@@ -87,6 +91,9 @@ export const useAppsStore = defineStore('apps', () => {
         app.updates = updateOpts;
       } else if (app.updates) {
         app.updates = undefined;
+      }
+      if (app.versions.bundled && (compareSemVer(current!, app.versions.bundled) < 0)) {
+        app.updateFromBundle = app.versions.bundled;
       }
     } finally {
       delProcess(appId, 'update-checking');
@@ -132,27 +139,21 @@ export const useAppsStore = defineStore('apps', () => {
   });
 
   async function unpackBundledApp(appId: string): Promise<void> {
-    const deferred = defer<void>();
     upsertProcess(appId, {
       procType: 'unzipping',
       progressValue: 0,
     });
-    w3n.system!.apps!.installer!.addPackFromBundledApps(appId, {
-      next: ev => {
+    try {
+      const { obs, generator: unpackEvents } = observerToGeneratorPipe<web3n.system.apps.AppUnpackProgress>();
+      w3n.system!.apps!.installer!.addPackFromBundledApps(appId, obs);
+      for await (const ev of unpackEvents) {
         const { numOfFiles, numOfProcessed } = ev;
         const progressValue = Math.floor((numOfProcessed / numOfFiles) * 100);
         upsertProcess(appId, {
           procType: 'unzipping',
           progressValue,
         });
-      },
-      complete: () => {
-        deferred.resolve();
-      },
-      error: err => deferred.reject(err),
-    });
-    try {
-      await deferred.promise;
+      }
     } finally {
       delProcess(appId, 'unzipping');
     }
@@ -167,6 +168,22 @@ export const useAppsStore = defineStore('apps', () => {
             await w3n.log('error', `Failed to unpack bundled version of app ${appId}`, err);
             return;
         }
+        try {
+          await installApp(appId, version, delProcess, upsertProcess);
+        } catch (err) {
+          await w3n.log('error', `Failed to install app ${appId} version ${version}`, err);
+          return;
+        }
+      } finally {
+        await updateAppsAndLaunchersInfo();
+      }
+    },
+    (appId: string) => appId,
+  );
+
+  const installAppFromPack = debouncedFnCall(
+    async function installAppFromPack(appId: string, version: string): Promise<void> {
+      try {
         try {
           await installApp(appId, version, delProcess, upsertProcess);
         } catch (err) {
@@ -233,13 +250,17 @@ export const useAppsStore = defineStore('apps', () => {
   });
 
   const updateAppsAndLaunchersInfo = makeSyncedFunc(new SingleProc(), undefined, async () => {
-    await fetchAppsInfo(platform.value);
+    await fetchAppsInfo();
     if (appLaunchers.value.length === 0 && (await needInitialSetup())) {
       // trigger installation in a new system, which will call this func again
       installBundledAppsIntoNewSystem();
       return;
     }
   });
+
+  async function fetchCachedInfo() {
+    await fetchAppsInfo(false);
+  }
 
   const installBundledAppsIntoNewSystem = debouncedFnCall(async function installBundledAppsIntoNewSystem() {
     const { 'app-packs': appPacks } = await w3n.system!.platform!.getCurrentVersion();
@@ -270,6 +291,40 @@ export const useAppsStore = defineStore('apps', () => {
     updateAppsAndLaunchersInfo();
   });
 
+  async function addAppPackFromFile(file: web3n.files.ReadonlyFile) {
+    // XXX appId isn't known. Progress event can actually send it at some initial point
+    // upsertProcess(appId, {
+    //   procType: 'unzipping',
+    //   progressValue: 0,
+    // });
+
+    const { obs, generator: unpackEvents } = observerToGeneratorPipe<web3n.system.apps.AppUnpackProgress>();
+    w3n.system.apps!.installer!.addAppPackFromZipFile(file, obs);
+    try {
+      for await (const ev of unpackEvents) {
+        // XXX
+        // const { numOfFiles, numOfProcessed } = ev;
+        // const progressValue = Math.floor((numOfProcessed / numOfFiles) * 100);
+        // upsertProcess(appId, {
+        //   procType: 'unzipping',
+        //   progressValue,
+        // });
+
+        console.log(ev);
+      }
+      // XXX
+
+    } catch (err) {
+      // XXX
+
+      console.error(`After the loop`, err);
+    } finally {
+      // XXX
+      // delProcess(appId, 'unzipping');
+      await updateAppsAndLaunchersInfo();
+    }
+  }
+
   return {
     autoUpdate: toRO(autoUpdate),
     appLaunchers: toRO(appLaunchers),
@@ -284,11 +339,14 @@ export const useAppsStore = defineStore('apps', () => {
 
     downloadAndInstallApp,
     installBundledApp,
+    installAppFromPack,
     downloadPlatformUpdate,
     checkForAllUpdates,
     checkAndInstallAllUpdates,
     closeOldVersionApps,
     updateAppsAndLaunchersInfo,
+    fetchCachedInfo,
+    addAppPackFromFile
   };
 });
 

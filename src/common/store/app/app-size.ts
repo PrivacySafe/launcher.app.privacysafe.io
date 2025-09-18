@@ -22,7 +22,7 @@ export interface AppWindowSize {
   height: number;
 }
 
-export function useAppSize() {
+export function makeAppSize() {
 
   const appElement = shallowRef<HTMLElement>();
 

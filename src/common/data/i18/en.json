@@ -13,6 +13,10 @@
   "btn.checking-for-update": "Checking for Updates",
   "btn.restart-platform": "Restart to Update",
 
+  "version.to-update": "Current version: {current}. New version: {update}",
+  "version.to-install": "New version: {install}",
+
+  "setting.btn.open": "Open settings",
   "settings.title": "settings",
   "settings.section.appearance": "Appearance",
   "settings.system": "System",
@@ -51,5 +55,15 @@
   "system.init-setup-start": "Setting up your system on the first startup with bundled apps {appsList}",
   "system.init-setup-done": "System setup is done",
   "system.data-removal.section": "Data removal",
-  "system.data-removal.wipe-from-device": "Wipe data from this device"
+  "system.data-removal.wipe-from-device": "Wipe data from this device",
+
+  "system.map.tooltip": "System map",
+  "system.map.control.zoom": "Zoom",
+  "system.map.control.formFactor": "Form Factor",
+  "system.map.control.formFactor.desktop": "desktop",
+  "system.map.control.formFactor.phone": "phone",
+  "system.map.control.direction": "Direction",
+  "system.map.control.sketch": "Sketch",
+
+  "add.app.tooltip": "Add app from file"
 }

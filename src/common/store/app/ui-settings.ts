@@ -45,82 +45,64 @@ const resourceName = 'ui-settings';
 const resourceApp = 'launcher.app.privacysafe.io';
 const settingsPath = '/constants/settings.json';
 
-export class SystemSettings implements AppConfigs, AppConfigsInternal {
-  private syncProc: SingleProc | undefined = undefined;
+export async function makeAppConfigsInternal(): Promise<AppConfigsInternal> {
 
-  private constructor(private readonly file: web3n.files.File) {}
+  // this implicitly initializes resource, and will fail if it isn't launcher
+  await w3n.shell!.getFSResource!(undefined, resourceName);
+  const localStore = await w3n.storage!.getAppLocalFS!();
 
-  static async makeInternalService(): Promise<AppConfigsInternal> {
-    // this implicitly initializes resource, and will fail if it isn't launcher
-    await w3n.shell!.getFSResource!(undefined, resourceName);
-    const localStore = await w3n.storage!.getAppLocalFS!();
-    const file = await localStore.writableFile(settingsPath);
-    if (file.isNew) {
-      const defaultSettings = await (await fetch(settingsPath)).json();
-      await file.writeJSON(defaultSettings);
-    }
-    return new SystemSettings(file);
+  const syncProc = new SingleProc();
+  const file = await localStore.writableFile(settingsPath);
+  if (file.isNew) {
+    const defaultSettings = await (await fetch(settingsPath)).json();
+    await file.writeJSON(defaultSettings);
   }
 
-  static async makeResourceReader(): Promise<AppConfigs> {
-    const file = await w3n.shell!.getFSResource!(resourceApp, resourceName);
-    return new SystemSettings(file as web3n.files.ReadonlyFile);
-  }
-
-  private get writableFile(): {
-    file: web3n.files.WritableFile;
-    syncProc: SingleProc;
-  } {
-    if (this.file.writable) {
-      if (!this.syncProc) {
-        this.syncProc = new SingleProc();
-      }
-      return {
-        file: this.file as web3n.files.WritableFile,
-        syncProc: this.syncProc,
-      };
-    } else {
-      throw Error(`This instance can only read ${resourceName} file resource provided by ${resourceApp}`);
-    }
-  }
-
-  async saveSettingsFile(data: AppConfig): Promise<void> {
-    console.log(`@ saveSettingsFile data is`, data);
+  async function saveSettingsFile(data: AppConfig): Promise<void> {
     const settingsJSON = data as SettingsJSON;
-    const { file, syncProc } = this.writableFile;
     await syncProc.startOrChain(() => file.writeJSON(settingsJSON));
   }
 
-  async getCurrentLanguage(): Promise<AvailableLanguage> {
-    const { lang } = await this.file.readJSON<SettingsJSON>();
+  return {
+    saveSettingsFile,
+    ...makeAppConfsReader(file)
+  };
+}
+
+type ReadonlyFile = web3n.files.ReadonlyFile;
+
+function makeAppConfsReader(file: ReadonlyFile): AppConfigs {
+
+  async function getCurrentLanguage(): Promise<AvailableLanguage> {
+    const { lang } = await file.readJSON<SettingsJSON>();
     return lang;
   }
 
-  async getCurrentColorTheme(): Promise<AvailableColorTheme> {
-    const { colorTheme } = await this.file.readJSON<SettingsJSON>();
+  async function getCurrentColorTheme(): Promise<AvailableColorTheme> {
+    const { colorTheme } = await file.readJSON<SettingsJSON>();
     return colorTheme;
   }
 
-  async getSystemFoldersDisplaying(): Promise<boolean> {
-    const { systemFoldersDisplaying } = await this.file.readJSON<SettingsJSON>();
+  async function getSystemFoldersDisplaying(): Promise<boolean> {
+    const { systemFoldersDisplaying } = await file.readJSON<SettingsJSON>();
     return systemFoldersDisplaying;
   }
 
-  async getAllowShowingDevtool(): Promise<boolean> {
-    const { allowShowingDevtool } = await this.file.readJSON<SettingsJSON>();
+  async function getAllowShowingDevtool(): Promise<boolean> {
+    const { allowShowingDevtool } = await file.readJSON<SettingsJSON>();
     return allowShowingDevtool;
   }
 
-  async getAll(): Promise<SettingsJSON> {
-    return await this.file.readJSON<SettingsJSON>();
+  async function getAll(): Promise<SettingsJSON> {
+    return await file.readJSON<SettingsJSON>();
   }
 
-  watchConfig(obs: web3n.Observer<AppConfig>): () => void {
-    return this.file.watch({
+  function watchConfig(obs: web3n.Observer<AppConfig>): () => void {
+    return file.watch({
       next: obs.next
         ? async event => {
             if (event.type === 'file-change') {
-              const confs = await this.getAll();
+              const confs = await getAll();
               obs.next!({ ...confs });
             }
           }
@@ -129,4 +111,18 @@ export class SystemSettings implements AppConfigs, AppConfigsInternal {
       error: obs.error,
     });
   }
+
+  return {
+    getAll,
+    getAllowShowingDevtool,
+    getCurrentColorTheme,
+    getCurrentLanguage,
+    getSystemFoldersDisplaying,
+    watchConfig
+  };
+}
+
+export async function makeAppConfigs(): Promise<AppConfigs> {
+  const confFile = await w3n.shell!.getFSResource!(resourceApp, resourceName) as ReadonlyFile;
+  return makeAppConfsReader(confFile);
 }

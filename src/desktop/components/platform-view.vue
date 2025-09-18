@@ -23,6 +23,7 @@ import {
   I18nPlugin,
 } from '@v1nt1248/3nclient-lib/plugins';
 import { Ui3nButton, Ui3nProgressCircular } from '@v1nt1248/3nclient-lib';
+import AppIcon from '@/common/components/app-icon.vue';
 import psIcon from '@/common/assets/images/platform-icon.png';
 import AppItemArea from './app-item-area.vue';
 import { PLATFORM_ID } from '@/common/store/apps/processes';
@@ -60,12 +61,7 @@ function quitAndInstall() {
 <template>
   <app-item-area>
     <template #main>
-      <div :class="$style.iconWrapper">
-        <img
-          :src="psIcon"
-          alt="PrivacySafe platform icon"
-        >
-      </div>
+      <app-icon :iconUrl="psIcon" />
 
       <div :class="$style.content">
         <div :class="$style.name">
@@ -120,24 +116,6 @@ function quitAndInstall() {
 </template>
 
 <style lang="scss" module>
-.iconWrapper {
-  position: relative;
-  width: var(--spacing-l);
-  min-width: var(--spacing-l);
-  height: var(--spacing-l);
-  min-height: var(--spacing-l);
-  border-radius: 15%;
-  background-color: var(--color-bg-block-primary-default);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-  img {
-    border-radius: 50%;
-    width: var(--spacing-l);
-    height: var(--spacing-l);
-  }
-}
 
 .content {
   position: relative;

@@ -34,7 +34,9 @@ const {
   $tr,
   appId,
   canBeInstalled,
+  versionToInstall,
   canBeUpdated,
+  versionInUpdate,
   needToCloseOldVersion,
   install,
   update,
@@ -55,7 +57,12 @@ const {
         </div>
 
         <div :class="$style.version">
-          {{ $tr('version', { version: appInfo.versions.latest }) }}
+          {{
+            canBeInstalled ? $tr('version.to-install', { install: versionToInstall! }) :
+            versionInUpdate ? $tr('version.to-update', {
+              current: appInfo.versions.current!, update: versionInUpdate!.version
+            }) : $tr('version', { version: appInfo.versions.current! })
+          }}
         </div>
       </div>
 

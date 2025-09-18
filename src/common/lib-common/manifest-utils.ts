@@ -75,7 +75,7 @@ function ensureComponentsSettings(
 
 }
 
-function isSimpleGUIAppManifest(m: AppManifest): boolean {
+export function isSimpleGUIAppManifest(m: AppManifest): boolean {
   return !(m as GeneralAppManifest).components;
 }
 
@@ -154,7 +154,7 @@ export function getLaunchersForUser(
   }
 }
 
-function isApplicableToFormFactor(
+export function isApplicableToFormFactor(
   def: FormFactorSetting, currentFormFactor: UserInterfaceFormFactor
 ): boolean {
   if (!def.formFactor) {

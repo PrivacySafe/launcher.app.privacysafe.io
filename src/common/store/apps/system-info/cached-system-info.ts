@@ -48,64 +48,59 @@ export interface CachedAppLaunchers {
 
 const appVersionsPath = '/cached/app-versions.json';
 
-export class CachedSystemInfo {
-  private myVersion = '';
-  private stateTS = 0;
-  private launchers: CachedAppVersions['launchers'] = {};
-  private apps: CachedAppVersions['apps'] = {};
-  private fs: WritableFS | undefined = undefined;
-  private readonly refreshProc = new SingleProc();
+export function makeSystemInfo(
+  onInfoEvent: (
+    appEvent: { upsert?: AppInfo; remove?: string; }|undefined,
+    launchersEvent: { upsert?: CachedAppLaunchers; remove?: string; }|undefined
+  ) => void
+) {
 
-  constructor(
-    private readonly onInfoEvent: (
-      appEvent: { upsert?: AppInfo; remove?: string; }|undefined,
-      launchersEvent: { upsert?: CachedAppLaunchers; remove?: string; }|undefined
-    ) => void
-  ) {
-    Object.seal(this);
-  }
+  let myVersion = '';
+  let stateTS = 0;
+  let launchers: CachedAppVersions['launchers'] = {};
+  let apps: CachedAppVersions['apps'] = {};
+  let fs: WritableFS | undefined = undefined;
+  const refreshProc = new SingleProc();
 
-  async init(): Promise<void> {
-    this.myVersion = await w3n.myVersion();
-    return this.refreshProc.start(async () => {
-      this.fs = await w3n.storage!.getAppLocalFS!();
+  async function init(): Promise<void> {
+    myVersion = await w3n.myVersion();
+    return refreshProc.start(async () => {
+      fs = await w3n.storage!.getAppLocalFS!();
       try {
-        const {
-          createdByVersion, formatVer, stateTS, launchers, apps
-        } = await this.fs.readJSONFile<CachedAppVersions>(appVersionsPath);
-        if ((createdByVersion !== this.myVersion) || (formatVer !== 2)) {
-          await this.unsyncedAppVersionsRefresh();
+        const cached = await fs.readJSONFile<CachedAppVersions>(appVersionsPath);
+        if ((cached.createdByVersion !== myVersion) || (cached.formatVer !== 2)) {
+          await unsyncedAppVersionsRefresh();
         } else {
-          this.stateTS = stateTS;
-          this.launchers = launchers;
-          Object.values(this.launchers).forEach(l => this.onInfoEvent(undefined, { upsert: l }));
-          this.apps = apps;
-          Object.values(this.apps).forEach(app => this.onInfoEvent({ upsert: app }, undefined));
+          stateTS = cached.stateTS;
+          launchers = cached.launchers;
+          Object.values(launchers).forEach(l => onInfoEvent(undefined, { upsert: l }));
+          apps = cached.apps;
+          Object.values(apps).forEach(app => onInfoEvent({ upsert: app }, undefined));
         }
       } catch (exc) {
         if (!(exc as FileException).notFound) {
           throw exc;
         }
-        await this.unsyncedAppVersionsRefresh();
+        await unsyncedAppVersionsRefresh();
       }
     });
   }
 
-  private async unsyncedAppVersionsRefresh(): Promise<number> {
+  async function unsyncedAppVersionsRefresh(): Promise<number> {
     const appVersions = await getAppVersionsFromW3N();
-    const { addedOrChanged, removed } = diffAppVersions(appVersions, this.apps);
+    const { addedOrChanged, removed } = diffAppVersions(appVersions, apps);
 
     if ((addedOrChanged.size === 0) && (removed.size === 0)) {
-      return this.stateTS;
+      return stateTS;
     }
 
-    this.stateTS = Date.now();
+    stateTS = Date.now();
 
     // remove removed apps
     for (const id of removed) {
-      delete this.apps[id];
-      delete this.launchers[id];
-      this.onInfoEvent({ remove: id }, { remove: id });
+      delete apps[id];
+      delete launchers[id];
+      onInfoEvent({ remove: id }, { remove: id });
     }
 
     // create new values for added or changed apps
@@ -113,68 +108,75 @@ export class CachedSystemInfo {
       const info = await getAppInfo(id, appVersions);
       if (info) {
         const { appInfo, currentManif } = info;
-        this.apps[id] = appInfo;
+        apps[id] = appInfo;
         const appLaunchers = await getAppLaunchers(id, currentManif);
         if (appLaunchers) {
-          this.launchers[id] = appLaunchers;
-          this.onInfoEvent({ upsert: appInfo }, { upsert: appLaunchers });
+          launchers[id] = appLaunchers;
+          onInfoEvent({ upsert: appInfo }, { upsert: appLaunchers });
         } else {
-          delete this.launchers[id];
-          this.onInfoEvent({ upsert: appInfo }, { remove: id });
+          delete launchers[id];
+          onInfoEvent({ upsert: appInfo }, { remove: id });
         }
       } else {
-        delete this.apps[id];
-        delete this.launchers[id];
-        this.onInfoEvent({ remove: id }, { remove: id });
+        delete apps[id];
+        delete launchers[id];
+        onInfoEvent({ remove: id }, { remove: id });
       }
     }
 
-    await this.fs!.writeJSONFile(appVersionsPath, {
+    await fs!.writeJSONFile(appVersionsPath, {
       formatVer: 2,
-      stateTS: this.stateTS,
-      launchers: this.launchers,
-      apps: this.apps,
+      stateTS: stateTS,
+      launchers: launchers,
+      apps: apps,
     } as CachedAppVersions);
 
-    return this.stateTS;
+    return stateTS;
   }
 
-  async getAppsInfoAndLaunchers(refreshCache?: true): Promise<{
+  async function getAppsInfoAndLaunchers(refreshCache?: boolean): Promise<{
     cacheTS: number;
     launchers: CachedAppLaunchers[];
     apps: AppInfo[];
   }> {
-    const refreshProc = this.refreshProc.getP();
-    if (refreshProc) {
-      await refreshProc;
+    const refreshing = refreshProc.getP();
+    if (refreshing) {
+      await refreshing;
     } else if (refreshCache) {
-      await this.refreshProc.addStarted(this.unsyncedAppVersionsRefresh());
+      await refreshProc.addStarted(unsyncedAppVersionsRefresh());
     }
     return {
-      cacheTS: this.stateTS,
-      apps: Object.values(this.apps).concat(),
-      launchers: Object.values(this.launchers).concat(),
+      cacheTS: stateTS,
+      apps: Object.values(apps).concat(),
+      launchers: Object.values(launchers).concat(),
     };
   }
 
-  async needInitialSetup(): Promise<boolean> {
-    await this.refreshProc.getP();
-    const foundAppWithPacks = !!Object.values(this.apps).find(
+  async function needInitialSetup(): Promise<boolean> {
+    await refreshProc.getP();
+    const foundAppWithPacks = !!Object.values(apps).find(
       app => (app.versions.packs && (app.versions.packs.length > 0))
     );
     return !foundAppWithPacks;
   }
 
-  async getAppsInfo(): Promise<{
+  async function getAppsInfo(): Promise<{
     cacheTS: number;
     apps: AppInfo[];
   }> {
-    await this.refreshProc.getP();
+    await refreshProc.getP();
     return {
-      cacheTS: this.stateTS,
-      apps: Object.values(this.apps).concat(),
+      cacheTS: stateTS,
+      apps: Object.values(apps).concat(),
     };
   }
+
+  return {
+    init,
+    getAppsInfo,
+    getAppsInfoAndLaunchers,
+    needInitialSetup,
+  };
 }
 
 async function getAppInfo(

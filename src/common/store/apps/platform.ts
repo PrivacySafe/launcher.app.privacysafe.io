@@ -19,8 +19,6 @@ type ProgressInfo = web3n.system.platform.ProgressInfo;
 
 export interface PlatformInfo {
   version: string;
-  bundledApps: { [appId: string]: string };
-  bundledAppPacks: { [appId: string]: string };
   availableUpdates?: ChannelVersion[];
   // XXX process info can be moved to process store
   updateInProcess?: {
@@ -37,8 +35,6 @@ export function makePlatform(
 ) {
   const platform = ref<PlatformInfo>({
     version: '',
-    bundledAppPacks: {},
-    bundledApps: {},
   });
 
   const downloadPlatformUpdate = debouncedFnCall(async () => {

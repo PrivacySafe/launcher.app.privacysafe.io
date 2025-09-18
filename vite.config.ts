@@ -32,6 +32,7 @@ export const makeConfig = ({ mode }: UserConfig) => {
       input: {
         main: _resolve('./index.html'),
         'main-mobile': _resolve('./index-mobile.html'),
+        'system-map': _resolve('./system-map.html'),
       },
       output: [
         {
@@ -40,6 +41,10 @@ export const makeConfig = ({ mode }: UserConfig) => {
         },
         {
           name: 'main-mobile',
+          dir: 'app',
+        },
+        {
+          name: 'system-map',
           dir: 'app',
         },
       ],
@@ -56,6 +61,7 @@ export const makeConfig = ({ mode }: UserConfig) => {
       alias: {
         vue: 'vue/dist/vue.esm-bundler.js',
         '@': _resolve('./src'),
+        '@sys-map': _resolve('./src-system-map'),
       },
     },
   };

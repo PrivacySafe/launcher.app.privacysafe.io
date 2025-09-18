@@ -8,28 +8,26 @@
  You should have received a copy of the GNU General Public License along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-import { CachedAppLaunchers, CachedSystemInfo } from '@/common/store/apps/system-info/cached-system-info';
+import { CachedAppLaunchers, makeSystemInfo } from '@/common/store/apps/system-info/cached-system-info';
 import { AppInfo, AppLaunchers, Launcher } from '@/common/types';
 import { ref } from 'vue';
-import { compare as compareSemVer } from 'semver';
-import { PlatformInfo } from './platform';
-import { AppDistInfoChecker } from './system-info/app-distribution-info';
-import { CachedAppFiles } from './system-info/cached-app-files';
+import { makeAppDistInfo } from './system-info/app-distribution-info';
+import { makeCachedAppFiles } from './system-info/cached-app-files';
 
 export function makeAppsAndLaunchersInfoPlace() {
   const appLaunchers = ref<AppLaunchers[]>([]);
   const cacheTS = ref(0);
   const applicationsInSystem = ref<AppInfo[]>([]);
 
-  const sysInfoSrc = new CachedSystemInfo(doOnInfoEvent);
-  const appDistInfoSrc = new AppDistInfoChecker();
+  const { needInitialSetup, getAppsInfoAndLaunchers, init: initSysInfo } = makeSystemInfo(doOnInfoEvent);
+  const { getAppDistInfo, getBundleDistInfo, init: initAppDistSrc } = makeAppDistInfo();
 
-  const files = new CachedAppFiles();
+  const getFileBytes = makeCachedAppFiles();
 
   async function initializeCached(): Promise<void> {
     await Promise.all([
-      appDistInfoSrc.init(),
-      sysInfoSrc.init()
+      initAppDistSrc(),
+      initSysInfo()
     ]);
   }
 
@@ -77,24 +75,13 @@ export function makeAppsAndLaunchersInfoPlace() {
     }
   }
 
-  async function fetchAppsInfo(platform: PlatformInfo) {
+  async function fetchAppsInfo(refreshCache = true) {
     // note that this call is sending events during await here
-    const { cacheTS: dataTS, launchers, apps } = await sysInfoSrc.getAppsInfoAndLaunchers(true);
+    const { cacheTS: dataTS, launchers, apps } = await getAppsInfoAndLaunchers(!!refreshCache);
     if (cacheTS.value === dataTS) {
       return;
     }
     cacheTS.value = dataTS;
-    checkForAppUpdatesFromBundledPacks(platform);
-  }
-
-  function checkForAppUpdatesFromBundledPacks(platform: PlatformInfo): void {
-    for (const [appId, version] of Object.entries(platform.bundledAppPacks)) {
-      const currentVersion = appLaunchers.value.find(app => app.appId === appId)?.version;
-      if (currentVersion && compareSemVer(version, currentVersion) > 0) {
-        const app = getApp(appId);
-        app.updateFromBundle = version;
-      }
-    }
   }
 
   function sortApplicationsInSystem() {
@@ -113,7 +100,7 @@ export function makeAppsAndLaunchersInfoPlace() {
   }
   async function appInfoWithIconsFrom(info: AppInfo): Promise<AppInfo> {
     const { appId, name, description, icon, versions } = info;
-    const iconBytes = icon ? await files.getFileBytes(appId, versions.latest, icon) : undefined;
+    const iconBytes = icon ? await getFileBytes(appId, versions.latest, icon) : undefined;
     return {
       appId,
       name,
@@ -126,7 +113,7 @@ export function makeAppsAndLaunchersInfoPlace() {
 
   async function appLaunchersFromInfo(info: CachedAppLaunchers): Promise<AppLaunchers> {
     const { appId, version, name, description, icon } = info;
-    const iconBytes = icon ? await files.getFileBytes(appId, version, icon) : undefined;
+    const iconBytes = icon ? await getFileBytes(appId, version, icon) : undefined;
     const defaultLauncher = info.defaultLauncher
       ? await appLauncherFromInfo(appId, version, info.defaultLauncher)
       : undefined;
@@ -155,7 +142,7 @@ export function makeAppsAndLaunchersInfoPlace() {
     appId: string, version: string,
     { description, icon, name, component, formFactor, startCmd }: web3n.caps.Launcher,
   ): Promise<Launcher> {
-    const iconBytes = icon ? await files.getFileBytes(appId, version, icon) : undefined;
+    const iconBytes = icon ? await getFileBytes(appId, version, icon) : undefined;
     return {
       description,
       icon,
@@ -173,9 +160,9 @@ export function makeAppsAndLaunchersInfoPlace() {
 
     getApp,
     fetchAppsInfo,
-    needInitialSetup: sysInfoSrc.needInitialSetup.bind(sysInfoSrc),
-    getAppDistInfo: appDistInfoSrc.getAppDistInfo.bind(appDistInfoSrc),
-    getBundleDistInfo: appDistInfoSrc.getBundleDistInfo.bind(appDistInfoSrc),
+    needInitialSetup,
+    getAppDistInfo,
+    getBundleDistInfo,
 
     initializeCached
   };

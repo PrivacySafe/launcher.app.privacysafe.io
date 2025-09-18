@@ -36,7 +36,10 @@ export function useAppPage() {
 
   const appsStore = useAppsStore();
   const { restart, applicationsInSystem, platform } = storeToRefs(appsStore);
-  const { checkAndInstallAllUpdates, updateAppsAndLaunchersInfo, checkForAllUpdates } = appsStore;
+  const {
+    checkAndInstallAllUpdates, updateAppsAndLaunchersInfo, fetchCachedInfo, checkForAllUpdates,
+    addAppPackFromFile
+  } = appsStore;
 
   const { $tr } = inject(I18N_KEY)!;
   const { $emitter } = inject<VueBusPlugin<GlobalEvents>>(VUEBUS_KEY)!;
@@ -62,7 +65,7 @@ export function useAppPage() {
         type: 'info',
       });
       await checkForAllUpdates(true);
-      let numOfUpdates = applicationsInSystem.value.filter(app => !!app.updates).length;
+      let numOfUpdates = applicationsInSystem.value.filter(app => !!(app.updates || app.updateFromBundle)).length;
       if (platform.value.availableUpdates) {
         numOfUpdates += 1;
       }
@@ -98,11 +101,25 @@ export function useAppPage() {
 
   function triggerOnStart(): void {
     // trigger, but don't wait here
-    updateAppsAndLaunchersInfo().then(async () => {
+    fetchCachedInfo().then(async () => {
+      await updateAppsAndLaunchersInfo();
       if (connectivityStatus.value === 'online') {
         await checkAndInstallAllUpdates();
       }
     });
+  }
+
+  async function addAppFromFile() {
+    const filesWithApps = await w3n.shell!.fileDialogs!.openFileDialog!(
+      "Choose 3NWeb App file", "Add App", true,
+      [{ name: "", extensions: [ '3nw', '3nweb', 'zip' ] }]
+    );
+    if (!filesWithApps) {
+      return;
+    }
+    for (const file of filesWithApps) {
+      await addAppPackFromFile(file);
+    }
   }
 
   async function doBeforeMount() {
@@ -136,6 +153,7 @@ export function useAppPage() {
     appExit,
     quitAndInstall,
     checkForUpdate,
+    addAppFromFile,
 
     doBeforeMount,
     doBeforeUnmount

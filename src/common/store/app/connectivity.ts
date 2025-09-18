@@ -19,7 +19,7 @@ import { ref } from 'vue';
 import { ConnectivityStatus } from '@/common/types';
 import { toRO } from '@/common/utils/readonly';
 
-export function useConnectivityStatus() {
+export function makeConnectivityStatus() {
   const connectivityStatus = ref<string>('offline');
 
   async function fetchConnectivityStatus() {

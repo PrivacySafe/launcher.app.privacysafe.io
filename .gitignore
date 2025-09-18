@@ -29,4 +29,9 @@ yarn-error.log*
 
 # Tmp files
 .~*
-/setup-w3n.bundle.js
+
+# This is injected, or dev server should serve current version
+setup-w3n.bundle.js
+
+# pnpm's settings is unnecessary here
+pnpm-workspace.yaml

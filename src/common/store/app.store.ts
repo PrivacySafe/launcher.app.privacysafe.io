@@ -9,19 +9,19 @@
 */
 
 import { defineStore } from 'pinia';
-import { useAppSize } from './app/app-size';
-import { useConnectivityStatus } from './app/connectivity';
-import { useSystemLevelAppConfig } from './app/system-level-app-config';
-import { SettingsJSON, SystemSettings } from '@/common/store/app/ui-settings';
+import { makeAppSize } from './app/app-size';
+import { makeConnectivityStatus } from './app/connectivity';
+import { makeSystemLevelAppConfig } from './app/system-level-app-config';
+import { SettingsJSON, makeAppConfigsInternal } from '@/common/store/app/ui-settings';
 
 export const useAppStore = defineStore('app', () => {
-  const appSize = useAppSize();
+  const appSize = makeAppSize();
   const { appElement } = appSize;
 
-  const connectivity = useConnectivityStatus();
+  const connectivity = makeConnectivityStatus();
   const { connectivityStatus } = connectivity;
 
-  const commonAppConfs = useSystemLevelAppConfig();
+  const commonAppConfs = makeSystemLevelAppConfig();
   const {
     appVersion, user, lang, colorTheme, systemFoldersDisplaying, allowShowingDevtool, customLogoSrc
   } = commonAppConfs;
@@ -37,7 +37,7 @@ export const useAppStore = defineStore('app', () => {
   }
 
   async function updateSettings(appConfig: Partial<SettingsJSON>) {
-    const config = await SystemSettings.makeInternalService();
+    const config = await makeAppConfigsInternal();
     const updatedAppConfig = {
       // to current values
       ...(await config.getAll()),

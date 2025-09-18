@@ -267,6 +267,10 @@ declare namespace web3n.caps {
 		openDashboard?: true;
 		startAppCmds?: StartCmdDef;
 		fsResource?: ResourcesRequest;
+		openFile?: OpenFileCAPSetting;
+		openFolder?: OpenFolderCAPSetting;
+		openURL?: OpenURLWhitelistEntry[];
+		clipboard?: ClipboardCAPSetting;
 	}
 
 	type FileDialogsCAPSettings = 'all' | 'readonly';
@@ -279,6 +283,19 @@ declare namespace web3n.caps {
 		thisApp?: string|string[];
 		otherApps?: { [ appDomain: string ]: string|string[]; };
 	}
+
+	type OpenFileCAPSetting = 'all';
+
+	type OpenFolderCAPSetting = 'all';
+
+	type OpenURLWhitelistEntry = {
+		schema: 'https';
+		anyDomain?: true;
+		domain?: string;
+		subdomains?: string[];
+	};
+
+	type ClipboardCAPSetting = 'all' | 'readonly' | 'writeonly';
 
 	interface StartCmdDef extends ResourcesRequest, FormFactorSetting {}
 

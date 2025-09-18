@@ -9,6 +9,7 @@
 */
 
 import { App } from 'vue';
+import { Router } from 'vue-router';
 import { createPinia } from 'pinia';
 import {
   i18n,
@@ -21,12 +22,8 @@ import {
 
 import { piniaRouter } from '@/common/plugins/pinia-router';
 import en from '@/common/data/i18/en.json';
-import { Router } from 'vue-router';
 
-export function setupApp(
-  app: App<Element>, router: Router|undefined
-) {
-
+export function setupApp(app: App<Element>, router: Router | undefined) {
   const pinia = createPinia();
   pinia.use(storeI18n);
   pinia.use(storeNotifications);
@@ -38,14 +35,8 @@ export function setupApp(
     return tag.startsWith('ui3n-');
   };
 
-  app
-  .use(pinia)
-  .use(vueBus)
-  .use<I18nOptions>(i18n, { lang: 'en', messages: { en } })
-  .use(notifications);
+  app.use(pinia).use(vueBus).use<I18nOptions>(i18n, { lang: 'en', messages: { en } }).use(notifications);
   if (router) {
     app.use(router);
   }
-
 }
-

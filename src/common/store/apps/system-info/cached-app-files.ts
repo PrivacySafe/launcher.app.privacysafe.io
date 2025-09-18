@@ -11,33 +11,36 @@
 import { WeakCache } from '@/common/lib-common/weak-cache';
 import { NamedProcs } from '@v1nt1248/3nclient-lib/utils';
 
+export function makeCachedAppFiles() {
 
-export class CachedAppFiles {
-  private cache = new WeakCache<string, Uint8Array>();
-  private readonly procs = new NamedProcs();
+  const cache = new WeakCache<string, Uint8Array>();
+  const procs = new NamedProcs();
 
-  async getFileBytes(appId: string, version: string, path: string): Promise<Uint8Array | undefined> {
-    const key = this.keyFor(appId, version, path);
-    const fileBytes = this.cache.get(key);
+  async function getFileBytes(appId: string, version: string, path: string): Promise<Uint8Array | undefined> {
+    const key = keyFor(appId, version, path);
+    const fileBytes = cache.get(key);
     if (fileBytes) {
       return fileBytes;
     }
-    const proc = this.procs.getP<Uint8Array | undefined>(key);
+    const proc = procs.getP<Uint8Array | undefined>(key);
     if (proc) {
-      // ToDo this should've been returning promise, but, now it returns undefined, and we work around 
+      // ToDo promise from NamedProcs should've been returning promise,
+      //      but, now it returns undefined, and we work around 
       await proc;
-      return this.cache.get(key);
+      return cache.get(key);
     }
-    return this.procs.start(key, async () => {
+    return procs.start(key, async () => {
       const fileBytes = await w3n.system!.apps!.installer!.getAppFileBytes(appId, path, version);
       if (fileBytes) {
-        this.cache.set(key, fileBytes);
+        cache.set(key, fileBytes);
       }
       return fileBytes;
     });
   }
 
-  private keyFor(appId: string, version: string, path: string): string {
+  function keyFor(appId: string, version: string, path: string): string {
     return `${appId}-${version}-${path}`;
   }
+
+  return getFileBytes;
 }

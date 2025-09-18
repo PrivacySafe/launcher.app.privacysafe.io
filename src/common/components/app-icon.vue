@@ -1,5 +1,5 @@
 <!--
- Copyright (C) 2024 3NSoft Inc.
+ Copyright (C) 2024 - 2025 3NSoft Inc.
 
  This program is free software: you can redistribute it and/or modify it under
  the terms of the GNU General Public License as published by the Free Software
@@ -21,13 +21,19 @@ import { computed, onBeforeUnmount } from 'vue';
 
 const props = defineProps<{
   iconBytes?: Uint8Array;
+  iconUrl?: string;
   size?: string;
 }>();
 
 const url = computed(() => {
-  if (!props.iconBytes) return '';
-  const blob = new Blob([props.iconBytes], { type: 'image/png' });
-  return window.URL.createObjectURL(blob);
+  if (props.iconBytes) {
+    const blob = new Blob([props.iconBytes as BlobPart], { type: 'image/png' });
+    return window.URL.createObjectURL(blob);
+  } else if (props.iconUrl) {
+    return props.iconUrl
+  } else {
+    return undefined;
+  }
 });
 
 const iconSize = computed(() => props.size || '32');
@@ -40,7 +46,7 @@ onBeforeUnmount(() => {
 <template>
   <div :class="$style.iconWrapper">
     <img
-      v-if="iconBytes"
+      v-if="!!url"
       :src="url"
       alt="icon"
       :width="iconSize"

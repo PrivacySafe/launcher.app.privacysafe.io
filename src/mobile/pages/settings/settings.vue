@@ -63,7 +63,7 @@
 
         <div :class="$style.value">
           <span
-            :class="$style.pointer"
+            :class="[$style.pointer, $style.text]"
             @click="_changeColorTheme(false)"
           >
             {{ $tr(AVAILABLE_THEMES.default.label) }}
@@ -76,7 +76,7 @@
           />
 
           <span
-            :class="$style.pointer"
+            :class="[$style.pointer, $style.text]"
             @click="_changeColorTheme(true)"
           >
             {{ $tr(AVAILABLE_THEMES.dark.label) }}
@@ -113,6 +113,7 @@
             v-if="!customLogoSrc"
             type="primary"
             icon="round-plus"
+            icon-position="left"
             @click="addCustomLogo"
           >
             {{ $tr('settings.custom-logo.btn.add-logo') }}
@@ -123,7 +124,7 @@
             :src="customLogoSrc"
             alt="logo"
             :class="$style.customLogo"
-          />
+          >
 
           <ui3n-button
             v-if="!!customLogoSrc"
@@ -149,7 +150,7 @@
 
         <div :class="$style.value">
           <span
-            :class="$style.pointer"
+            :class="[$style.pointer, $style.text]"
             @click="changeAutoUpdate(false)"
           >
             {{ $tr('settings.label.off') }}
@@ -162,7 +163,7 @@
           />
 
           <span
-            :class="$style.pointer"
+            :class="[$style.pointer, $style.text]"
             @click="changeAutoUpdate(true)"
           >
             {{ $tr('settings.label.on') }}
@@ -178,7 +179,7 @@
 
         <div :class="$style.value">
           <span
-            :class="$style.pointer"
+            :class="[$style.pointer, $style.text]"
             @click="changeSystemFoldersDisplaying(false)"
           >
             {{ $tr('settings.label.no') }}
@@ -191,7 +192,7 @@
           />
 
           <span
-            :class="$style.pointer"
+            :class="[$style.pointer, $style.text]"
             @click="changeSystemFoldersDisplaying(true)"
           >
             {{ $tr('settings.label.yes') }}
@@ -207,7 +208,7 @@
 
         <div :class="$style.value">
           <span
-            :class="$style.pointer"
+            :class="[$style.pointer, $style.text]"
             @click="changeAllowShowingDevtool(false)"
           >
             {{ $tr('settings.label.no') }}
@@ -220,7 +221,7 @@
           />
 
           <span
-            :class="$style.pointer"
+            :class="[$style.pointer, $style.text]"
             @click="changeAllowShowingDevtool(true)"
           >
             {{ $tr('settings.label.yes') }}
@@ -234,6 +235,7 @@
       <div :class="$style.title">
         {{ $tr('system.data-removal.section') }}
       </div>
+
       <div :class="$style.row">
         <ui3n-button
           type="tertiary"
@@ -243,7 +245,6 @@
         </ui3n-button>
       </div>
     </div>
-
   </div>
 </template>
 
@@ -297,13 +298,13 @@
   justify-content: center;
   align-items: center;
   gap: var(--spacing-s);
+}
 
-  span {
-    font-size: var(--font-12);
-    font-weight: 500;
-    color: var(--color-text-control-primary-default);
-    text-transform: capitalize;
-  }
+.text {
+  font-size: var(--font-12);
+  font-weight: 500;
+  color: var(--color-text-control-primary-default);
+  text-transform: capitalize;
 }
 
 .pointer {

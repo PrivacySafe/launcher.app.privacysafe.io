@@ -18,7 +18,7 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 import { useAppStore } from '@/common/store/app.store';
 import { storeToRefs } from 'pinia';
 import { useAppsStore } from '@/common/store/apps.store';
-import { computed, inject } from 'vue';
+import { inject } from 'vue';
 import { I18N_KEY, NOTIFICATIONS_KEY } from '@v1nt1248/3nclient-lib/plugins';
 import { SettingsJSON } from '@/common/store/app/ui-settings';
 import { readImageFileIntoDataURL, selectOneImageFileWithDialog } from '../utils/image-files';
