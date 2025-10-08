@@ -41,10 +41,11 @@ export function useAppView(props: ComputedRef<AppInfo>) {
 
   async function install() {
     if (!canBeInstalled.value) { return; }
-    if (versionToInstall.value === props.value.versions.bundled) {
-      await installBundledApp(appId.value, props.value.versions.bundled!);
-    } else {
+    
+    if (props.value.versions.packs?.includes(versionToInstall.value)) {
       await installAppFromPack(appId.value, props.value.versions.latest);
+    } else {
+      await installBundledApp(appId.value, props.value.versions.bundled!);
     }
   }
 

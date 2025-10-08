@@ -64,7 +64,7 @@ export class ObserversSet<T> implements Observer<T> {
 }
 
 export function observerToGeneratorPipe<T>(): {
-  obs: Observer<T>; generator: AsyncGenerator<Awaited<T>, void, unknown>
+  obs: Observer<T>; generator: AsyncGenerator<Awaited<T|undefined>, void, unknown>
 } {
   let deferred: Deferred<T>|undefined = undefined;
   const buffer: T[] = [];

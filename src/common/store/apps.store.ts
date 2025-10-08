@@ -147,6 +147,9 @@ export const useAppsStore = defineStore('apps', () => {
       const { obs, generator: unpackEvents } = observerToGeneratorPipe<web3n.system.apps.AppUnpackProgress>();
       w3n.system!.apps!.installer!.addPackFromBundledApps(appId, obs);
       for await (const ev of unpackEvents) {
+        if (!ev) {
+          continue;
+        }
         const { numOfFiles, numOfProcessed } = ev;
         const progressValue = Math.floor((numOfProcessed / numOfFiles) * 100);
         upsertProcess(appId, {
@@ -302,6 +305,9 @@ export const useAppsStore = defineStore('apps', () => {
     w3n.system.apps!.installer!.addAppPackFromZipFile(file, obs);
     try {
       for await (const ev of unpackEvents) {
+        if (!ev) {
+          continue;
+        }
         // XXX
         // const { numOfFiles, numOfProcessed } = ev;
         // const progressValue = Math.floor((numOfProcessed / numOfFiles) * 100);
