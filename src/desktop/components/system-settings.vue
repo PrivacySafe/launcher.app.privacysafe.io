@@ -15,7 +15,7 @@
  this program. If not, see <http://www.gnu.org/licenses/>.
 -->
 <script lang="ts" setup>
-import { Ui3nButton, Ui3nRadio, Ui3nSwitch } from '@v1nt1248/3nclient-lib';
+import { Ui3nButton, Ui3nRadio, Ui3nSwitch, Ui3nProgressLinear } from '@v1nt1248/3nclient-lib';
 import { AVAILABLE_THEMES, AVAILABLE_LANGS } from '@/common/constants';
 import { useSettings } from '@/common/composables/useSettings';
 
@@ -24,20 +24,22 @@ const emits = defineEmits<{
 }>();
 
 const {
-  $tr,
   colorTheme,
+  changeColorTheme,
   lang,
   systemFoldersDisplaying,
-  allowShowingDevtool,
-  autoUpdate,
-  customLogoSrc,
-  changeColorTheme,
   changeSystemFoldersDisplaying,
+  allowShowingDevtool,
   changeAllowShowingDevtool,
+  autoUpdate,
   toggleAutoUpdate,
-  wipeDataFromDevice,
+  customLogoSrc,
   addCustomLogo,
-  removeCustomLogo
+  removeCustomLogo,
+  autoLogin,
+  autoLoginSetupOpened,
+  changeAutoLogin,
+  wipeDataFromDevice,
 } = useSettings();
 </script>
 
@@ -195,6 +197,36 @@ const {
             <span :class="$style.rowBodyText">{{ $tr('settings.label.yes') }}</span>
           </div>
         </div>
+
+        <!-- autologin -->
+        <div :class="$style.rowBody">
+          <div :class="$style.rowBodyLabel">
+            {{ $tr('settings.label.autologin') }}
+          </div>
+
+          <div :class="$style.rowBodyValue"
+            v-if="autoLoginSetupOpened"
+          >
+            <ui3n-progress-linear
+              :class="$style.loginProgressBar"
+              indeterminate
+            />
+          </div>
+
+          <div :class="$style.rowBodyValue"
+            v-else
+          >
+            <span :class="$style.rowBodyText">{{ $tr('settings.label.off') }}</span>
+
+            <ui3n-switch
+              size="16"
+              :model-value="autoLogin"
+              @change="changeAutoLogin"
+            />
+
+            <span :class="$style.rowBodyText">{{ $tr('settings.label.on') }}</span>
+          </div>
+        </div>
       </div>
 
       <!-- Data section/block -->
@@ -307,5 +339,9 @@ const {
 
 .customLogo {
   max-height: var(--spacing-l);
+}
+
+.loginProgressBar {
+  width: 6em;
 }
 </style>

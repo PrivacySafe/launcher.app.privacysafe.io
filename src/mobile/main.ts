@@ -8,6 +8,10 @@
  You should have received a copy of the GNU General Public License along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
+import {
+  dialogs,
+} from '@v1nt1248/3nclient-lib/plugins';
+
 import '@v1nt1248/3nclient-lib/variables.css';
 import '@v1nt1248/3nclient-lib/style.css';
 import '@/common/assets/styles/main.css';
@@ -19,4 +23,5 @@ import App from '@/mobile/pages/app/app.vue';
 
 const app = createApp(App);
 setupApp(app, router);
+app.use(dialogs);
 app.mount('#mobile');

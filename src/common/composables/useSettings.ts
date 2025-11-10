@@ -18,12 +18,16 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 import { useAppStore } from '@/common/store/app.store';
 import { storeToRefs } from 'pinia';
 import { useAppsStore } from '@/common/store/apps.store';
-import { inject } from 'vue';
-import { I18N_KEY, NOTIFICATIONS_KEY } from '@v1nt1248/3nclient-lib/plugins';
+import { inject, ref } from 'vue';
+import { DIALOGS_KEY, DialogsPlugin, I18N_KEY, NOTIFICATIONS_KEY } from '@v1nt1248/3nclient-lib/plugins';
 import { SettingsJSON } from '@/common/store/app/ui-settings';
 import { readImageFileIntoDataURL, selectOneImageFileWithDialog } from '../utils/image-files';
+import TurnAutologinOn from '../dialogs/turn-autologin-on.vue'
+import { sleep } from '@v1nt1248/3nclient-lib/utils';
 
 export function useSettings() {
+  const dialog = inject<DialogsPlugin>(DIALOGS_KEY)!;
+
   const appStore = useAppStore();
   const { updateSettings } = appStore;
   const { colorTheme, lang, systemFoldersDisplaying, allowShowingDevtool, customLogoSrc } = storeToRefs(appStore);
@@ -90,20 +94,92 @@ export function useSettings() {
     });
   }
 
+  const autoLogin = ref(false);
+  const autoLoginSetupOpened = ref(false);
+  async function updateAutoLoginRef() {
+    autoLogin.value = await w3n.system.userLogin!.isAutoLoginSet();
+    autoLoginSetupOpened.value = false;
+    console.log(`autoLogin.value -> ${autoLogin.value}`);
+  }
+  updateAutoLoginRef();
+
+  async function changeAutoLogin(enable: boolean) {
+    // if (await w3n.system.userLogin!.isAutoLoginSet()) {
+    //   try {
+    //     await w3n.system.userLogin!.removeAutoLogin();
+    //   } finally {
+    //     updateAutoLoginRef();
+    //   }
+    // } else {
+    if (enable) {
+      autoLoginSetupOpened.value = true;
+      const loginPassword = ref('');
+      dialog.$openDialog<typeof TurnAutologinOn>({
+        component: TurnAutologinOn,
+        componentProps: {
+          loginPassword
+        },
+        dialogProps: {
+          title: $tr('settings.dialog.autologin.title'),
+          // cancelButton: false,
+          // confirmButton: false,
+          onConfirm: async () => {
+            try {
+              if (loginPassword.value) {
+                await w3n.system.userLogin!.setAutoLogin(loginPassword.value, () => {});
+                $createNotice({
+                  type: 'success',
+                  content: $tr('settings.autologin.set.success'),
+                });
+              }
+            } catch (err) {
+              $createNotice({
+                type: 'error',
+                content: $tr('settings.autologin.password_wrong'),
+              });
+            } finally {
+              updateAutoLoginRef();
+            }
+          },
+          onCancel: updateAutoLoginRef,
+          onClose: updateAutoLoginRef
+        }
+      });
+    } else {
+      try {
+        await w3n.system.userLogin!.removeAutoLogin();
+      } finally {
+        updateAutoLoginRef();
+      }
+    }
+  }
+
   return {
     $tr,
-    colorTheme,
+
     lang,
-    systemFoldersDisplaying,
-    allowShowingDevtool,
-    autoUpdate,
-    customLogoSrc,
+
+    colorTheme,
     changeColorTheme,
+
+    systemFoldersDisplaying,
     changeSystemFoldersDisplaying,
+
+    allowShowingDevtool,
     changeAllowShowingDevtool,
+
+    autoUpdate,
     toggleAutoUpdate,
-    wipeDataFromDevice,
+
+    customLogoSrc,
     addCustomLogo,
-    removeCustomLogo
+    removeCustomLogo,
+
+    autoLogin,
+    autoLoginSetupOpened,
+    changeAutoLogin,
+
+    wipeDataFromDevice,
+
   };
 }

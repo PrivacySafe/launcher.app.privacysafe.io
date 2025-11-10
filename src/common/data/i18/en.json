@@ -34,6 +34,12 @@
   "dialog.open-file.image-type": "Images",
   "settings.label.system.folders": "Show system folders",
   "settings.label.showing.devtool": "Show devtool",
+  "settings.label.autologin": "Automatic Login",
+  "settings.placeholder.password": "Password",
+  "settings.label.autologin.enter_password": "Enter your password to enable Automatic Login",
+  "settings.dialog.autologin.title": "Enable Automatic Login",
+  "settings.autologin.set.success": "Automatic Login is Enabled",
+  "settings.autologin.password_wrong": "Incorrect Password can't enable Automatic Login",
 
   "settings.save.success": "The apps settings save successful",
   "settings.save.error": "The apps settings save error",

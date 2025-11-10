@@ -15,37 +15,39 @@
  this program. If not, see <http://www.gnu.org/licenses/>.
 -->
 <script lang="ts" setup>
-  import { Ui3nButton, Ui3nRadio, Ui3nSwitch } from '@v1nt1248/3nclient-lib';
-  import { AVAILABLE_THEMES, AVAILABLE_LANGS } from '@/common/constants';
-  import { useSettings } from '@/common/composables/useSettings';
+import { Ui3nButton, Ui3nRadio, Ui3nSwitch } from '@v1nt1248/3nclient-lib';
+import { AVAILABLE_THEMES, AVAILABLE_LANGS } from '@/common/constants';
+import { useSettings } from '@/common/composables/useSettings';
 
-  const {
-    $tr,
-    colorTheme,
-    lang,
-    systemFoldersDisplaying,
-    allowShowingDevtool,
-    autoUpdate,
-    customLogoSrc,
-    changeColorTheme,
-    changeSystemFoldersDisplaying,
-    changeAllowShowingDevtool,
-    toggleAutoUpdate,
-    wipeDataFromDevice,
-    addCustomLogo,
-    removeCustomLogo
-  } = useSettings();
+const {
+  lang,
+  colorTheme,
+  changeColorTheme,
+  systemFoldersDisplaying,
+  changeSystemFoldersDisplaying,
+  allowShowingDevtool,
+  changeAllowShowingDevtool,
+  autoUpdate,
+  toggleAutoUpdate,
+  customLogoSrc,
+  addCustomLogo,
+  removeCustomLogo,
+  autoLogin,
+  autoLoginSetupOpened,
+  changeAutoLogin,
+  wipeDataFromDevice,
+} = useSettings();
 
-  function _changeColorTheme(isDarkColorTheme: boolean) {
-    const newColorTheme = isDarkColorTheme ? 'dark' : 'light';
-    if (colorTheme.value !== newColorTheme) {
-      changeColorTheme(isDarkColorTheme);
-    }
+function _changeColorTheme(isDarkColorTheme: boolean) {
+  const newColorTheme = isDarkColorTheme ? 'dark' : 'light';
+  if (colorTheme.value !== newColorTheme) {
+    changeColorTheme(isDarkColorTheme);
   }
+}
 
-  function changeAutoUpdate(value: boolean) {
-    toggleAutoUpdate(value);
-  }
+function changeAutoUpdate(value: boolean) {
+  toggleAutoUpdate(value);
+}
 </script>
 
 <template>
@@ -228,6 +230,42 @@
           </span>
         </div>
       </div>
+
+      <!-- autologin -->
+      <div :class="$style.row">
+        <h4 :class="$style.label">
+          {{ $tr('settings.label.autologin') }}
+        </h4>
+
+        <div :class="$style.value"
+          v-if="autoLoginSetupOpened"
+        >
+        </div>
+        <div :class="$style.value"
+          v-else
+        >
+          <span
+            :class="[$style.pointer, $style.text]"
+            @click="changeAutoLogin(false)"
+          >
+            {{ $tr('settings.label.off') }}
+          </span>
+
+          <ui3n-switch
+            size="16"
+            :model-value="autoLogin"
+            @change="changeAutoLogin"
+          />
+
+          <span
+            :class="[$style.pointer, $style.text]"
+            @click="changeAutoLogin(true)"
+          >
+            {{ $tr('settings.label.on') }}
+          </span>
+        </div>
+      </div>
+
     </div>
 
     <!-- Data section/block -->
