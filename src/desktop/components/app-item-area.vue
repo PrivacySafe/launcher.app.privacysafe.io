@@ -30,7 +30,7 @@
 
 <style lang="scss" module>
 .applicationView {
-  --action-block-width: calc(3 * var(--spacing-ml));
+  --action-block-width: 88px;
 
   position: relative;
   width: 100%;

@@ -19,11 +19,18 @@ import { useAppStore } from '@/common/store/app.store';
 import { storeToRefs } from 'pinia';
 import { useAppsStore } from '@/common/store/apps.store';
 import { inject, ref } from 'vue';
-import { DIALOGS_KEY, DialogsPlugin, I18N_KEY, NOTIFICATIONS_KEY } from '@v1nt1248/3nclient-lib/plugins';
+import {
+  DIALOGS_KEY,
+  DialogsPlugin,
+  I18N_KEY,
+  I18nPlugin,
+  NOTIFICATIONS_KEY,
+  NotificationsPlugin,
+} from '@v1nt1248/3nclient-lib/plugins';
 import { SettingsJSON } from '@/common/store/app/ui-settings';
 import { readImageFileIntoDataURL, selectOneImageFileWithDialog } from '../utils/image-files';
-import TurnAutologinOn from '../dialogs/turn-autologin-on.vue'
-import { sleep } from '@v1nt1248/3nclient-lib/utils';
+import TurnAutologinOn from '../dialogs/turn-autologin-on.vue';
+import { AvailableColorTheme } from '@/common/types';
 
 export function useSettings() {
   const dialog = inject<DialogsPlugin>(DIALOGS_KEY)!;
@@ -36,8 +43,8 @@ export function useSettings() {
   const { toggleAutoUpdate } = appsStore;
   const { autoUpdate } = storeToRefs(appsStore);
 
-  const { $createNotice } = inject(NOTIFICATIONS_KEY)!;
-  const { $tr } = inject(I18N_KEY)!;
+  const { $createNotice } = inject<NotificationsPlugin>(NOTIFICATIONS_KEY)!;
+  const { $tr } = inject<I18nPlugin>(I18N_KEY)!;
 
   async function updateAppConfig(appConfig: Partial<SettingsJSON>) {
     try {
@@ -55,9 +62,13 @@ export function useSettings() {
     }
   }
 
-  function changeColorTheme(isDarkColorTheme: boolean) {
+  function changeColorTheme(val: AvailableColorTheme) {
+    if (colorTheme.value === val) {
+      return;
+    }
+
     updateAppConfig({
-      colorTheme: isDarkColorTheme ? 'dark' : 'default',
+      colorTheme: val,
     });
   }
 
@@ -79,7 +90,9 @@ export function useSettings() {
 
   async function addCustomLogo() {
     const imgFile = await selectOneImageFileWithDialog(
-      $tr('dialog.select-logo-file.title'), $tr('dialog.select-logo-file.btn'), $tr
+      $tr('dialog.select-logo-file.title'),
+      $tr('dialog.select-logo-file.btn'),
+      $tr,
     );
     if (imgFile) {
       updateSettings({
@@ -90,7 +103,7 @@ export function useSettings() {
 
   function removeCustomLogo() {
     updateSettings({
-      customLogo: undefined
+      customLogo: undefined,
     });
   }
 
@@ -117,7 +130,7 @@ export function useSettings() {
       dialog.$openDialog<typeof TurnAutologinOn>({
         component: TurnAutologinOn,
         componentProps: {
-          loginPassword
+          loginPassword,
         },
         dialogProps: {
           title: $tr('settings.dialog.autologin.title'),
@@ -126,12 +139,15 @@ export function useSettings() {
           onConfirm: async () => {
             try {
               if (loginPassword.value) {
-                await w3n.system.userLogin!.setAutoLogin(loginPassword.value, () => {});
+                await w3n.system.userLogin!.setAutoLogin(loginPassword.value, () => {
+                  /* empty */
+                });
                 $createNotice({
                   type: 'success',
                   content: $tr('settings.autologin.set.success'),
                 });
               }
+              // eslint-disable-next-line @typescript-eslint/no-unused-vars
             } catch (err) {
               $createNotice({
                 type: 'error',
@@ -142,8 +158,8 @@ export function useSettings() {
             }
           },
           onCancel: updateAutoLoginRef,
-          onClose: updateAutoLoginRef
-        }
+          onClose: updateAutoLoginRef,
+        },
       });
     } else {
       try {
@@ -180,6 +196,5 @@ export function useSettings() {
     changeAutoLogin,
 
     wipeDataFromDevice,
-
   };
 }

@@ -15,7 +15,7 @@
  this program. If not, see <http://www.gnu.org/licenses/>.
 -->
 <script lang="ts" setup>
-import { Ui3nButton, Ui3nRadio, Ui3nSwitch } from '@v1nt1248/3nclient-lib';
+import { Ui3nButton, Ui3nMenu, Ui3nRadio, Ui3nSwitch } from '@v1nt1248/3nclient-lib';
 import { AVAILABLE_THEMES, AVAILABLE_LANGS } from '@/common/constants';
 import { useSettings } from '@/common/composables/useSettings';
 
@@ -38,13 +38,6 @@ const {
   wipeDataFromDevice,
 } = useSettings();
 
-function _changeColorTheme(isDarkColorTheme: boolean) {
-  const newColorTheme = isDarkColorTheme ? 'dark' : 'light';
-  if (colorTheme.value !== newColorTheme) {
-    changeColorTheme(isDarkColorTheme);
-  }
-}
-
 function changeAutoUpdate(value: boolean) {
   toggleAutoUpdate(value);
 }
@@ -64,25 +57,33 @@ function changeAutoUpdate(value: boolean) {
         </h4>
 
         <div :class="$style.value">
-          <span
-            :class="[$style.pointer, $style.text]"
-            @click="_changeColorTheme(false)"
+          <ui3n-menu
+            position-strategy="fixed"
+            :offset-y="4"
           >
-            {{ $tr(AVAILABLE_THEMES.default.label) }}
-          </span>
+            <ui3n-button
+              type="custom"
+              color="var(--color-bg-control-secondary-default)"
+              text-color="var(--color-text-button-tritery-default)"
+              icon="outline-arrow-drop-down"
+              icon-size="16"
+              icon-color="var(--color-icon-button-tritery-default)"
+              icon-position="right"
+            >
+              {{ $tr(AVAILABLE_THEMES[colorTheme].label) }}
+            </ui3n-button>
 
-          <ui3n-switch
-            size="16"
-            :model-value="colorTheme === 'dark'"
-            @change="changeColorTheme"
-          />
-
-          <span
-            :class="[$style.pointer, $style.text]"
-            @click="_changeColorTheme(true)"
-          >
-            {{ $tr(AVAILABLE_THEMES.dark.label) }}
-          </span>
+            <template #menu>
+              <div
+                v-for="(theme, id) in AVAILABLE_THEMES"
+                :key="id"
+                :class="[$style.colorThemesItem, colorTheme === id && $style.colorThemesItemSelected]"
+                @click="changeColorTheme(id)"
+              >
+                {{ $tr(theme.label) }}
+              </div>
+            </template>
+          </ui3n-menu>
         </div>
       </div>
 
@@ -237,12 +238,14 @@ function changeAutoUpdate(value: boolean) {
           {{ $tr('settings.label.autologin') }}
         </h4>
 
-        <div :class="$style.value"
+        <div
           v-if="autoLoginSetupOpened"
-        >
-        </div>
-        <div :class="$style.value"
+          :class="$style.value"
+        />
+
+        <div
           v-else
+          :class="$style.value"
         >
           <span
             :class="[$style.pointer, $style.text]"
@@ -265,7 +268,6 @@ function changeAutoUpdate(value: boolean) {
           </span>
         </div>
       </div>
-
     </div>
 
     <!-- Data section/block -->
@@ -343,6 +345,30 @@ function changeAutoUpdate(value: boolean) {
   font-weight: 500;
   color: var(--color-text-control-primary-default);
   text-transform: capitalize;
+}
+
+.colorThemesItem {
+  display: flex;
+  width: 120px;
+  height: var(--spacing-l);
+  padding: 0 12px;
+  justify-content: flex-start;
+  align-items: center;
+  font-size: var(--font-13);
+  font-weight: 500;
+  color: var(--color-text-control-primary-default);
+
+  &:not(.colorThemesItemSelected) {
+    cursor: pointer;
+  }
+
+  &.colorThemesItemSelected {
+    color: var(--color-text-button-secondary-default);
+  }
+
+  &:hover {
+    background-color: var(--color-bg-control-primary-hover);
+  }
 }
 
 .pointer {

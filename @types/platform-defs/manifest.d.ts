@@ -15,7 +15,7 @@
  this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-/// <reference path="../../node_modules/core-3nweb-client-lib/build/api-defs/common-caps.d.ts" />
+/// <reference path="../core-defs/common-caps.d.ts" />
 
 declare namespace web3n.caps {
 
@@ -262,6 +262,7 @@ declare namespace web3n.caps {
 
 	interface ShellCAPsSetting {
 		fileDialog?: FileDialogsCAPSettings;
+		deviceFiles?: DeviceFilesCAPSettings;
 		mountFS?: DeviceMountFSCAPSetting;
 		userNotifications?: true;
 		openDashboard?: true;
@@ -274,6 +275,8 @@ declare namespace web3n.caps {
 	}
 
 	type FileDialogsCAPSettings = 'all' | 'readonly';
+
+	type DeviceFilesCAPSettings = 'all';
 
 	type DeviceMountFSCAPSetting = 'all';
 

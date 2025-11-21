@@ -50,10 +50,12 @@ const nothingToShow = computed(() => isEmpty(appLaunchers.value));
 <style lang="scss" module>
 .applications {
   position: relative;
-  width: 100%;
-  height: 100%;
-  padding: var(--spacing-m);
+  width: calc(100% - var(--spacing-s));
+  height: calc(100% - var(--spacing-ml));
+  margin: var(--spacing-s) 0 var(--spacing-m) 0;
+  padding: var(--spacing-m) var(--spacing-xs) var(--spacing-m) var(--spacing-m);
   overflow-y: auto;
+  scrollbar-gutter: stable;
 }
 
 .empty {

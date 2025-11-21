@@ -15,7 +15,7 @@
  this program. If not, see <http://www.gnu.org/licenses/>.
 -->
 <script lang="ts" setup>
-import { Ui3nButton, Ui3nRadio, Ui3nSwitch, Ui3nProgressLinear } from '@v1nt1248/3nclient-lib';
+import { Ui3nButton, Ui3nMenu, Ui3nRadio, Ui3nSwitch, Ui3nProgressLinear } from '@v1nt1248/3nclient-lib';
 import { AVAILABLE_THEMES, AVAILABLE_LANGS } from '@/common/constants';
 import { useSettings } from '@/common/composables/useSettings';
 
@@ -72,13 +72,33 @@ const {
           </div>
 
           <div :class="$style.rowBodyValue">
-            <span :class="$style.rowBodyText">{{ $tr(AVAILABLE_THEMES.default.label) }}</span>
-            <ui3n-switch
-              size="16"
-              :model-value="colorTheme === 'dark'"
-              @change="changeColorTheme"
-            />
-            <span :class="$style.rowBodyText">{{ $tr(AVAILABLE_THEMES.dark.label) }}</span>
+            <ui3n-menu
+              position-strategy="fixed"
+              :offset-y="4"
+            >
+              <ui3n-button
+                type="custom"
+                color="var(--color-bg-control-secondary-default)"
+                text-color="var(--color-text-button-tritery-default)"
+                icon="outline-arrow-drop-down"
+                icon-size="16"
+                icon-color="var(--color-icon-button-tritery-default)"
+                icon-position="right"
+              >
+                {{ $tr(AVAILABLE_THEMES[colorTheme].label) }}
+              </ui3n-button>
+
+              <template #menu>
+                <div
+                  v-for="(theme, id) in AVAILABLE_THEMES"
+                  :key="id"
+                  :class="[$style.colorThemesItem, colorTheme === id && $style.colorThemesItemSelected]"
+                  @click="changeColorTheme(id)"
+                >
+                  {{ $tr(theme.label) }}
+                </div>
+              </template>
+            </ui3n-menu>
           </div>
         </div>
 
@@ -204,8 +224,9 @@ const {
             {{ $tr('settings.label.autologin') }}
           </div>
 
-          <div :class="$style.rowBodyValue"
+          <div
             v-if="autoLoginSetupOpened"
+            :class="$style.rowBodyValue"
           >
             <ui3n-progress-linear
               :class="$style.loginProgressBar"
@@ -213,8 +234,9 @@ const {
             />
           </div>
 
-          <div :class="$style.rowBodyValue"
+          <div
             v-else
+            :class="$style.rowBodyValue"
           >
             <span :class="$style.rowBodyText">{{ $tr('settings.label.off') }}</span>
 
@@ -335,6 +357,30 @@ const {
   font-weight: 500;
   color: var(--color-text-control-primary-default);
   text-transform: capitalize;
+}
+
+.colorThemesItem {
+  display: flex;
+  width: 120px;
+  height: var(--spacing-l);
+  padding: 0 12px;
+  justify-content: flex-start;
+  align-items: center;
+  font-size: var(--font-13);
+  font-weight: 500;
+  color: var(--color-text-control-primary-default);
+
+  &:not(.colorThemesItemSelected) {
+    cursor: pointer;
+  }
+
+  &.colorThemesItemSelected {
+    color: var(--color-text-button-secondary-default);
+  }
+
+  &:hover {
+    background-color: var(--color-bg-control-primary-hover);
+  }
 }
 
 .customLogo {

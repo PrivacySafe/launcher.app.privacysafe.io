@@ -16,8 +16,12 @@ export const AVAILABLE_THEMES: Record<AvailableColorTheme, { label: string; cssC
     cssClass: 'default-theme',
   },
   dark: {
-    label: 'settings.theme.dark',
+    label: 'settings.theme.dark1',
     cssClass: 'dark-theme',
+  },
+  dark2: {
+    label: 'settings.theme.dark2',
+    cssClass: 'dark2-theme',
   },
 };
 

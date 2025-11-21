@@ -9,19 +9,23 @@
 */
 import { computed, inject, type ComputedRef } from 'vue';
 import { storeToRefs } from 'pinia';
-import { I18N_KEY } from '@v1nt1248/3nclient-lib/plugins';
+import { I18N_KEY, I18nPlugin } from '@v1nt1248/3nclient-lib/plugins';
 import { updateVersionIn } from '@/common/utils/versions';
 import type { AppInfo } from '@/common/types';
 import { useAppsStore } from '@/common/store/apps.store';
 
 export function useAppView(props: ComputedRef<AppInfo>) {
-  const { $tr } = inject(I18N_KEY)!;
+  const { $tr } = inject<I18nPlugin>(I18N_KEY)!;
 
   const appId = computed(() => props.value.appId);
 
   const appsStore = useAppsStore();
   const {
-    downloadAndInstallApp, installBundledApp, installAppFromPack, closeOldVersionApps, updateAppsAndLaunchersInfo
+    downloadAndInstallApp,
+    installBundledApp,
+    installAppFromPack,
+    closeOldVersionApps,
+    updateAppsAndLaunchersInfo,
   } = appsStore;
   const { restart, processes } = storeToRefs(appsStore);
   const needToCloseOldVersion = computed(() => !!restart.value?.apps?.includes(appId.value));
@@ -34,14 +38,18 @@ export function useAppView(props: ComputedRef<AppInfo>) {
   );
 
   const versionToInstall = computed(() => props.value.versions.latest);
-  const canBeInstalled = computed(() => !appProcesses.value && !props.value.versions.current && !!versionToInstall.value);
+  const canBeInstalled = computed(
+    () => !appProcesses.value && !props.value.versions.current && !!versionToInstall.value,
+  );
 
   const versionInUpdate = computed(() => updateVersionIn(props.value));
   const canBeUpdated = computed(() => !appProcesses.value && !!versionInUpdate.value);
 
   async function install() {
-    if (!canBeInstalled.value) { return; }
-    
+    if (!canBeInstalled.value) {
+      return;
+    }
+
     if (props.value.versions.packs?.includes(versionToInstall.value)) {
       await installAppFromPack(appId.value, props.value.versions.latest);
     } else {
@@ -50,7 +58,9 @@ export function useAppView(props: ComputedRef<AppInfo>) {
   }
 
   async function update() {
-    if (!versionInUpdate.value) { return; }
+    if (!versionInUpdate.value) {
+      return;
+    }
     try {
       const { version, isBundledVersion } = versionInUpdate.value;
       if (isBundledVersion) {

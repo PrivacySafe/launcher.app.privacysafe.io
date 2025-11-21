@@ -268,9 +268,8 @@ function openSystemMap() {
 
 .toolbarLogo {
   position: relative;
-  top: -2px;
-  margin-right: var(--spacing-m);
-  height: var(--spacing-l);
+  margin-right: 12px;
+  height: var(--spacing-m);
 }
 
 .delimiter {

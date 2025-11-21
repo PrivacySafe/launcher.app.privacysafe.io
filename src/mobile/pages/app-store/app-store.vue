@@ -18,15 +18,15 @@
 import { computed, inject, ref } from 'vue';
 import { storeToRefs } from 'pinia';
 import isEmpty from 'lodash/isEmpty';
-import { I18N_KEY, NOTIFICATIONS_KEY } from '@v1nt1248/3nclient-lib/plugins';
+import { I18N_KEY, I18nPlugin, NOTIFICATIONS_KEY, NotificationsPlugin } from '@v1nt1248/3nclient-lib/plugins';
 import { Ui3nButton, Ui3nInput, Ui3nProgressCircular } from '@v1nt1248/3nclient-lib';
 import { useAppStore } from '@/common/store/app.store';
 import { useAppsStore } from '@/common/store/apps.store';
 import PlatformView from '@/desktop/components/platform-view.vue';
 import AppInfo from '@/mobile/components/app-info/app-info.vue';
 
-const { $tr } = inject(I18N_KEY)!;
-const { $createNotice } = inject(NOTIFICATIONS_KEY)!;
+const { $tr } = inject<I18nPlugin>(I18N_KEY)!;
+const { $createNotice } = inject<NotificationsPlugin>(NOTIFICATIONS_KEY)!;
 
 const appStore = useAppStore();
 const { connectivityStatus } = storeToRefs(appStore);

@@ -134,7 +134,7 @@ const {
 
 .content {
   position: relative;
-  width: calc(100% - 4 * var(--spacing-ml) - 2 * var(--spacing-s));
+  width: calc(100% - var(--action-block-width) - var(--spacing-l));
 }
 
 .name {

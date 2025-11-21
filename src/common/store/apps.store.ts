@@ -13,7 +13,7 @@ import { defineStore } from 'pinia';
 import { makeProcessesPlace } from './apps/processes';
 import { AppInfo, ChannelVersion } from '@/common/types';
 import { downloadApp, installApp } from './apps/app-operations';
-import { SingleProc, defer, makeSyncedFunc } from '@v1nt1248/3nclient-lib/utils';
+import { SingleProc, makeSyncedFunc } from '@v1nt1248/3nclient-lib/utils';
 import { makeRestartInfoPlace } from './apps/restart-info';
 import { makeAppsAndLaunchersInfoPlace } from './apps/apps-and-launchers-info';
 import { makePlatform } from './apps/platform';
@@ -32,13 +32,22 @@ export const useAppsStore = defineStore('apps', () => {
 
   const autoUpdate = ref(true);
   const {
-    appLaunchers, applicationsInSystem, getApp, fetchAppsInfo, initializeCached,
-    needInitialSetup, getAppDistInfo, getBundleDistInfo
+    appLaunchers,
+    applicationsInSystem,
+    getApp,
+    fetchAppsInfo,
+    initializeCached,
+    needInitialSetup,
+    getAppDistInfo,
+    getBundleDistInfo,
   } = makeAppsAndLaunchersInfoPlace();
   const { restart, setAppsRestart, setPlatformRestart } = makeRestartInfoPlace();
-  const {
-    platform, downloadPlatformUpdate
-  } = makePlatform(delProcess, upsertProcess, restart, setPlatformRestart);
+  const { platform, downloadPlatformUpdate } = makePlatform(
+    delProcess,
+    upsertProcess,
+    restart,
+    setPlatformRestart,
+  );
 
   function toggleAutoUpdate(value?: boolean): void {
     if (typeof value === 'boolean') {
@@ -53,13 +62,19 @@ export const useAppsStore = defineStore('apps', () => {
     await Promise.all([
       initializeCached(),
 
-      confs.init().then(async () => {
-        autoUpdate.value = await confs.getAutoUpdate();
-      }).catch(err => w3n.log('error', `Initializing launcher confs threw an error`, err)),
+      confs
+        .init()
+        .then(async () => {
+          autoUpdate.value = await confs.getAutoUpdate();
+        })
+        .catch(err => w3n.log('error', `Initializing launcher confs threw an error`, err)),
 
-      w3n.system!.platform!.getCurrentVersion().then(v => {
-        platform.value.version = v.bundle;
-      }).catch(err => w3n.log('error', `Initializing launcher info threw an error`, err))
+      w3n
+        .system!.platform!.getCurrentVersion()
+        .then(v => {
+          platform.value.version = v.bundle;
+        })
+        .catch(err => w3n.log('error', `Initializing launcher info threw an error`, err)),
     ]);
   }
 
@@ -75,7 +90,7 @@ export const useAppsStore = defineStore('apps', () => {
       const distInfo = await getAppDistInfo(appId, forceInfoDownload);
       if (!distInfo) {
         app.updates = undefined;
-        if (app.versions.bundled && (compareSemVer(current!, app.versions.bundled) < 0)) {
+        if (app.versions.bundled && compareSemVer(current!, app.versions.bundled) < 0) {
           app.updateFromBundle = app.versions.bundled;
         }
         return;
@@ -92,7 +107,7 @@ export const useAppsStore = defineStore('apps', () => {
       } else if (app.updates) {
         app.updates = undefined;
       }
-      if (app.versions.bundled && (compareSemVer(current!, app.versions.bundled) < 0)) {
+      if (app.versions.bundled && compareSemVer(current!, app.versions.bundled) < 0) {
         app.updateFromBundle = app.versions.bundled;
       }
     } finally {
@@ -126,7 +141,8 @@ export const useAppsStore = defineStore('apps', () => {
   }
 
   const downloadAndInstallApp = debouncedFnCall(async function downloadAndInstallApp(
-    app: AppInfo, version: string,
+    app: AppInfo,
+    version: string,
   ): Promise<PostInstallState | undefined> {
     try {
       if (!app.versions.packs || !app.versions.packs.includes(version)) {
@@ -166,10 +182,10 @@ export const useAppsStore = defineStore('apps', () => {
     async function installBundledApp(appId: string, version: string): Promise<void> {
       try {
         try {
-          await unpackBundledApp(appId)
+          await unpackBundledApp(appId);
         } catch (err) {
-            await w3n.log('error', `Failed to unpack bundled version of app ${appId}`, err);
-            return;
+          await w3n.log('error', `Failed to unpack bundled version of app ${appId}`, err);
+          return;
         }
         try {
           await installApp(appId, version, delProcess, upsertProcess);
@@ -274,9 +290,11 @@ export const useAppsStore = defineStore('apps', () => {
       return;
     }
 
-    emitEvent({ 'init-setup:start': {
-      bundledAppsForInstall: bundledAppsForInstall.map(({ id }) => id)
-    }});
+    emitEvent({
+      'init-setup:start': {
+        bundledAppsForInstall: bundledAppsForInstall.map(({ id }) => id),
+      },
+    });
 
     for (const { id, version } of bundledAppsForInstall) {
       try {
@@ -319,7 +337,6 @@ export const useAppsStore = defineStore('apps', () => {
         console.log(ev);
       }
       // XXX
-
     } catch (err) {
       // XXX
 
@@ -352,7 +369,7 @@ export const useAppsStore = defineStore('apps', () => {
     closeOldVersionApps,
     updateAppsAndLaunchersInfo,
     fetchCachedInfo,
-    addAppPackFromFile
+    addAppPackFromFile,
   };
 });
 
@@ -381,4 +398,3 @@ function canUpdateBundle(current: BundleVersions, latestAvailable: BundleVersion
 
   return false;
 }
-

@@ -48,15 +48,15 @@ export interface AppLaunchers {
 
 export type AvailableLanguage = 'en';
 
-export type AvailableColorTheme = 'default' | 'dark';
+export type AvailableColorTheme = 'default' | 'dark' | 'dark2';
 
-export type AppConfig = {
+export interface AppConfig {
   lang: AvailableLanguage;
   colorTheme: AvailableColorTheme;
   systemFoldersDisplaying?: boolean;
   allowShowingDevtool?: boolean;
   customLogo?: string;
-};
+}
 
 export type ConnectivityStatus = 'offline' | 'online';
 

@@ -15,52 +15,49 @@
  this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-
+// eslint-disable-next-line @typescript-eslint/no-namespace
 declare namespace web3n.shell.clipboard {
+  // @ts-ignore
+  type ClippingsSource = 'clipboard' | 'selection';
 
-	interface Clipboard {
+  interface Clipboard {
+    /**
+     * Returns the content in the clipboard as plain text.
+     * @param type Can be selection or clipboard; default is 'clipboard'. selection is only available on Linux.
+     */
+    readText(type?: ClippingsSource): Promise<string>;
 
-		/**
-		 * Returns the content in the clipboard as plain text.
-		 * @param type Can be selection or clipboard; default is 'clipboard'. selection is only available on Linux.
-		 */
-		readText(type?: ClippingsSource): Promise<string>;
+    /**
+     * Writes the text into the clipboard as plain text.
+     * @param text
+     * @param type Can be selection or clipboard; default is 'clipboard'. selection is only available on Linux.
+     */
+    writeText(text: string, type?: ClippingsSource): Promise<void>;
 
-		/**
-		 * Writes the text into the clipboard as plain text.
-		 * @param text 
-		 * @param type Can be selection or clipboard; default is 'clipboard'. selection is only available on Linux.
-		 */
-		writeText(text: string, type?: ClippingsSource): Promise<void>;
+    /**
+     * Returns the content in the clipboard as markup.
+     * @param type Can be selection or clipboard; default is 'clipboard'. selection is only available on Linux.
+     */
+    readHTML(type?: ClippingsSource): Promise<string>;
 
-		/**
-		 * Returns the content in the clipboard as markup.
-		 * @param type Can be selection or clipboard; default is 'clipboard'. selection is only available on Linux.
-		 */
-		readHTML(type?: ClippingsSource): Promise<string>;
+    /**
+     * Writes the markup into the clipboard.
+     * @param markup
+     * @param type Can be selection or clipboard; default is 'clipboard'. selection is only available on Linux.
+     */
+    writeHTML(markup: string, type?: ClippingsSource): Promise<void>;
 
-		/**
-		 * Writes the markup into the clipboard.
-		 * @param markup 
-		 * @param type Can be selection or clipboard; default is 'clipboard'. selection is only available on Linux.
-		 */
-		writeHTML(markup: string, type?: ClippingsSource): Promise<void>;
+    /**
+     * Returns the content in the clipboard as RTF.
+     * @param type Can be selection or clipboard; default is 'clipboard'. selection is only available on Linux.
+     */
+    readRTF(type?: ClippingsSource): Promise<string>;
 
-		/**
-		 * Returns the content in the clipboard as RTF.
-		 * @param type Can be selection or clipboard; default is 'clipboard'. selection is only available on Linux.
-		 */
-		readRTF(type?: ClippingsSource): Promise<string>;
-
-		/**
-		 * Writes the text into the clipboard in RTF.
-		 * @param text 
-		 * @param type Can be selection or clipboard; default is 'clipboard'. selection is only available on Linux.
-		 */
-		writeRTF(text: string, type?: ClippingsSource): Promise<void>;
-
-	}
-
-	type ClippingsSource = 'clipboard' | 'selection';
-
+    /**
+     * Writes the text into the clipboard in RTF.
+     * @param text
+     * @param type Can be selection or clipboard; default is 'clipboard'. selection is only available on Linux.
+     */
+    writeRTF(text: string, type?: ClippingsSource): Promise<void>;
+  }
 }

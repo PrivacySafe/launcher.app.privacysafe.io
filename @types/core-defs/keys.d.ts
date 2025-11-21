@@ -96,7 +96,7 @@ declare namespace web3n.keys {
 		 */
 		alg: string;
 		/**
-		 * This is an id of a key that did the signature.
+		 * This is an id of a key that created the signature.
 		 */
 		kid: string;
 		/**
@@ -122,6 +122,10 @@ declare namespace web3n.keys {
 	interface Keyrings {
 
 		introKeyOnASMailServer: IntroKeyOnASMailServer;
+
+		getCorrespondentKeys: (
+			correspondentAddr: string
+		) => Promise<CorrespondentKeysInfo|undefined>;
 
 	}
 
@@ -149,6 +153,47 @@ declare namespace web3n.keys {
 		assertion: keys.SignedLoad;
 		userCert: keys.SignedLoad;
 		provCert: keys.SignedLoad;
+	}
+
+	interface CorrespondentKeysInfo {
+		sendingPair: IntroductorySendingPairInfo|RatchetedSendingPairInfo|null;
+		receptionPairs: {
+			suggested: ReceptionPairInfo|null;
+			inUse: ReceptionPairInfo|null;
+			old: ReceptionPairInfo|null;
+		};
+	}
+
+	interface IntroductorySendingPairInfo {
+		type: 'intro';
+		recipientKId: string;
+		alg: string;
+	}
+
+	interface RatchetedSendingPairInfo {
+		type: 'ratcheted';
+		pids: string[];
+		timestamp: number;
+		alg: string;
+		senderKId: string;
+		recipientKId: string;
+		sentMsgs?: {
+			count: number;
+			lastTS: number;
+		};
+	}
+
+	interface ReceptionPairInfo {
+		pids: string[];
+		alg: string;
+		recipientKId: string;
+		isSenderIntroKey?: boolean,
+		senderKId: string;
+		receivedMsgs?: {
+			counts: number[][];
+			lastTS: number;
+		};
+		timestamp: number;
 	}
 
 }

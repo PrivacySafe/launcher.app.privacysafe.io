@@ -18,10 +18,10 @@
 <script lang="ts" setup>
 import { computed } from 'vue';
 import { Ui3nButton, Ui3nProgressCircular } from '@v1nt1248/3nclient-lib';
+import { useAppLauncher } from '@/common/composables/useAppLauncher';
 import type { AppLaunchers } from '@/common/types';
 import AppIcon from '@/common/components/app-icon.vue';
 import ApplicationItemArea from './app-item-area.vue';
-import { useAppLauncher } from '@/common/composables/useAppLauncher';
 
 const props = defineProps<{
   launchers: AppLaunchers;
@@ -95,7 +95,7 @@ const {
 
 .content {
   position: relative;
-  width: calc(100% - 4 * var(--spacing-ml) - 2 * var(--spacing-s));
+  width: calc(100% - var(--spacing-l) - var(--action-block-width));
 }
 
 .name {
@@ -115,6 +115,7 @@ const {
 .action {
   position: relative;
   width: var(--action-block-width);
+  min-width: var(--action-block-width);
 
   .btn {
     text-transform: capitalize;
@@ -125,6 +126,7 @@ const {
   position: absolute;
   left: 0;
   top: 0;
+  border-radius: var(--spacing-s);
   width: 100%;
   height: 100%;
   background-color: rgba(0, 0, 0, 0.2);

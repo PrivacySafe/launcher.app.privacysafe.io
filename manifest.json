@@ -1,7 +1,7 @@
 {
   "name": "Dashboard",
   "appDomain": "launcher.app.privacysafe.io",
-  "version": "0.11.7",
+  "version": "0.11.11",
   "icon": "logo.png",
   "description": "Dashboard/Launcher manages and launches your apps.",
 
@@ -44,7 +44,7 @@
       "windowOpts": {
         "width": 800,
         "height": 700,
-        "minWidth": 480,
+        "minWidth": 640,
         "minHeight": 400,
         "maxWidth": 1000
       }

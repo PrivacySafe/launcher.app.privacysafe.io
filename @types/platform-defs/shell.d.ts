@@ -20,6 +20,7 @@ declare namespace web3n.shell {
 
 	interface ShellCAPs {
 		fileDialogs?: files.Dialogs;
+		deviceFiles?: files.DeviceFiles;
 		userNotifications?: notifications.UserNotifications;
 		startAppWithParams?: commands.StartAppWithParams;
 		getStartedCmd?: commands.GetStartedCmd;
@@ -52,7 +53,7 @@ declare namespace web3n.shell {
 		 * without this capability, but mac is stricter. This capability should be
 		 * used for predictable results.
 		 */
-		clipboard?: Partial<clipboard.Clipboard>;
+		clipboard?: Partial<shell.clipboard.Clipboard>;
 	}
 
 	type GetFSResource = (

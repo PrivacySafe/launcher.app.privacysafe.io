@@ -18,6 +18,7 @@
 /// <reference path="../core-defs/web3n.d.ts" />
 /// <reference path="./shell.d.ts" />
 /// <reference path="./shell-dialogs.d.ts" />
+/// <reference path="./shell-clipboard.d.ts" />
 /// <reference path="./shell-notifications.d.ts" />
 /// <reference path="./shell-commands.d.ts" />
 /// <reference path="./connectivity.d.ts" />
@@ -28,33 +29,37 @@
 /// <reference path="./test-stand.d.ts" />
 
 declare namespace web3n.caps {
-  /**
-   * This is a definition of capabilities' object, injected into the DOM.
-   * One has to ensure that any particular capability is given, before trying
-   * to use it.
-   */
-  interface W3N extends caps.common.W3N {
-    /**
-     * closeSelf closes current component instance, which is self in the
-     * context.
-     */
-    closeSelf: () => void;
 
-    /**
-     * myVersion returns version of current app.
-     */
-    myVersion: () => Promise<string>;
+	/**
+	 * This is a definition of capabilities' object, injected into the DOM.
+	 * One has to ensure that any particular capability is given, before trying
+	 * to use it.
+	 */
+	interface W3N extends caps.common.W3N {
 
-    ui: ui.UI;
+		/**
+		 * closeSelf closes current component instance, which is self in the
+		 * context.
+		 */
+		closeSelf: () => void;
 
-    // idea for lifecycle methods
-    // lifecycle: {
-    //   addListener: (event, hook) => void;
-    // };
+		/**
+		 * myVersion returns version of current app.
+		 */
+		myVersion: () => Promise<string>;
 
-    shell?: shell.ShellCAPs;
-    rpc?: rpc.RPC;
-    connectivity?: connectivity.Connectivity;
-    mediaDevices?: media.MediaDevices;
-  }
+		ui: ui.UI;
+
+		// idea for lifecycle methods
+		// lifecycle: {
+		//   addListener: (event, hook) => void;
+		// };
+
+		shell?: shell.ShellCAPs;
+		rpc?: rpc.RPC;
+		connectivity?: connectivity.Connectivity;
+		mediaDevices?: media.MediaDevices;
+
+	}
+
 }

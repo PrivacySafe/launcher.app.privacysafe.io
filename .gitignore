@@ -2,10 +2,11 @@
 node_modules
 /dist
 /app
-/test-user-creds.json
+/test-user*.json
 /test-runner
 /test-data
 /temp
+/setup-w3n.bundle.js
 
 # local env files
 .env.local
@@ -29,9 +30,6 @@ yarn-error.log*
 
 # Tmp files
 .~*
-
-# This is injected, or dev server should serve current version
-setup-w3n.bundle.js
 
 # pnpm's settings is unnecessary here
 pnpm-workspace.yaml

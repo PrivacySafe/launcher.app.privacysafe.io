@@ -18,13 +18,13 @@
 import { computed, inject, ref } from 'vue';
 import { storeToRefs } from 'pinia';
 import { isEmpty } from 'lodash';
-import { I18N_KEY } from '@v1nt1248/3nclient-lib/plugins';
+import { I18N_KEY, I18nPlugin } from '@v1nt1248/3nclient-lib/plugins';
 import { Ui3nInput } from '@v1nt1248/3nclient-lib';
 import { useAppsStore } from '@/common/store/apps.store';
 import AppView from '@/desktop/components/app-view.vue';
 import PlatformView from '@/desktop/components/platform-view.vue';
 
-const { $tr } = inject(I18N_KEY)!;
+const { $tr } = inject<I18nPlugin>(I18N_KEY)!;
 const { applicationsInSystem } = storeToRefs(useAppsStore());
 
 const search = ref('');
@@ -75,20 +75,23 @@ const filteredApps = computed(() => applicationsInSystem.value
   position: relative;
   width: 100%;
   height: 100%;
-  padding: var(--spacing-m);
+  padding: var(--spacing-m) var(--spacing-s) var(--spacing-m) var(--spacing-m);
 }
 
 .search {
   position: relative;
   width: 100%;
+  padding-right: 10px;
   margin: var(--spacing-s) 0 var(--spacing-ml);
 }
 
 .content {
   position: relative;
   width: 100%;
+  padding-right: var(--spacing-xs);
   height: calc(100% - var(--spacing-ml) - var(--spacing-s) - var(--spacing-xxl));
   overflow-y: auto;
+  scrollbar-gutter: stable;
 }
 
 .empty {

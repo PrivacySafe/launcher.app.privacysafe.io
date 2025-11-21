@@ -40,7 +40,7 @@ async function goToMenuItem(item: AppMenuItem) {
         </div>
 
         <div :class="$style.status">
-          {{ $tr('app.status') }}: {{ $tr(connectivityStatusText) }}
+          {{ $tr('app.status') }}: <span :class="connectivityStatusText === 'app.status.connected.online' && $style.ok">{{ $tr(connectivityStatusText) }}</span>
         </div>
       </div>
     </div>
@@ -107,6 +107,10 @@ async function goToMenuItem(item: AppMenuItem) {
   font-size: var(--font-12);
   font-weight: 600;
   line-height: var(--font-14);
+}
+
+.ok {
+  color: var(--success-content-default);
 }
 
 .appMenuBody {

@@ -19,7 +19,9 @@ import { computed, inject, ref } from 'vue';
 import { storeToRefs } from 'pinia';
 import {
   I18N_KEY,
+  I18nPlugin,
   NOTIFICATIONS_KEY,
+  NotificationsPlugin,
   VUEBUS_KEY,
   VueBusPlugin,
 } from '@v1nt1248/3nclient-lib/plugins';
@@ -30,20 +32,22 @@ import { GlobalEvents } from '@/common/types';
 export type AppViewInstance = ReturnType<typeof useAppPage>;
 
 export function useAppPage() {
-
   const appStore = useAppStore();
   const { appVersion, user, connectivityStatus, appElement, customLogoSrc } = storeToRefs(appStore);
 
   const appsStore = useAppsStore();
   const { restart, applicationsInSystem, platform } = storeToRefs(appsStore);
   const {
-    checkAndInstallAllUpdates, updateAppsAndLaunchersInfo, fetchCachedInfo, checkForAllUpdates,
-    addAppPackFromFile
+    checkAndInstallAllUpdates,
+    updateAppsAndLaunchersInfo,
+    fetchCachedInfo,
+    checkForAllUpdates,
+    addAppPackFromFile,
   } = appsStore;
 
-  const { $tr } = inject(I18N_KEY)!;
+  const { $tr } = inject<I18nPlugin>(I18N_KEY)!;
   const { $emitter } = inject<VueBusPlugin<GlobalEvents>>(VUEBUS_KEY)!;
-  const { $createNotice } = inject(NOTIFICATIONS_KEY)!;
+  const { $createNotice } = inject<NotificationsPlugin>(NOTIFICATIONS_KEY)!;
 
   const checkProcIsOn = ref(false);
 
@@ -110,10 +114,9 @@ export function useAppPage() {
   }
 
   async function addAppFromFile() {
-    const filesWithApps = await w3n.shell!.fileDialogs!.openFileDialog!(
-      "Choose 3NWeb App file", "Add App", true,
-      [{ name: "", extensions: [ '3nw', '3nweb', 'zip' ] }]
-    );
+    const filesWithApps = await w3n.shell!.fileDialogs!.openFileDialog!('Choose 3NWeb App file', 'Add App', true, [
+      { name: '', extensions: ['3nw', '3nweb', 'zip'] },
+    ]);
     if (!filesWithApps) {
       return;
     }
@@ -124,10 +127,7 @@ export function useAppPage() {
 
   async function doBeforeMount() {
     try {
-      await Promise.all([
-        appStore.initialize(),
-        appsStore.initialize()
-      ]);
+      await Promise.all([appStore.initialize(), appsStore.initialize()]);
 
       triggerOnStart();
     } catch (e) {
@@ -156,6 +156,6 @@ export function useAppPage() {
     addAppFromFile,
 
     doBeforeMount,
-    doBeforeUnmount
+    doBeforeUnmount,
   };
 }
