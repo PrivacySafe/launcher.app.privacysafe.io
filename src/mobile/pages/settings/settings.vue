@@ -58,8 +58,9 @@ function changeAutoUpdate(value: boolean) {
 
         <div :class="$style.value">
           <ui3n-menu
-            position-strategy="fixed"
+            :offset-x="-48"
             :offset-y="4"
+            :allow-flip="false"
           >
             <ui3n-button
               type="custom"
@@ -75,12 +76,12 @@ function changeAutoUpdate(value: boolean) {
 
             <template #menu>
               <div
-                v-for="(theme, id) in AVAILABLE_THEMES"
+                v-for="id in (['dark2', 'default', 'dark'] as const)"
                 :key="id"
                 :class="[$style.colorThemesItem, colorTheme === id && $style.colorThemesItemSelected]"
                 @click="changeColorTheme(id)"
               >
-                {{ $tr(theme.label) }}
+                {{ $tr(AVAILABLE_THEMES[id].label) }}
               </div>
             </template>
           </ui3n-menu>

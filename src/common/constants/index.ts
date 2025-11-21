@@ -11,13 +11,13 @@
 import type { AvailableColorTheme, AvailableLanguage } from '@/common/types';
 
 export const AVAILABLE_THEMES: Record<AvailableColorTheme, { label: string; cssClass: string }> = {
-  default: {
-    label: 'settings.theme.light',
-    cssClass: 'default-theme',
-  },
   dark: {
     label: 'settings.theme.dark1',
     cssClass: 'dark-theme',
+  },
+  default: {
+    label: 'settings.theme.light',
+    cssClass: 'default-theme',
   },
   dark2: {
     label: 'settings.theme.dark2',

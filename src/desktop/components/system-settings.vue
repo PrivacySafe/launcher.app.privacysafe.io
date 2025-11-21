@@ -73,8 +73,9 @@ const {
 
           <div :class="$style.rowBodyValue">
             <ui3n-menu
-              position-strategy="fixed"
+              :offset-x="-48"
               :offset-y="4"
+              :allow-flip="false"
             >
               <ui3n-button
                 type="custom"
@@ -90,12 +91,12 @@ const {
 
               <template #menu>
                 <div
-                  v-for="(theme, id) in AVAILABLE_THEMES"
+                  v-for="id in (['dark2', 'default', 'dark'] as const)"
                   :key="id"
                   :class="[$style.colorThemesItem, colorTheme === id && $style.colorThemesItemSelected]"
                   @click="changeColorTheme(id)"
                 >
-                  {{ $tr(theme.label) }}
+                  {{ $tr(AVAILABLE_THEMES[id].label) }}
                 </div>
               </template>
             </ui3n-menu>
