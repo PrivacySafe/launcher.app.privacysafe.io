@@ -23,8 +23,6 @@ const {
   lang,
   colorTheme,
   changeColorTheme,
-  systemFoldersDisplaying,
-  changeSystemFoldersDisplaying,
   allowShowingDevtool,
   changeAllowShowingDevtool,
   autoUpdate,
@@ -171,35 +169,6 @@ function changeAutoUpdate(value: boolean) {
             @click="changeAutoUpdate(true)"
           >
             {{ $tr('settings.label.on') }}
-          </span>
-        </div>
-      </div>
-
-      <!-- show system folders -->
-      <div :class="$style.row">
-        <h4 :class="$style.label">
-          {{ $tr('settings.label.system.folders') }}
-        </h4>
-
-        <div :class="$style.value">
-          <span
-            :class="[$style.pointer, $style.text]"
-            @click="changeSystemFoldersDisplaying(false)"
-          >
-            {{ $tr('settings.label.no') }}
-          </span>
-
-          <ui3n-switch
-            size="16"
-            :model-value="systemFoldersDisplaying"
-            @change="changeSystemFoldersDisplaying"
-          />
-
-          <span
-            :class="[$style.pointer, $style.text]"
-            @click="changeSystemFoldersDisplaying(true)"
-          >
-            {{ $tr('settings.label.yes') }}
           </span>
         </div>
       </div>

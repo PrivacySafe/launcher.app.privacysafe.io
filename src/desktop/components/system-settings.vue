@@ -27,8 +27,6 @@ const {
   colorTheme,
   changeColorTheme,
   lang,
-  systemFoldersDisplaying,
-  changeSystemFoldersDisplaying,
   allowShowingDevtool,
   changeAllowShowingDevtool,
   autoUpdate,
@@ -178,25 +176,6 @@ const {
             />
 
             <span :class="$style.rowBodyText">{{ $tr('settings.label.on') }}</span>
-          </div>
-        </div>
-
-        <!-- showing system folders -->
-        <div :class="$style.rowBody">
-          <div :class="$style.rowBodyLabel">
-            {{ $tr('settings.label.system.folders') }}
-          </div>
-
-          <div :class="$style.rowBodyValue">
-            <span :class="$style.rowBodyText">{{ $tr('settings.label.no') }}</span>
-
-            <ui3n-switch
-              size="16"
-              :model-value="systemFoldersDisplaying"
-              @change="changeSystemFoldersDisplaying"
-            />
-
-            <span :class="$style.rowBodyText">{{ $tr('settings.label.yes') }}</span>
           </div>
         </div>
 

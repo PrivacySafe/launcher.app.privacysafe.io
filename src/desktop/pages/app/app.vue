@@ -16,7 +16,7 @@
 -->
 <script lang="ts" setup>
 import { onBeforeMount, onBeforeUnmount, ref } from 'vue';
-import { Ui3nButton, Ui3nMenu, Ui3nTabs, Ui3nTooltip, Ui3nRipple as vUi3nRipple } from '@v1nt1248/3nclient-lib';
+import { Ui3nButton, Ui3nDialogProvider, Ui3nMenu, Ui3nTabs, Ui3nTooltip, Ui3nRipple as vUi3nRipple } from '@v1nt1248/3nclient-lib';
 import { useAppPage } from '@/common/composables/useAppPage';
 import prLogo from '@/common/assets/images/privacysafe-logo.svg';
 import ContactIcon from '@/common/components/contact-icon.vue';
@@ -234,6 +234,8 @@ function openSystemMap() {
     </transition>
 
     <div id="notification" />
+
+    <ui3n-dialog-provider />
   </div>
 </template>
 

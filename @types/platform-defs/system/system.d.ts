@@ -44,6 +44,8 @@ declare namespace web3n.system {
 
 		userLogin?: UserLoginSettings;
 
+		autoStartup?: AutoStartupSettings;
+
 	}
 
 	type Logout = (closePlatform: boolean) => Promise<void>;
@@ -53,6 +55,12 @@ declare namespace web3n.system {
 		removeAutoLogin: () => Promise<void>;
 		setAutoLogin: (password: string, progressCB: startup.ProgressCB) => Promise<void>;
 		isAutoLoginAvailable: () => Promise<boolean>;
+	}
+
+	interface AutoStartupSettings {
+		isAutoStartupAvailable: () => Promise<boolean>;
+		isAutoStartupSet: () => Promise<boolean>;
+		setAutoStartup: (enable: boolean) => Promise<void>;
 	}
 
 }

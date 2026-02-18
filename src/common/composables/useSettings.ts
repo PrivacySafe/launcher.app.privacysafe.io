@@ -37,7 +37,7 @@ export function useSettings() {
 
   const appStore = useAppStore();
   const { updateSettings } = appStore;
-  const { colorTheme, lang, systemFoldersDisplaying, allowShowingDevtool, customLogoSrc } = storeToRefs(appStore);
+  const { colorTheme, lang, allowShowingDevtool, customLogoSrc } = storeToRefs(appStore);
 
   const appsStore = useAppsStore();
   const { toggleAutoUpdate } = appsStore;
@@ -72,12 +72,6 @@ export function useSettings() {
     });
   }
 
-  function changeSystemFoldersDisplaying(val: boolean) {
-    updateSettings({
-      systemFoldersDisplaying: val,
-    });
-  }
-
   function changeAllowShowingDevtool(val: boolean) {
     updateSettings({
       allowShowingDevtool: val,
@@ -109,58 +103,51 @@ export function useSettings() {
 
   const autoLogin = ref(false);
   const autoLoginSetupOpened = ref(false);
+
   async function updateAutoLoginRef() {
     autoLogin.value = await w3n.system.userLogin!.isAutoLoginSet();
     autoLoginSetupOpened.value = false;
     console.log(`autoLogin.value -> ${autoLogin.value}`);
   }
-  updateAutoLoginRef();
 
   async function changeAutoLogin(enable: boolean) {
-    // if (await w3n.system.userLogin!.isAutoLoginSet()) {
-    //   try {
-    //     await w3n.system.userLogin!.removeAutoLogin();
-    //   } finally {
-    //     updateAutoLoginRef();
-    //   }
-    // } else {
+    console.log(`changeAutoLogin -> ${enable}`);
     if (enable) {
       autoLoginSetupOpened.value = true;
-      const loginPassword = ref('');
-      dialog.$openDialog<typeof TurnAutologinOn>({
-        component: TurnAutologinOn,
-        componentProps: {
-          loginPassword,
-        },
+
+      const res = await dialog.$openDialog<string>(TurnAutologinOn, {
         dialogProps: {
           title: $tr('settings.dialog.autologin.title'),
-          // cancelButton: false,
-          // confirmButton: false,
-          onConfirm: async () => {
-            try {
-              if (loginPassword.value) {
-                await w3n.system.userLogin!.setAutoLogin(loginPassword.value, () => {
-                  /* empty */
-                });
-                $createNotice({
-                  type: 'success',
-                  content: $tr('settings.autologin.set.success'),
-                });
-              }
-              // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            } catch (err) {
-              $createNotice({
-                type: 'error',
-                content: $tr('settings.autologin.password_wrong'),
-              });
-            } finally {
-              updateAutoLoginRef();
-            }
-          },
-          onCancel: updateAutoLoginRef,
-          onClose: updateAutoLoginRef,
         },
       });
+
+      const { event, data } = res;
+
+      if (event === 'confirm') {
+        try {
+          if (data) {
+            await w3n.system.userLogin!.setAutoLogin(data, () => {
+              /* empty */
+            });
+            $createNotice({
+              type: 'success',
+              content: $tr('settings.autologin.set.success'),
+            });
+          }
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        } catch (e) {
+          $createNotice({
+            type: 'error',
+            content: $tr('settings.autologin.password_wrong'),
+          });
+        } finally {
+          updateAutoLoginRef();
+        }
+      } else {
+        updateAutoLoginRef();
+      }
+
+      autoLoginSetupOpened.value = false;
     } else {
       try {
         await w3n.system.userLogin!.removeAutoLogin();
@@ -170,16 +157,13 @@ export function useSettings() {
     }
   }
 
+  updateAutoLoginRef();
+
   return {
     $tr,
-
     lang,
-
     colorTheme,
     changeColorTheme,
-
-    systemFoldersDisplaying,
-    changeSystemFoldersDisplaying,
 
     allowShowingDevtool,
     changeAllowShowingDevtool,

@@ -16,37 +16,40 @@
 -->
 
 <script lang="ts" setup>
-import { computed, inject, ref, Ref } from 'vue';
-import { I18N_KEY, I18nPlugin } from '@v1nt1248/3nclient-lib/plugins';
-import { Ui3nInput } from '@v1nt1248/3nclient-lib';
+import { ref } from 'vue';
+import { Ui3nDialog, Ui3nInput, type Ui3nDialogEvent, type Ui3nDialogComponentProps } from '@v1nt1248/3nclient-lib';
 
-const props = defineProps<{
-  loginPassword: Ref<string, string>
+defineProps<{
+  dialogProps?: Ui3nDialogComponentProps<boolean>;
 }>()
+const emits = defineEmits<{
+  (event: 'action', value: { event: Ui3nDialogEvent, data?: string }): void;
+}>();
 
-const { $tr } = inject<I18nPlugin>(I18N_KEY)!;
-
-const loginPassword = props.loginPassword;
-
+const loginPassword = ref('');
 </script>
 
 <template>
-  <div :class="$style.frame">
-
-    <ui3n-input
-      type="password"
-      :label="$tr('settings.label.autologin.enter_password')"
-      :placeholder="$tr('settings.placeholder.password')"
-      v-model=loginPassword
-    />
-
-  </div>
+  <ui3n-dialog
+    v-bind="dialogProps"
+    :data="loginPassword"
+    @action="emits('action', $event)"
+  >
+    <template #body>
+      <div :class="$style.frame">
+        <ui3n-input
+          v-model="loginPassword"
+          type="password"
+          :label="$tr('settings.label.autologin.enter_password')"
+          :placeholder="$tr('settings.placeholder.password')"
+        />
+      </div>
+    </template>
+  </ui3n-dialog>
 </template>
 
 <style lang="scss" module>
 .frame {
-  padding-top: var('--spacing-m');
-  padding-left: var('--spacing-m');
-  padding-right: var('--spacing-m');
+  padding: var(--spacing-m) var(--spacing-m) 0 var(--spacing-m);
 }
 </style>

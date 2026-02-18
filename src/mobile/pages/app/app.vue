@@ -17,7 +17,7 @@
 <script lang="ts" setup>
 import { computed, onBeforeMount, onBeforeUnmount, ref } from 'vue';
 import { useRoute } from 'vue-router';
-import { Ui3nButton } from '@v1nt1248/3nclient-lib';
+import { Ui3nButton, Ui3nDialogProvider } from '@v1nt1248/3nclient-lib';
 import { useAppPage } from '@/common/composables/useAppPage';
 import AppMenu from '@/mobile/components/app-menu/app-menu.vue';
 import { APP_MENU_DATA } from '@/mobile/components/app-menu/constants';
@@ -91,6 +91,8 @@ onBeforeUnmount(doBeforeUnmount);
     </div>
 
     <div id="notification" />
+
+    <ui3n-dialog-provider />
   </div>
 </template>
 
