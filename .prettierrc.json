@@ -5,10 +5,10 @@
   "semi": true,
   "singleQuote": true,
   "trailingComma": "all",
-  "parser": "typescript",
   "printWidth": 115,
   "tabWidth": 2,
   "useTabs": false,
   "singleAttributePerLine": true,
-  "vueIndentScriptAndStyle": true
+  "vueIndentScriptAndStyle": true,
+  "htmlWhitespaceSensitivity": "css"
 }

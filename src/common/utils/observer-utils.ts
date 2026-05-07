@@ -1,26 +1,25 @@
 /*
  Copyright (C) 2024 - 2025 3NSoft Inc.
- 
+
  This program is free software: you can redistribute it and/or modify it under
  the terms of the GNU General Public License as published by the Free Software
  Foundation, either version 3 of the License, or (at your option) any later
  version.
- 
+
  This program is distributed in the hope that it will be useful, but
  WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  See the GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License along with
  this program. If not, see <http://www.gnu.org/licenses/>.
 */
-
-import { defer, Deferred } from "./processes/deferred";
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars, no-empty, prefer-const */
+import { defer, Deferred } from './processes/deferred';
 
 type Observer<T> = web3n.Observer<T>;
 
 export class ObserversSet<T> implements Observer<T> {
-
   private readonly observers = new Set<Observer<T>>();
 
   add(obs: Observer<T>): void {
@@ -58,19 +57,19 @@ export class ObserversSet<T> implements Observer<T> {
   }
 
   isEmpty(): boolean {
-    return (this.observers.size === 0);
+    return this.observers.size === 0;
   }
-
 }
 
 export function observerToGeneratorPipe<T>(): {
-  obs: Observer<T>; generator: AsyncGenerator<Awaited<T|undefined>, void, unknown>
+  obs: Observer<T>;
+  generator: AsyncGenerator<Awaited<T | undefined>, void, unknown>;
 } {
-  let deferred: Deferred<T>|undefined = undefined;
+  let deferred: Deferred<T> | undefined = undefined;
   const buffer: T[] = [];
-  let done: { err?: any; }|undefined = undefined;
+  let done: { err?: any } | undefined = undefined;
   const generator = (async function* pipeFromObserver() {
-    while ((buffer.length > 0) || !done) {
+    while (buffer.length > 0 || !done) {
       let ev = buffer.shift();
       if (ev === undefined) {
         deferred = defer();
@@ -104,7 +103,7 @@ export function observerToGeneratorPipe<T>(): {
       } else {
         done = {};
       }
-    }
+    },
   };
   return { obs, generator };
 }

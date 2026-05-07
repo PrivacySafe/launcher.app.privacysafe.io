@@ -86,8 +86,8 @@ export function deepEqual(a: any, b: any): boolean {
     if (!Array.isArray(b)) {
       return false;
     }
-    const aArr = <Array<any>>a;
-    const bArr = <Array<any>>b;
+    const aArr = a as any[];
+    const bArr = b as any[];
     if (aArr.length !== bArr.length) {
       return false;
     }
@@ -101,6 +101,7 @@ export function deepEqual(a: any, b: any): boolean {
     if (keys.length !== Object.keys(b).length) {
       return false;
     }
+    // eslint-disable-next-line @typescript-eslint/prefer-for-of
     for (let i = 0; i < keys.length; i += 1) {
       const key = keys[i];
       if (!deepEqual(a[key], b[key])) {
@@ -112,7 +113,10 @@ export function deepEqual(a: any, b: any): boolean {
   return true;
 }
 
-export function* deepFind(a: any, predicate: (val: any) => boolean): IterableIterator<{ pos: string[]; val: any }> {
+export function* deepFind(
+  a: any,
+  predicate: (val: any) => boolean,
+): IterableIterator<{ pos: string[]; val: any }> {
   if (typeof a !== 'object' || !a) {
     if (predicate(a)) {
       yield { pos: [], val: a };
@@ -143,6 +147,7 @@ export function applyChangesToJSON<T>(json: T, changes: Partial<T>): void {
   for (const f of Object.keys(changes)) {
     const newValue = changes[f as keyof T];
     if (newValue === undefined) {
+      // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
       delete json[f as keyof T];
     } else {
       json[f as keyof T] = newValue as any;

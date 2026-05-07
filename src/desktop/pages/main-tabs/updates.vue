@@ -15,26 +15,26 @@
  this program. If not, see <http://www.gnu.org/licenses/>.
 -->
 <script lang="ts" setup>
-import { computed, inject, ref } from 'vue';
-import { storeToRefs } from 'pinia';
-import { isEmpty } from 'lodash';
-import { I18N_KEY, I18nPlugin } from '@v1nt1248/3nclient-lib/plugins';
-import { Ui3nInput } from '@v1nt1248/3nclient-lib';
-import { useAppsStore } from '@/common/store/apps.store';
-import AppView from '@/desktop/components/app-view.vue';
-import PlatformView from '@/desktop/components/platform-view.vue';
+  import { computed, ref } from 'vue';
+  import { useI18n } from 'vue-i18n';
+  import { storeToRefs } from 'pinia';
+  import { isEmpty } from 'lodash';
+  import { Ui3nInput } from '@v1nt1248/3nclient-lib';
+  import { useAppsStore } from '@/common/store/apps.store';
+  import AppView from '@/desktop/components/app-view.vue';
+  import PlatformView from '@/desktop/components/platform-view.vue';
 
-const { $tr } = inject<I18nPlugin>(I18N_KEY)!;
-const { applicationsInSystem } = storeToRefs(useAppsStore());
+  const { t } = useI18n();
+  const { applicationsInSystem } = storeToRefs(useAppsStore());
 
-const search = ref('');
+  const search = ref('');
 
-const filteredApps = computed(() => applicationsInSystem.value
-  .filter(({ name }) => {
-    const searchStr = search.value.trim().toLowerCase();
-    return name.toLowerCase().includes(searchStr);
-  }),
-);
+  const filteredApps = computed(() =>
+    applicationsInSystem.value.filter(({ name }) => {
+      const searchStr = search.value.trim().toLowerCase();
+      return name.toLowerCase().includes(searchStr);
+    }),
+  );
 </script>
 
 <template>
@@ -42,7 +42,7 @@ const filteredApps = computed(() => applicationsInSystem.value
     <div :class="$style.search">
       <ui3n-input
         v-model="search"
-        :placeholder="$tr('app.update.search.placeholder')"
+        :placeholder="t('app.update.search_placeholder')"
         clearable
         icon="round-search"
         autofocus
@@ -56,7 +56,7 @@ const filteredApps = computed(() => applicationsInSystem.value
         v-if="isEmpty(filteredApps)"
         :class="$style.empty"
       >
-        {{ $tr('app.list.empty') }}
+        {{ t('app.list.empty') }}
       </div>
 
       <template v-else>
@@ -71,39 +71,39 @@ const filteredApps = computed(() => applicationsInSystem.value
 </template>
 
 <style lang="scss" module>
-.updates {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  padding: var(--spacing-m) var(--spacing-s) var(--spacing-m) var(--spacing-m);
-}
+  .updates {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    padding: var(--spacing-m) var(--spacing-s) var(--spacing-m) var(--spacing-m);
+  }
 
-.search {
-  position: relative;
-  width: 100%;
-  padding-right: 10px;
-  margin: var(--spacing-s) 0 var(--spacing-ml);
-}
+  .search {
+    position: relative;
+    width: 100%;
+    padding-right: 10px;
+    margin: var(--spacing-s) 0 var(--spacing-ml);
+  }
 
-.content {
-  position: relative;
-  width: 100%;
-  padding-right: var(--spacing-xs);
-  height: calc(100% - var(--spacing-ml) - var(--spacing-s) - var(--spacing-xxl));
-  overflow-y: auto;
-  scrollbar-gutter: stable;
-}
+  .content {
+    position: relative;
+    width: 100%;
+    padding-right: var(--spacing-xs);
+    height: calc(100% - var(--spacing-ml) - var(--spacing-s) - var(--spacing-xxl));
+    overflow-y: auto;
+    scrollbar-gutter: stable;
+  }
 
-.empty {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 0 var(--spacing-m);
-  font-size: var(--font-18);
-  line-height: var(--font-24);
-  color: var(--color-text-block-primary-default);
-}
+  .empty {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0 var(--spacing-m);
+    font-size: var(--font-18);
+    line-height: var(--font-24);
+    color: var(--color-text-block-primary-default);
+  }
 </style>

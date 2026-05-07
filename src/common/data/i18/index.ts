@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2025 3NSoft Inc.
+ Copyright (C) 2026 3NSoft Inc.
 
  This program is free software: you can redistribute it and/or modify it under
  the terms of the GNU General Public License as published by the Free Software
@@ -14,9 +14,18 @@
  You should have received a copy of the GNU General Public License along with
  this program. If not, see <http://www.gnu.org/licenses/>.
 */
+import { createI18n } from 'vue-i18n';
+import { en } from './en';
 
-import { readonly } from 'vue';
+const messages = {
+  en,
+};
 
-export function toRO<T extends object>(r: T): T {
-  return readonly(r) as T;
-}
+const i18nInstance = createI18n({
+  legacy: false,
+  locale: 'en',
+  fallbackLocale: 'en',
+  messages,
+});
+
+export default i18nInstance;

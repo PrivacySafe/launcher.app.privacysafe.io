@@ -1,11 +1,18 @@
 /*
  Copyright (C) 2024 3NSoft Inc.
 
- This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ This program is free software: you can redistribute it and/or modify it under
+ the terms of the GNU General Public License as published by the Free Software
+ Foundation, either version 3 of the License, or (at your option) any later
+ version.
 
- This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ This program is distributed in the hope that it will be useful, but
+ WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ See the GNU General Public License for more details.
 
- You should have received a copy of the GNU General Public License along with this program. If not, see <http://www.gnu.org/licenses/>.
+ You should have received a copy of the GNU General Public License along with
+ this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
 import { UPDATE_INFO_CACHE_TTL_SECONDS } from '@/common/constants';
@@ -24,23 +31,18 @@ export interface ChannelsInfo {
 export interface CachedAppDistributionInfo extends ChannelsInfo {
   appId: string;
   cacheTS: number;
-  versions: {
-    [channel: string]: string;
-  };
+  versions: Record<string, string>;
 }
 
 export interface CachedBundleDistributionInfo extends ChannelsInfo {
   cacheTS: number;
-  versions: {
-    [channel: string]: BundleVersions;
-  };
+  versions: Record<string, BundleVersions>;
 }
 
 const UPDATES_CACHE_DIR = '/cached/apps-dist-info';
 const UPDATE_INFO_FILE = 'bundle';
 
 export function makeAppDistInfo() {
-
   let fs: WritableFS | undefined = undefined;
   const procSync = new NamedProcs();
   let initProc: Promise<void> | undefined = undefined;
@@ -86,20 +88,23 @@ export function makeAppDistInfo() {
   }
 
   async function getAppDistInfo(
-    appId: string, forceInfoDownload = false
+    appId: string,
+    forceInfoDownload = false,
   ): Promise<CachedAppDistributionInfo | undefined> {
     const cachedInfo = await getCachedAppData(appId);
     if (!forceInfoDownload && cachedInfo && cacheIsRecent(cachedInfo.cacheTS, Date.now())) {
       return cachedInfo;
     }
-    return procSync.startOrChain(appId, async () => {
-      const data = await downloadAppData(appId);
-      await saveAppData(data);
-      return data;
-    }).catch(err => {
-      w3n.log('info', `Fail to check app ${appId} updates information`, err);
-      return cachedInfo;
-    });
+    return procSync
+      .startOrChain(appId, async () => {
+        const data = await downloadAppData(appId);
+        await saveAppData(data);
+        return data;
+      })
+      .catch(err => {
+        w3n.log('info', `Fail to check app ${appId} updates information`, err);
+        return cachedInfo;
+      });
   }
 
   async function saveBundleData(data: CachedBundleDistributionInfo): Promise<void> {
@@ -111,20 +116,22 @@ export function makeAppDistInfo() {
     if (!forceInfoDownload && cachedInfo && cacheIsRecent(cachedInfo.cacheTS, Date.now())) {
       return cachedInfo;
     }
-    return procSync.startOrChain(UPDATE_INFO_FILE, async () => {
-      const data = await downloadBundleData();
-      await saveBundleData(data);
-      return data;
-    }).catch(err => {
-      w3n.log('info', `Fail to check platform updates information`, err);
-      return cachedInfo;
-    });
+    return procSync
+      .startOrChain(UPDATE_INFO_FILE, async () => {
+        const data = await downloadBundleData();
+        await saveBundleData(data);
+        return data;
+      })
+      .catch(err => {
+        w3n.log('info', `Fail to check platform updates information`, err);
+        return cachedInfo;
+      });
   }
 
   return {
     init,
     getAppDistInfo,
-    getBundleDistInfo
+    getBundleDistInfo,
   };
 }
 

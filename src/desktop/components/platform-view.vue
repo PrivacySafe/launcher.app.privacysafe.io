@@ -14,62 +14,54 @@
  You should have received a copy of the GNU General Public License along with
  this program. If not, see <http://www.gnu.org/licenses/>.
 -->
-
 <script lang="ts" setup>
-import { computed, inject } from 'vue';
-import { storeToRefs } from 'pinia';
-import {
-  I18N_KEY,
-  I18nPlugin,
-} from '@v1nt1248/3nclient-lib/plugins';
-import { Ui3nButton, Ui3nProgressCircular } from '@v1nt1248/3nclient-lib';
-import AppIcon from '@/common/components/app-icon.vue';
-import psIcon from '@/common/assets/images/platform-icon.png';
-import AppItemArea from './app-item-area.vue';
-import { PLATFORM_ID } from '@/common/store/apps/processes';
-import { useAppsStore } from '@/common/store/apps.store';
+  import { computed } from 'vue';
+  import { useI18n } from 'vue-i18n';
+  import { storeToRefs } from 'pinia';
+  import { Ui3nButton, Ui3nProgressCircular } from '@v1nt1248/3nclient-lib';
+  import psIcon from '@/common/assets/images/platform-icon.png';
+  import { PLATFORM_ID } from '@/common/store/apps/processes';
+  import { useAppsStore } from '@/common/store/apps.store';
+  import AppIcon from '@/common/components/app-icon.vue';
+  import AppItemArea from './app-item-area.vue';
 
-const { $tr } = inject<I18nPlugin>(I18N_KEY)!;
+  const { t } = useI18n();
 
-const platformProc = computed(() => processes.value[PLATFORM_ID]);
+  const appsStore = useAppsStore();
+  const { platform, restart, processes } = storeToRefs(appsStore);
+  const { downloadPlatformUpdate } = appsStore;
 
-const downloadProc = computed(() => platformProc.value?.find(
-  ({ procType }) => (procType === 'downloading'),
-));
+  const platformProc = computed(() => processes.value[PLATFORM_ID]);
 
-const appsStore = useAppsStore();
-const { platform, restart, processes } = storeToRefs(appsStore);
-const { downloadPlatformUpdate } = appsStore;
+  const downloadProc = computed(() => platformProc.value?.find(({ procType }) => procType === 'downloading'));
 
-const needToRestartAfterUpdate = computed(() => !!restart.value?.platform);
+  const needToRestartAfterUpdate = computed(() => !!restart.value?.platform);
 
-const canBeUpdated = computed(() => (
-  !platformProc.value && !!platform.value.availableUpdates &&
-  !needToRestartAfterUpdate.value
-));
+  const canBeUpdated = computed(
+    () => !platformProc.value && !!platform.value.availableUpdates && !needToRestartAfterUpdate.value,
+  );
 
-async function update() {
-  await downloadPlatformUpdate();
-}
+  async function update() {
+    await downloadPlatformUpdate();
+  }
 
-function quitAndInstall() {
-  w3n.system!.platform!.quitAndInstall();
-}
-
+  function quitAndInstall() {
+    w3n.system!.platform!.quitAndInstall();
+  }
 </script>
 
 <template>
   <app-item-area>
     <template #main>
-      <app-icon :iconUrl="psIcon" />
+      <app-icon :icon-url="psIcon" />
 
       <div :class="$style.content">
         <div :class="$style.name">
-          {{ $tr('platform.title') }}
+          {{ t('platform.title') }}
         </div>
 
         <div :class="$style.version">
-          {{ $tr('version', { version: platform.version }) }}
+          {{ t('app.version', { version: platform.version }) }}
         </div>
       </div>
 
@@ -81,7 +73,7 @@ function quitAndInstall() {
           type="primary"
           @click="update"
         >
-          {{ $tr('app.action.update') }}
+          {{ t('app.action.update') }}
         </ui3n-button>
 
         <ui3n-button
@@ -91,14 +83,14 @@ function quitAndInstall() {
           type="primary"
           @click="quitAndInstall"
         >
-          {{ $tr('platform.action.restart') }}
+          {{ t('platform.action_restart') }}
         </ui3n-button>
       </div>
     </template>
 
     <template #other>
       <div :class="$style.description">
-        {{ $tr('platform.description') }}
+        {{ t('platform.description') }}
       </div>
 
       <div
@@ -116,58 +108,57 @@ function quitAndInstall() {
 </template>
 
 <style lang="scss" module>
-
-.content {
-  position: relative;
-  width: calc(100% - 4 * var(--spacing-ml) - 2 * var(--spacing-s));
-}
-
-.name {
-  font-size: var(--font-16);
-  font-weight: 500;
-  line-height: var(--font-20);
-  color: var(--color-text-block-primary-default);
-}
-
-.version {
-  font-size: var(--font-10);
-  font-weight: 500;
-  line-height: var(--font-12);
-  color: var(--color-text-block-secondary-default);
-}
-
-.action {
-  position: relative;
-
-  .btn {
-    text-transform: capitalize;
+  .content {
+    position: relative;
+    width: calc(100% - 4 * var(--spacing-ml) - 2 * var(--spacing-s));
   }
-}
 
-.description {
-  position: relative;
-  width: calc(100% - var(--action-block-width) - var(--spacing-s));
-  margin-top: var(--spacing-s);
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: stretch;
-  gap: var(--spacing-xs);
-  font-size: var(--font-12);
-  font-weight: 400;
-  line-height: var(--font-16);
-  color: var(--color-text-block-primary-default);
-}
+  .name {
+    font-size: var(--font-16);
+    font-weight: 500;
+    line-height: var(--font-20);
+    color: var(--color-text-block-primary-default);
+  }
 
-.progressOverlay {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.2);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
+  .version {
+    font-size: var(--font-10);
+    font-weight: 500;
+    line-height: var(--font-12);
+    color: var(--color-text-block-secondary-default);
+  }
+
+  .action {
+    position: relative;
+
+    .btn {
+      text-transform: capitalize;
+    }
+  }
+
+  .description {
+    position: relative;
+    width: calc(100% - var(--action-block-width) - var(--spacing-s));
+    margin-top: var(--spacing-s);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: stretch;
+    gap: var(--spacing-xs);
+    font-size: var(--font-12);
+    font-weight: 400;
+    line-height: var(--font-16);
+    color: var(--color-text-block-primary-default);
+  }
+
+  .progressOverlay {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgb(0, 0, 0, 0.2);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
 </style>

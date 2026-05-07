@@ -17,7 +17,6 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 
 import { ref } from 'vue';
 import { ConnectivityStatus } from '@/common/types';
-import { toRO } from '@/common/utils/readonly';
 
 export function makeConnectivityStatus() {
   const connectivityStatus = ref<string>('offline');
@@ -42,7 +41,7 @@ export function makeConnectivityStatus() {
   }
 
   return {
-    connectivityStatus: toRO(connectivityStatus),
+    connectivityStatus,
 
     fetchConnectivityStatus,
     initialize,

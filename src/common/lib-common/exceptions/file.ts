@@ -35,7 +35,7 @@ export const Code: web3n.files.exceptionCode = {
 };
 Object.freeze(Code);
 
-const codeToFlag: { [code: string]: keyof web3n.files.exceptionCode } = {};
+const codeToFlag: Record<string, keyof web3n.files.exceptionCode> = {};
 for (const [flag, code] of Object.entries(Code)) {
   codeToFlag[code] = flag as keyof web3n.files.exceptionCode;
 }

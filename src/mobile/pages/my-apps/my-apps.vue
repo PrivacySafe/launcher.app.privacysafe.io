@@ -15,95 +15,223 @@
  this program. If not, see <http://www.gnu.org/licenses/>.
 -->
 <script lang="ts" setup>
-import { computed, inject } from 'vue';
-import { storeToRefs } from 'pinia';
-import isEmpty from 'lodash/isEmpty';
-import { I18N_KEY, I18nPlugin } from '@v1nt1248/3nclient-lib/plugins';
-import { useAppsStore } from '@/common/store/apps.store';
-import AppLauncher from '@/mobile/components/app-launcher/app-launcher.vue';
+  import { computed, ref } from 'vue';
+  import { useI18n } from 'vue-i18n';
+  import { storeToRefs } from 'pinia';
+  import isEmpty from 'lodash/isEmpty';
+  import size from 'lodash/size';
+  import { useAppsStore } from '@/common/store/apps.store';
+  import AppLauncher from '@/mobile/components/app-launcher.vue';
 
-const { $tr } = inject<I18nPlugin>(I18N_KEY)!;
+  const { t } = useI18n();
 
-const appsStore = useAppsStore();
-const { appLaunchers } = storeToRefs(appsStore);
+  const appsStore = useAppsStore();
+  const { appLaunchers } = storeToRefs(appsStore);
 
-const nothingToShow = computed(() => isEmpty(appLaunchers.value));
+  const ITEMS_PER_SCREEN = 8;
+  const currentPage = ref(0);
+  const isDragging = ref(false);
+  const startX = ref(0);
+  const transitionName = ref('slide-next');
+
+  const totalPages = computed(() => Math.ceil(size(appLaunchers.value) / ITEMS_PER_SCREEN));
+  const currentScreenItems = computed(() => {
+    const start = currentPage.value * ITEMS_PER_SCREEN;
+    return (appLaunchers.value || [])
+      .sort((a, b) => (a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1))
+      .slice(start, start + ITEMS_PER_SCREEN);
+  });
+
+  function onPointerDown(e: PointerEvent) {
+    startX.value = e.clientX;
+    isDragging.value = false;
+  }
+
+  function onPointerMove(e: PointerEvent) {
+    if (startX.value === 0) {
+      return;
+    }
+
+    const currentDiff = Math.abs(startX.value - e.clientX);
+
+    if (currentDiff > 10) {
+      isDragging.value = true;
+    }
+  }
+
+  function onPointerUp(e: PointerEvent) {
+    const diffX = startX.value - e.clientX;
+
+    if (Math.abs(diffX) > 50) {
+      if (diffX > 0 && currentPage.value < totalPages.value - 1) {
+        transitionName.value = 'slide-next';
+        currentPage.value++;
+      } else if (diffX < 0 && currentPage.value > 0) {
+        transitionName.value = 'slide-prev';
+        currentPage.value--;
+      }
+    }
+
+    setTimeout(() => {
+      isDragging.value = false;
+    }, 50);
+  }
 </script>
 
 <template>
-  <div :class="$style.myApps">
+  <section :class="$style.myApps">
     <div
-      v-if="nothingToShow"
+      v-if="isEmpty(appLaunchers)"
       :class="$style.installing"
     >
-      {{ $tr('install.process') }} ...
+      {{ t('install.process') }} ...
     </div>
 
     <template v-else>
-      <div :class="$style.apps">
-        <template
-          v-for="launcher in appLaunchers"
-          :key="`${launcher.appId}-${launcher.version}`"
+      <div :class="$style.body">
+        <div
+          :class="$style.sliderContainer"
+          @pointerdown="onPointerDown"
+          @pointermove="onPointerMove"
+          @pointerup="onPointerUp"
+          @pointercancel="onPointerUp"
         >
-          <app-launcher :launcher="launcher" />
-        </template>
+          <Transition :name="transitionName">
+            <div
+              :key="currentPage"
+              :class="$style.apps"
+            >
+              <template
+                v-for="launcher in currentScreenItems"
+                :key="`${launcher.appId}-${launcher.version}`"
+              >
+                <div :class="$style.appWrapper">
+                  <app-launcher
+                    :launcher="launcher"
+                    :lock="isDragging"
+                  />
+                </div>
+              </template>
+            </div>
+          </Transition>
+        </div>
+
+        <div
+          v-if="totalPages > 1"
+          :class="$style.pagination"
+        >
+          <span
+            v-for="page in totalPages"
+            :key="page"
+            :class="[$style.dot, currentPage === page - 1 && $style.active]"
+          />
+        </div>
       </div>
     </template>
-  </div>
+  </section>
 </template>
 
 <style lang="scss" module>
-.myApps {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  padding: var(--spacing-m);
-  overflow-x: hidden;
-  overflow-y: auto;
-  background-color: var(--color-bg-block-primary-default);
-}
+  .myApps {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    padding: var(--spacing-m);
+  }
 
-.installing {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: var(--font-16);
-  font-weight: 500;
-  line-height: var(--spacing-ml);
-  color: var(--color-text-block-primary-default);
-  text-align: center;
-}
+  .installing {
+    position: absolute;
+    top: var(--spacing-m);
+    left: var(--spacing-m);
+    width: calc(100% - var(--spacing-m) * 2);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: var(--font-16);
+    font-weight: 500;
+    line-height: var(--spacing-ml);
+    color: var(--color-text-block-primary-default);
+    text-align: center;
+  }
 
-.apps {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: var(--spacing-m);
-}
+  .body {
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
 
-.appLauncher {
-  position: relative;
-  padding: var(--spacing-m);
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: center;
-  row-gap: var(--spacing-s);
-  width: 100%;
-  border-radius: var(--spacing-s);
-  background-color: var(--color-bg-control-secondary-default);
-  margin-bottom: var(--spacing-s);
-}
+  .sliderContainer {
+    position: relative;
+    width: 100%;
+    height: calc(100% - 48px);
+    touch-action: pan-y;
+    user-select: none;
+  }
 
-.name {
-  font-size: var(--font-16);
-  font-weight: 500;
-  line-height: var(--font-20);
-  color: var(--color-text-block-primary-default);
-}
+  .apps {
+    display: grid;
+    height: 100%;
+    width: 100%;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(4, 1fr);
+    gap: var(--spacing-s);
+  }
 
-.version {
-  font-size: var(--font-14);
-  font-weight: 500;
-  color: var(--color-text-block-secondary-default);
-}
+  .appWrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+  }
+
+  .pagination {
+    position: relative;
+    width: 100%;
+    height: 48px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    column-gap: var(--spacing-xs);
+
+    .dot {
+      position: relative;
+      width: var(--spacing-s);
+      height: var(--spacing-s);
+      border-radius: 50%;
+      background-color: var(--color-icon-control-secondary-default);
+      transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+      &.active {
+        background: var(--color-icon-control-accent-default);
+        transform: scale(1.4);
+      }
+    }
+  }
+
+  .slide-next-enter-active,
+  .slide-next-leave-active,
+  .slide-prev-enter-active,
+  .slide-prev-leave-active {
+    transition:
+      transform 0.4s cubic-bezier(0.25, 0.1, 0.25, 1),
+      opacity 0.4s;
+  }
+
+  .slide-next-enter-from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  .slide-next-leave-to {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+
+  .slide-prev-enter-from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  .slide-prev-leave-to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
 </style>

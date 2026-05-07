@@ -1,26 +1,46 @@
 /*
- Copyright (C) 2024 - 2025 3NSoft Inc.
+ Copyright (C) 2024 - 2026 3NSoft Inc.
 
- This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ This program is free software: you can redistribute it and/or modify it under
+ the terms of the GNU General Public License as published by the Free Software
+ Foundation, either version 3 of the License, or (at your option) any later
+ version.
 
- This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ This program is distributed in the hope that it will be useful, but
+ WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ See the GNU General Public License for more details.
 
- You should have received a copy of the GNU General Public License along with this program. If not, see <http://www.gnu.org/licenses/>.
+ You should have received a copy of the GNU General Public License along with
+ this program. If not, see <http://www.gnu.org/licenses/>.
 */
-
-import {
-  dialogs,
-} from '@v1nt1248/3nclient-lib/plugins';
+import { createApp } from 'vue';
+import { createPinia } from 'pinia';
+import { dialogs, notifications, storeNotifications, vueBus } from '@v1nt1248/3nclient-lib/plugins';
 
 import '@v1nt1248/3nclient-lib/variables.css';
 import '@v1nt1248/3nclient-lib/style.css';
 import '@/common/assets/styles/main.css';
 
-import { setupApp } from '@/common/app-setup';
-import App from '@/desktop/pages/app/app.vue';
-import { createApp } from 'vue';
+import i18n from '@/common/data/i18';
 
-const app = createApp(App);
-setupApp(app, undefined);
-app.use(dialogs);
-app.mount('#main');
+import App from '@/desktop/pages/app/app.vue';
+
+function initialApp() {
+  try {
+    const pinia = createPinia();
+    pinia.use(storeNotifications);
+
+    const app = createApp(App);
+    app.config.compilerOptions.isCustomElement = tag => {
+      return tag.startsWith('ui3n-');
+    };
+
+    app.use(pinia).use(i18n).use(vueBus).use(dialogs).use(notifications);
+    app.mount('#main');
+  } catch (err) {
+    console.error('🔥 ERROR CREATE APP. ', err);
+  }
+}
+
+initialApp();

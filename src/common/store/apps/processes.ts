@@ -1,17 +1,22 @@
 /*
  Copyright (C) 2024 3NSoft Inc.
 
- This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ This program is free software: you can redistribute it and/or modify it under
+ the terms of the GNU General Public License as published by the Free Software
+ Foundation, either version 3 of the License, or (at your option) any later
+ version.
 
- This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ This program is distributed in the hope that it will be useful, but
+ WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ See the GNU General Public License for more details.
 
- You should have received a copy of the GNU General Public License along with this program. If not, see <http://www.gnu.org/licenses/>.
+ You should have received a copy of the GNU General Public License along with
+ this program. If not, see <http://www.gnu.org/licenses/>.
 */
-
-import { VUEBUS_KEY, VueBusPlugin } from '@v1nt1248/3nclient-lib/plugins';
-import { GlobalEvents } from '@/common/types';
 import { inject, ref } from 'vue';
-import { toRO } from '@/common/utils/readonly';
+import { VUEBUS_KEY, VueBusPlugin } from '@v1nt1248/3nclient-lib/plugins';
+import type { GlobalEvents } from '@/common/types';
 
 export type AppProcessType = 'downloading' | 'unzipping' | 'installing' | 'update-checking';
 
@@ -35,7 +40,7 @@ export function makeProcessesPlace() {
   function emitEvent(evToEmit: Partial<GlobalEvents> | undefined): void {
     if (evToEmit) {
       for (const [event, content] of Object.entries(evToEmit)) {
-        $emitter.emit(event as any as keyof GlobalEvents, content);
+        $emitter.emit(event as never as keyof GlobalEvents, content);
       }
     }
   }
@@ -55,6 +60,7 @@ export function makeProcessesPlace() {
     if (arr.length > 1) {
       arr.splice(foundInd, 1);
     } else {
+      // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
       delete processes.value[appId];
     }
     emitEvent(evToEmit);
@@ -79,11 +85,11 @@ export function makeProcessesPlace() {
   }
 
   return {
-    processes: toRO(processes),
+    processes,
 
     delProcess,
     upsertProcess,
-    emitEvent
+    emitEvent,
   };
 }
 

@@ -15,47 +15,51 @@
  this program. If not, see <http://www.gnu.org/licenses/>.
 -->
 <script lang="ts" setup>
-import { onBeforeMount, onBeforeUnmount, ref } from 'vue';
-import { Ui3nButton, Ui3nDialogProvider, Ui3nMenu, Ui3nTabs, Ui3nTooltip, Ui3nRipple as vUi3nRipple } from '@v1nt1248/3nclient-lib';
-import { useAppPage } from '@/common/composables/useAppPage';
-import prLogo from '@/common/assets/images/privacysafe-logo.svg';
-import ContactIcon from '@/common/components/contact-icon.vue';
-import SystemSettings from '@/desktop/components/system-settings.vue';
-import Applications from '@/desktop/pages/main-tabs/applications.vue';
-import Updates from '@/desktop/pages/main-tabs/updates.vue';
+  import { onBeforeMount, onBeforeUnmount, ref } from 'vue';
+  import {
+    Ui3nButton,
+    Ui3nDialogProvider,
+    Ui3nMenu,
+    Ui3nTabs,
+    Ui3nTooltip,
+    Ui3nRipple as vUi3nRipple,
+  } from '@v1nt1248/3nclient-lib';
+  import { useAppPage } from '@/common/composables/useAppPage';
+  import prLogo from '@/common/assets/images/privacysafe-logo.svg';
+  import ContactIcon from '@/common/components/contact-icon.vue';
+  import SystemSettings from '@/desktop/components/system-settings.vue';
+  import Applications from '@/desktop/pages/main-tabs/applications.vue';
+  import Updates from '@/desktop/pages/main-tabs/updates.vue';
 
-const mainTabs = [
-  { label: 'app.tabs.applications' },
-  { label: 'app.tabs.update' },
-];
+  const mainTabs = [{ label: 'app.tabs.applications' }, { label: 'app.tabs.update' }];
 
-const {
-  appElement,
-  appVersion,
-  user,
-  connectivityStatus,
-  connectivityStatusText,
-  customLogoSrc,
-  needPlatformRestartAfterUpdate,
-  checkProcIsOn,
-  appExit,
-  quitAndInstall,
-  checkForUpdate,
-  doBeforeMount,
-  doBeforeUnmount,
-  addAppFromFile
-} = useAppPage();
+  const {
+    t,
+    appElement,
+    appVersion,
+    user,
+    connectivityStatus,
+    connectivityStatusText,
+    customLogoSrc,
+    needPlatformRestartAfterUpdate,
+    checkProcIsOn,
+    appExit,
+    quitAndInstall,
+    checkForUpdate,
+    doBeforeMount,
+    doBeforeUnmount,
+    addAppFromFile,
+  } = useAppPage();
 
-const currentTab = ref(0);
-const isSettingsShow = ref(false);
+  const currentTab = ref(0);
+  const isSettingsShow = ref(false);
 
-onBeforeMount(doBeforeMount);
-onBeforeUnmount(doBeforeUnmount);
+  onBeforeMount(doBeforeMount);
+  onBeforeUnmount(doBeforeUnmount);
 
-function openSystemMap() {
-  w3n.shell!.startAppWithParams!(null, 'open-system-map');
-}
-
+  function openSystemMap() {
+    w3n.shell!.startAppWithParams!(null, 'open-system-map');
+  }
 </script>
 
 <template>
@@ -72,9 +76,9 @@ function openSystemMap() {
         />
         <div :class="$style.delimiter">/</div>
         <div :class="$style.info">
-          {{ $tr('app.title') }}
+          {{ t('app.title') }}
           <div :class="$style.version">
-            {{ $tr('version', { version: appVersion }) }}
+            {{ t('app.version', { version: appVersion }) }}
           </div>
         </div>
       </div>
@@ -86,9 +90,9 @@ function openSystemMap() {
           </span>
 
           <span :class="$style.connection">
-            {{ $tr('app.status') }}:
-            <span :class="connectivityStatusText === 'app.status.connected.online' && $style.connectivity">
-              {{ $tr(connectivityStatusText) }}
+            {{ t('app.status.label') }}:
+            <span :class="connectivityStatusText === 'app.status.online' && $style.connectivity">
+              {{ t(connectivityStatusText) }}
             </span>
           </span>
         </div>
@@ -114,7 +118,7 @@ function openSystemMap() {
                 :class="$style.menuItem"
                 @click="appExit"
               >
-                {{ $tr('app.exit') }}
+                {{ t('app.exit') }}
               </div>
             </div>
           </template>
@@ -129,17 +133,17 @@ function openSystemMap() {
           :key="index"
           :class="$style.tab"
         >
-          {{ $tr(tab.label) }}
+          {{ t(tab.label) }}
         </div>
       </ui3n-tabs>
 
       <ui3n-tooltip
-        :content="$tr('setting.btn.open')"
+        :content="t('settings.btn.open')"
         position-strategy="fixed"
         placement="top-start"
       >
         <ui3n-button
-          :class=$style.settingsBtn
+          :class="$style.settingsBtn"
           type="custom"
           color="var(--color-bg-button-tritery-default)"
           icon="outline-settings"
@@ -150,20 +154,20 @@ function openSystemMap() {
       </ui3n-tooltip>
 
       <ui3n-button
-        v-if="(currentTab === 0) && needPlatformRestartAfterUpdate"
-        :class=$style.checkUpdates
+        v-if="currentTab === 0 && needPlatformRestartAfterUpdate"
+        :class="$style.checkUpdates"
         type="tertiary"
         @click="quitAndInstall"
       >
-        {{ $tr('btn.restart-platform') }}
+        {{ t('btn.restart-platform') }}
       </ui3n-button>
 
       <div
-        v-if="(currentTab === 1)"
-        :class=$style.btnsOnUpdateTab
+        v-if="currentTab === 1"
+        :class="$style.btnsOnUpdateTab"
       >
         <ui3n-tooltip
-          :content="$tr('add.app.tooltip')"
+          :content="t('app.add.tooltip')"
           position-strategy="fixed"
           placement="top-end"
         >
@@ -179,7 +183,7 @@ function openSystemMap() {
         </ui3n-tooltip>
 
         <ui3n-tooltip
-          :content="$tr('system.map.tooltip')"
+          :content="t('system.map.tooltip')"
           position-strategy="fixed"
           placement="top-end"
         >
@@ -195,12 +199,12 @@ function openSystemMap() {
         </ui3n-tooltip>
 
         <ui3n-tooltip
-          :content="checkProcIsOn ? $tr('btn.checking-for-update') : $tr('btn.check-update')"
+          :content="checkProcIsOn ? t('btn.checking-for-update') : t('btn.check-update')"
           position-strategy="fixed"
           placement="top-end"
         >
           <ui3n-button
-            v-if="(connectivityStatus === 'online')"
+            v-if="connectivityStatus === 'online'"
             type="custom"
             color="var(--color-bg-button-tritery-default)"
             icon="deployed-code-update"
@@ -240,205 +244,205 @@ function openSystemMap() {
 </template>
 
 <style lang="scss" module>
-@use '@/common/assets/styles/_mixins' as mixins;
+  @use '@/common/assets/styles/_mixins' as mixins;
 
-.app {
-  --main-toolbar-height: 72px;
-  --main-tabs-height: 48px;
+  .app {
+    --main-toolbar-height: 72px;
+    --main-tabs-height: 48px;
 
-  position: fixed;
-  inset: 0;
-  background-size: cover;
-}
-
-.toolbar {
-  position: relative;
-  width: 100%;
-  height: var(--main-toolbar-height);
-  padding: 0 var(--spacing-m);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid var(--color-border-block-primary-default);
-}
-
-.toolbarTitle {
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-}
-
-.toolbarLogo {
-  position: relative;
-  margin-right: 12px;
-  height: var(--spacing-m);
-}
-
-.delimiter {
-  font-size: 20px;
-  font-weight: 500;
-  color: var(--color-text-control-accent-default);
-  margin-right: var(--spacing-m);
-  padding-bottom: 2px;
-}
-
-.info {
-  position: relative;
-  width: max-content;
-  font-size: var(--font-16);
-  font-weight: 500;
-  color: var(--color-text-control-primary-default);
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  gap: var(--spacing-s);
-  padding-bottom: calc(var(--spacing-xs) / 2);
-}
-
-.version {
-  font-size: var(--font-16);
-  font-weight: 500;
-  color: var(--color-text-control-secondary-default);
-  line-height: var(--font-16);
-}
-
-.user {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-}
-
-.userInfo {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: flex-end;
-  margin-right: var(--spacing-m);
-
-  span:not(.connectivity) {
-    color: var(--color-text-control-primary-default);
-    line-height: 1.4;
+    position: fixed;
+    inset: 0;
+    background-size: cover;
   }
-}
 
-.mail {
-  font-size: var(--font-14);
-  font-weight: 600;
-}
+  .toolbar {
+    position: relative;
+    width: 100%;
+    height: var(--main-toolbar-height);
+    padding: 0 var(--spacing-m);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--color-border-block-primary-default);
+  }
 
-.connection {
-  font-size: var(--font-12);
-  font-weight: 500;
-}
+  .toolbarTitle {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+  }
 
-.connectivity {
-  color: var(--success-content-default);
-}
+  .toolbarLogo {
+    position: relative;
+    margin-right: 12px;
+    height: var(--spacing-m);
+  }
 
-.icon {
-  position: relative;
-  cursor: pointer;
-  overflow: hidden;
-  border-radius: 50%;
-}
-
-.menu {
-  position: relative;
-  background-color: var(--color-bg-control-secondary-default);
-  width: max-content;
-  border-radius: var(--spacing-xs);
-  @include mixins.elevation(1);
-}
-
-.menuItem {
-  position: relative;
-  width: 60px;
-  height: var(--spacing-l);
-  padding: 0 var(--spacing-s);
-  font-size: var(--font-13);
-  font-weight: 500;
-  color: var(--color-text-control-primary-default);
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  cursor: pointer;
-
-  &:hover {
-    background-color: var(--color-bg-control-primary-hover);
+  .delimiter {
+    font-size: 20px;
+    font-weight: 500;
     color: var(--color-text-control-accent-default);
+    margin-right: var(--spacing-m);
+    padding-bottom: 2px;
   }
-}
 
-.tabsWrapper {
-  display: flex;
-  width: 100%;
-  height: var(--main-tabs-height);
-  padding: 0 var(--spacing-m);
-  justify-content: center;
-  align-items: center;
-  border-bottom: 1px solid var(--color-border-block-primary-default);
-}
+  .info {
+    position: relative;
+    width: max-content;
+    font-size: var(--font-16);
+    font-weight: 500;
+    color: var(--color-text-control-primary-default);
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: var(--spacing-s);
+    padding-bottom: calc(var(--spacing-xs) / 2);
+  }
 
-.tab {
-  position: relative;
-  height: var(--main-tabs-height);
-  width: 120px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: var(--font-14);
-  font-weight: 500;
-}
+  .version {
+    font-size: var(--font-16);
+    font-weight: 500;
+    color: var(--color-text-control-secondary-default);
+    line-height: var(--font-16);
+  }
 
-.settingsBtn {
-  gap: 0 !important;
-  padding-left: var(--spacing-s) !important;
-  position: absolute;
-  left: var(--spacing-m);
-}
+  .user {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+  }
 
-.updateBtn {
-  gap: 0 !important;
-  padding-left: var(--spacing-s) !important;
-}
+  .userInfo {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-end;
+    margin-right: var(--spacing-m);
 
-.btnsOnUpdateTab {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  column-gap: var(--spacing-s);
-  position: absolute;
-  right: var(--spacing-ml);
-}
+    span:not(.connectivity) {
+      color: var(--color-text-control-primary-default);
+      line-height: 1.4;
+    }
+  }
 
-.content {
-  position: fixed;
-  inset: calc(var(--main-toolbar-height) + var(--main-tabs-height) + 1px) 0 0 0;
-  bottom: 0;
-}
+  .mail {
+    font-size: var(--font-14);
+    font-weight: 600;
+  }
 
-.settings {
-  position: absolute;
-  z-index: 5;
-  width: 100%;
-  height: calc(100% - var(--main-toolbar-height));
-  background-color: var(--color-bg-block-primary-default);
-  top: 100%;
-}
+  .connection {
+    font-size: var(--font-12);
+    font-weight: 500;
+  }
 
-.settingsOpened {
-  top: var(--main-toolbar-height);
-}
+  .connectivity {
+    color: var(--success-content-default);
+  }
 
-#notification {
-  position: fixed;
-  bottom: var(--spacing-xs);
-  left: var(--spacing-m);
-  right: var(--spacing-m);
-  z-index: 5000;
-  height: auto;
-  display: flex;
-  justify-content: center;
-  align-content: flex-end;
-}
+  .icon {
+    position: relative;
+    cursor: pointer;
+    overflow: hidden;
+    border-radius: 50%;
+  }
+
+  .menu {
+    position: relative;
+    background-color: var(--color-bg-control-secondary-default);
+    width: max-content;
+    border-radius: var(--spacing-xs);
+    @include mixins.elevation(1);
+  }
+
+  .menuItem {
+    position: relative;
+    width: 60px;
+    height: var(--spacing-l);
+    padding: 0 var(--spacing-s);
+    font-size: var(--font-13);
+    font-weight: 500;
+    color: var(--color-text-control-primary-default);
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    cursor: pointer;
+
+    &:hover {
+      background-color: var(--color-bg-control-primary-hover);
+      color: var(--color-text-control-accent-default);
+    }
+  }
+
+  .tabsWrapper {
+    display: flex;
+    width: 100%;
+    height: var(--main-tabs-height);
+    padding: 0 var(--spacing-m);
+    justify-content: center;
+    align-items: center;
+    border-bottom: 1px solid var(--color-border-block-primary-default);
+  }
+
+  .tab {
+    position: relative;
+    height: var(--main-tabs-height);
+    width: 120px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: var(--font-14);
+    font-weight: 500;
+  }
+
+  .settingsBtn {
+    gap: 0 !important;
+    padding-left: var(--spacing-s) !important;
+    position: absolute;
+    left: var(--spacing-m);
+  }
+
+  .updateBtn {
+    gap: 0 !important;
+    padding-left: var(--spacing-s) !important;
+  }
+
+  .btnsOnUpdateTab {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    column-gap: var(--spacing-s);
+    position: absolute;
+    right: var(--spacing-ml);
+  }
+
+  .content {
+    position: fixed;
+    inset: calc(var(--main-toolbar-height) + var(--main-tabs-height) + 1px) 0 0;
+    bottom: 0;
+  }
+
+  .settings {
+    position: absolute;
+    z-index: 5;
+    width: 100%;
+    height: calc(100% - var(--main-toolbar-height));
+    background-color: var(--color-bg-block-primary-default);
+    top: 100%;
+  }
+
+  .settingsOpened {
+    top: var(--main-toolbar-height);
+  }
+
+  #notification {
+    position: fixed;
+    bottom: var(--spacing-xs);
+    left: var(--spacing-m);
+    right: var(--spacing-m);
+    z-index: 5000;
+    height: auto;
+    display: flex;
+    justify-content: center;
+    align-content: flex-end;
+  }
 </style>

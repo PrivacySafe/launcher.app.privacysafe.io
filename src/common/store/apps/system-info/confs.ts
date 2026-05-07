@@ -1,17 +1,24 @@
 /*
  Copyright (C) 2025 3NSoft Inc.
 
- This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ This program is free software: you can redistribute it and/or modify it under
+ the terms of the GNU General Public License as published by the Free Software
+ Foundation, either version 3 of the License, or (at your option) any later
+ version.
 
- This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ This program is distributed in the hope that it will be useful, but
+ WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ See the GNU General Public License for more details.
 
- You should have received a copy of the GNU General Public License along with this program. If not, see <http://www.gnu.org/licenses/>.
+ You should have received a copy of the GNU General Public License along with
+ this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
 type WritableFS = web3n.files.WritableFS;
 type FileException = web3n.files.FileException;
 
-import { SingleProc } from "@v1nt1248/3nclient-lib/utils";
+import { SingleProc } from '@v1nt1248/3nclient-lib/utils';
 
 interface SavedConfs {
   formatVer: 1;
@@ -21,10 +28,9 @@ interface SavedConfs {
 const confsPath = 'confs.json';
 
 export function makeConfs() {
-
-  let data: SavedConfs = {
+  const data: SavedConfs = {
     formatVer: 1,
-    autoUpdate: true
+    autoUpdate: true,
   };
   let fs: WritableFS | undefined = undefined;
   const refreshProc = new SingleProc();
@@ -33,13 +39,11 @@ export function makeConfs() {
     return refreshProc.start(async () => {
       fs = await w3n.storage!.getAppSyncedFS!();
       try {
-        const {
-          formatVer, autoUpdate
-        } = await fs.readJSONFile<SavedConfs>(confsPath);
+        const { formatVer, autoUpdate } = await fs.readJSONFile<SavedConfs>(confsPath);
         if (formatVer === 1) {
           data.autoUpdate = autoUpdate;
         } else {
-        await fs!.writeJSONFile(confsPath, data);
+          await fs!.writeJSONFile(confsPath, data);
         }
       } catch (exc) {
         if (!(exc as FileException).notFound) {
@@ -67,6 +71,6 @@ export function makeConfs() {
   return {
     init,
     getAutoUpdate,
-    setAutoUpdate
+    setAutoUpdate,
   };
 }

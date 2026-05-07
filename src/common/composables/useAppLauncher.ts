@@ -1,10 +1,12 @@
 import { computed, ComputedRef } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { storeToRefs } from 'pinia';
 import { AppLaunchers, Launcher } from '@/common/types';
 import { useAppsStore } from '@/common/store/apps.store';
 import { useAppStore } from '@/common/store/app.store';
 
 export function useAppLauncher(props: ComputedRef<AppLaunchers>) {
+  const { t } = useI18n();
   const appsStore = useAppsStore();
   const { closeOldVersionApps } = appsStore;
   const { restart, processes } = storeToRefs(appsStore);
@@ -43,6 +45,7 @@ export function useAppLauncher(props: ComputedRef<AppLaunchers>) {
   }
 
   return {
+    t,
     needToCloseOldVersion,
     canBeLaunched,
     appProcessToDisplay,

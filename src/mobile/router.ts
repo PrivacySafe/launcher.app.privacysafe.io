@@ -17,6 +17,7 @@
 import { createRouter, createWebHashHistory, RouteRecordRaw } from 'vue-router';
 import MyApps from '@/mobile/pages/my-apps/my-apps.vue';
 import AppStore from '@/mobile/pages/app-store/app-store.vue';
+import Updates from '@/mobile/pages/updates/updates.vue';
 import Settings from '@/mobile/pages/settings/settings.vue';
 
 const routes: RouteRecordRaw[] = [
@@ -26,6 +27,11 @@ const routes: RouteRecordRaw[] = [
     path: '/my-apps',
     name: 'my-apps',
     component: MyApps,
+  },
+  {
+    path: '/updates',
+    name: 'updates',
+    component: Updates,
   },
   {
     path: '/app-store',

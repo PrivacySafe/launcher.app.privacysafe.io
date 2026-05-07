@@ -15,30 +15,31 @@
  this program. If not, see <http://www.gnu.org/licenses/>.
 -->
 <script lang="ts" setup>
-import { Ui3nButton, Ui3nMenu, Ui3nRadio, Ui3nSwitch } from '@v1nt1248/3nclient-lib';
-import { AVAILABLE_THEMES, AVAILABLE_LANGS } from '@/common/constants';
-import { useSettings } from '@/common/composables/useSettings';
+  import { Ui3nButton, Ui3nMenu, Ui3nRadio, Ui3nSwitch } from '@v1nt1248/3nclient-lib';
+  import { AVAILABLE_THEMES, AVAILABLE_LANGS } from '@/common/constants';
+  import { useSettings } from '@/common/composables/useSettings';
 
-const {
-  lang,
-  colorTheme,
-  changeColorTheme,
-  allowShowingDevtool,
-  changeAllowShowingDevtool,
-  autoUpdate,
-  toggleAutoUpdate,
-  customLogoSrc,
-  addCustomLogo,
-  removeCustomLogo,
-  autoLogin,
-  autoLoginSetupOpened,
-  changeAutoLogin,
-  wipeDataFromDevice,
-} = useSettings();
+  const {
+    t,
+    lang,
+    colorTheme,
+    changeColorTheme,
+    allowShowingDevtool,
+    changeAllowShowingDevtool,
+    autoUpdate,
+    toggleAutoUpdate,
+    customLogoSrc,
+    addCustomLogo,
+    removeCustomLogo,
+    autoLogin,
+    autoLoginSetupOpened,
+    changeAutoLogin,
+    wipeDataFromDevice,
+  } = useSettings();
 
-function changeAutoUpdate(value: boolean) {
-  toggleAutoUpdate(value);
-}
+  function changeAutoUpdate(value: boolean) {
+    toggleAutoUpdate(value);
+  }
 </script>
 
 <template>
@@ -46,12 +47,12 @@ function changeAutoUpdate(value: boolean) {
     <!-- appearance section/block -->
     <div :class="$style.block">
       <div :class="$style.title">
-        {{ $tr('settings.section.appearance') }}
+        {{ t('settings.section.appearance') }}
       </div>
 
       <div :class="$style.row">
         <h4 :class="$style.label">
-          {{ $tr('settings.label.theme') }}
+          {{ t('settings.label.theme') }}
         </h4>
 
         <div :class="$style.value">
@@ -69,17 +70,17 @@ function changeAutoUpdate(value: boolean) {
               icon-color="var(--color-icon-button-tritery-default)"
               icon-position="right"
             >
-              {{ $tr(AVAILABLE_THEMES[colorTheme].label) }}
+              {{ t(AVAILABLE_THEMES[colorTheme].label) }}
             </ui3n-button>
 
             <template #menu>
               <div
-                v-for="id in (['dark2', 'default', 'dark'] as const)"
+                v-for="id in ['dark2', 'default', 'dark'] as const"
                 :key="id"
                 :class="[$style.colorThemesItem, colorTheme === id && $style.colorThemesItemSelected]"
                 @click="changeColorTheme(id)"
               >
-                {{ $tr(AVAILABLE_THEMES[id].label) }}
+                {{ t(AVAILABLE_THEMES[id].label) }}
               </div>
             </template>
           </ui3n-menu>
@@ -89,7 +90,7 @@ function changeAutoUpdate(value: boolean) {
       <!-- languages -->
       <div :class="$style.row">
         <h4 :class="$style.label">
-          {{ $tr('settings.label.language') }}
+          {{ t('settings.label.language') }}
         </h4>
 
         <div :class="$style.value">
@@ -108,7 +109,7 @@ function changeAutoUpdate(value: boolean) {
       <!-- custom logo -->
       <div :class="$style.row">
         <h4 :class="$style.label">
-          {{ $tr('settings.label.custom-logo') }}
+          {{ t('settings.label.custom-logo') }}
         </h4>
         <div :class="$style.value">
           <ui3n-button
@@ -118,7 +119,7 @@ function changeAutoUpdate(value: boolean) {
             icon-position="left"
             @click="addCustomLogo"
           >
-            {{ $tr('settings.custom-logo.btn.add-logo') }}
+            {{ t('settings.btn.custom-logo.add-logo') }}
           </ui3n-button>
 
           <img
@@ -126,7 +127,7 @@ function changeAutoUpdate(value: boolean) {
             :src="customLogoSrc"
             alt="logo"
             :class="$style.customLogo"
-          >
+          />
 
           <ui3n-button
             v-if="!!customLogoSrc"
@@ -141,13 +142,13 @@ function changeAutoUpdate(value: boolean) {
     <!-- system section/block -->
     <div :class="$style.block">
       <div :class="$style.title">
-        {{ $tr('settings.system') }}
+        {{ t('settings.system') }}
       </div>
 
       <!-- autoupdates -->
       <div :class="$style.row">
         <h4 :class="$style.label">
-          {{ $tr('settings.label.autoupdates') }}
+          {{ t('settings.label.autoupdates') }}
         </h4>
 
         <div :class="$style.value">
@@ -155,7 +156,7 @@ function changeAutoUpdate(value: boolean) {
             :class="[$style.pointer, $style.text]"
             @click="changeAutoUpdate(false)"
           >
-            {{ $tr('settings.label.off') }}
+            {{ t('settings.label.off') }}
           </span>
 
           <ui3n-switch
@@ -168,7 +169,7 @@ function changeAutoUpdate(value: boolean) {
             :class="[$style.pointer, $style.text]"
             @click="changeAutoUpdate(true)"
           >
-            {{ $tr('settings.label.on') }}
+            {{ t('settings.label.on') }}
           </span>
         </div>
       </div>
@@ -176,7 +177,7 @@ function changeAutoUpdate(value: boolean) {
       <!-- allow devtool  -->
       <div :class="$style.row">
         <h4 :class="$style.label">
-          {{ $tr('settings.label.showing.devtool') }}
+          {{ t('settings.label.showing_devtool') }}
         </h4>
 
         <div :class="$style.value">
@@ -184,7 +185,7 @@ function changeAutoUpdate(value: boolean) {
             :class="[$style.pointer, $style.text]"
             @click="changeAllowShowingDevtool(false)"
           >
-            {{ $tr('settings.label.no') }}
+            {{ t('settings.label.no') }}
           </span>
 
           <ui3n-switch
@@ -197,7 +198,7 @@ function changeAutoUpdate(value: boolean) {
             :class="[$style.pointer, $style.text]"
             @click="changeAllowShowingDevtool(true)"
           >
-            {{ $tr('settings.label.yes') }}
+            {{ t('settings.label.yes') }}
           </span>
         </div>
       </div>
@@ -205,7 +206,7 @@ function changeAutoUpdate(value: boolean) {
       <!-- autologin -->
       <div :class="$style.row">
         <h4 :class="$style.label">
-          {{ $tr('settings.label.autologin') }}
+          {{ t('settings.label.autologin') }}
         </h4>
 
         <div
@@ -221,7 +222,7 @@ function changeAutoUpdate(value: boolean) {
             :class="[$style.pointer, $style.text]"
             @click="changeAutoLogin(false)"
           >
-            {{ $tr('settings.label.off') }}
+            {{ t('settings.label.off') }}
           </span>
 
           <ui3n-switch
@@ -234,7 +235,7 @@ function changeAutoUpdate(value: boolean) {
             :class="[$style.pointer, $style.text]"
             @click="changeAutoLogin(true)"
           >
-            {{ $tr('settings.label.on') }}
+            {{ t('settings.label.on') }}
           </span>
         </div>
       </div>
@@ -243,7 +244,7 @@ function changeAutoUpdate(value: boolean) {
     <!-- Data section/block -->
     <div :class="$style.block">
       <div :class="$style.title">
-        {{ $tr('system.data-removal.section') }}
+        {{ t('system.data_removal.section') }}
       </div>
 
       <div :class="$style.row">
@@ -251,7 +252,7 @@ function changeAutoUpdate(value: boolean) {
           type="tertiary"
           @click="wipeDataFromDevice"
         >
-          {{ $tr('system.data-removal.wipe-from-device') }}
+          {{ t('system.data_removal.wipe_from_device') }}
         </ui3n-button>
       </div>
     </div>
@@ -259,93 +260,93 @@ function changeAutoUpdate(value: boolean) {
 </template>
 
 <style lang="scss" module>
-.settings {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  padding: var(--spacing-m);
-  overflow-x: hidden;
-  overflow-y: auto;
-  background-color: var(--color-bg-block-primary-default);
-}
+  .settings {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    padding: var(--spacing-m);
+    overflow-x: hidden;
+    overflow-y: auto;
+    background-color: var(--color-bg-block-primary-default);
+  }
 
-.block {
-  position: relative;
-  width: 100%;
-  margin-bottom: var(--spacing-m);
-}
+  .block {
+    position: relative;
+    width: 100%;
+    margin-bottom: var(--spacing-m);
+  }
 
-.title {
-  font-size: var(--font-14);
-  font-weight: 600;
-  line-height: var(--font-20);
-  color: var(--color-text-block-primary-default);
-  text-transform: capitalize;
-  margin-bottom: var(--spacing-s);
-}
+  .title {
+    font-size: var(--font-14);
+    font-weight: 600;
+    line-height: var(--font-20);
+    color: var(--color-text-block-primary-default);
+    text-transform: capitalize;
+    margin-bottom: var(--spacing-s);
+  }
 
-.row {
-  display: flex;
-  width: 100%;
-  height: var(--spacing-l);
-  padding: 0 var(--spacing-s);
-  justify-content: space-between;
-  align-items: center;
-}
+  .row {
+    display: flex;
+    width: 100%;
+    height: var(--spacing-l);
+    padding: 0 var(--spacing-s);
+    justify-content: space-between;
+    align-items: center;
+  }
 
-.label {
-  font-size: var(--font-12);
-  font-weight: 500;
-  line-height: var(--font-20);
-  color: var(--color-text-control-primary-default);
-  text-transform: capitalize;
-  margin-bottom: var(--spacing-s);
-}
+  .label {
+    font-size: var(--font-12);
+    font-weight: 500;
+    line-height: var(--font-20);
+    color: var(--color-text-control-primary-default);
+    text-transform: capitalize;
+    margin-bottom: var(--spacing-s);
+  }
 
-.value {
-  position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: var(--spacing-s);
-}
+  .value {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: var(--spacing-s);
+  }
 
-.text {
-  font-size: var(--font-12);
-  font-weight: 500;
-  color: var(--color-text-control-primary-default);
-  text-transform: capitalize;
-}
+  .text {
+    font-size: var(--font-12);
+    font-weight: 500;
+    color: var(--color-text-control-primary-default);
+    text-transform: capitalize;
+  }
 
-.colorThemesItem {
-  display: flex;
-  width: 120px;
-  height: var(--spacing-l);
-  padding: 0 12px;
-  justify-content: flex-start;
-  align-items: center;
-  font-size: var(--font-13);
-  font-weight: 500;
-  color: var(--color-text-control-primary-default);
+  .colorThemesItem {
+    display: flex;
+    width: 120px;
+    height: var(--spacing-l);
+    padding: 0 12px;
+    justify-content: flex-start;
+    align-items: center;
+    font-size: var(--font-13);
+    font-weight: 500;
+    color: var(--color-text-control-primary-default);
 
-  &:not(.colorThemesItemSelected) {
+    &:not(.colorThemesItemSelected) {
+      cursor: pointer;
+    }
+
+    &.colorThemesItemSelected {
+      color: var(--color-text-button-secondary-default);
+    }
+
+    &:hover {
+      background-color: var(--color-bg-control-primary-hover);
+    }
+  }
+
+  .pointer {
     cursor: pointer;
   }
 
-  &.colorThemesItemSelected {
-    color: var(--color-text-button-secondary-default);
+  .customLogo {
+    max-height: var(--spacing-l);
   }
-
-  &:hover {
-    background-color: var(--color-bg-control-primary-hover);
-  }
-}
-
-.pointer {
-  cursor: pointer;
-}
-
-.customLogo {
-  max-height: var(--spacing-l);
-}
 </style>

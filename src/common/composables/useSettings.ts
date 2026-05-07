@@ -14,27 +14,25 @@ See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with
 this program. If not, see <http://www.gnu.org/licenses/>.
 */
-
-import { useAppStore } from '@/common/store/app.store';
-import { storeToRefs } from 'pinia';
-import { useAppsStore } from '@/common/store/apps.store';
 import { inject, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { storeToRefs } from 'pinia';
 import {
   DIALOGS_KEY,
   DialogsPlugin,
-  I18N_KEY,
-  I18nPlugin,
   NOTIFICATIONS_KEY,
   NotificationsPlugin,
 } from '@v1nt1248/3nclient-lib/plugins';
+import type { AvailableColorTheme } from '@/common/types';
+import { useAppStore } from '@/common/store/app.store';
+import { useAppsStore } from '@/common/store/apps.store';
 import { SettingsJSON } from '@/common/store/app/ui-settings';
 import { readImageFileIntoDataURL, selectOneImageFileWithDialog } from '../utils/image-files';
 import TurnAutologinOn from '../dialogs/turn-autologin-on.vue';
-import { AvailableColorTheme } from '@/common/types';
 
 export function useSettings() {
+  const { t } = useI18n();
   const dialog = inject<DialogsPlugin>(DIALOGS_KEY)!;
-
   const appStore = useAppStore();
   const { updateSettings } = appStore;
   const { colorTheme, lang, allowShowingDevtool, customLogoSrc } = storeToRefs(appStore);
@@ -44,20 +42,19 @@ export function useSettings() {
   const { autoUpdate } = storeToRefs(appsStore);
 
   const { $createNotice } = inject<NotificationsPlugin>(NOTIFICATIONS_KEY)!;
-  const { $tr } = inject<I18nPlugin>(I18N_KEY)!;
 
   async function updateAppConfig(appConfig: Partial<SettingsJSON>) {
     try {
       await updateSettings(appConfig);
       $createNotice({
         type: 'success',
-        content: $tr('settings.save.success'),
+        content: t('settings.messages.save_success'),
       });
     } catch (e) {
       console.error('Settings saving error: ', e);
       $createNotice({
         type: 'error',
-        content: $tr('settings.save.error'),
+        content: t('settings.messages.save_error'),
       });
     }
   }
@@ -84,9 +81,9 @@ export function useSettings() {
 
   async function addCustomLogo() {
     const imgFile = await selectOneImageFileWithDialog(
-      $tr('dialog.select-logo-file.title'),
-      $tr('dialog.select-logo-file.btn'),
-      $tr,
+      t('dialog.select-logo-file.title'),
+      t('dialog.select-logo-file.btn'),
+      t,
     );
     if (imgFile) {
       updateSettings({
@@ -117,7 +114,7 @@ export function useSettings() {
 
       const res = await dialog.$openDialog<string>(TurnAutologinOn, {
         dialogProps: {
-          title: $tr('settings.dialog.autologin.title'),
+          title: t('dialog.settings_dialog_autologin.title'),
         },
       });
 
@@ -131,14 +128,14 @@ export function useSettings() {
             });
             $createNotice({
               type: 'success',
-              content: $tr('settings.autologin.set.success'),
+              content: t('settings.messages.autologin_set_success'),
             });
           }
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
         } catch (e) {
           $createNotice({
             type: 'error',
-            content: $tr('settings.autologin.password_wrong'),
+            content: t('settings.autologin_password_wrong'),
           });
         } finally {
           updateAutoLoginRef();
@@ -160,7 +157,7 @@ export function useSettings() {
   updateAutoLoginRef();
 
   return {
-    $tr,
+    t,
     lang,
     colorTheme,
     changeColorTheme,

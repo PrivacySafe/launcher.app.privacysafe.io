@@ -22,7 +22,7 @@ export interface ErrorWithCause extends Error {
 type EncryptionException = web3n.EncryptionException;
 
 export function errWithCause(cause: any, message: string): ErrorWithCause {
-  const err = <ErrorWithCause>new Error(message);
+  const err = new Error(message) as ErrorWithCause;
   err.cause = cause;
   if ((cause as EncryptionException).failedCipherVerification) {
     (err as any as EncryptionException).failedCipherVerification = true;

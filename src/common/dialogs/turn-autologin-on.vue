@@ -14,19 +14,27 @@
  You should have received a copy of the GNU General Public License along with
  this program. If not, see <http://www.gnu.org/licenses/>.
 -->
-
 <script lang="ts" setup>
-import { ref } from 'vue';
-import { Ui3nDialog, Ui3nInput, type Ui3nDialogEvent, type Ui3nDialogComponentProps } from '@v1nt1248/3nclient-lib';
+  import { ref } from 'vue';
+  import { useI18n } from 'vue-i18n';
+  import {
+    Ui3nDialog,
+    Ui3nInput,
+    type Ui3nDialogEvent,
+    type Ui3nDialogComponentProps,
+  } from '@v1nt1248/3nclient-lib';
 
-defineProps<{
-  dialogProps?: Ui3nDialogComponentProps<boolean>;
-}>()
-const emits = defineEmits<{
-  (event: 'action', value: { event: Ui3nDialogEvent, data?: string }): void;
-}>();
+  defineProps<{
+    dialogProps?: Ui3nDialogComponentProps<boolean>;
+  }>();
 
-const loginPassword = ref('');
+  const emits = defineEmits<{
+    (event: 'action', value: { event: Ui3nDialogEvent; data?: string }): void;
+  }>();
+
+  const { t } = useI18n();
+
+  const loginPassword = ref('');
 </script>
 
 <template>
@@ -40,8 +48,8 @@ const loginPassword = ref('');
         <ui3n-input
           v-model="loginPassword"
           type="password"
-          :label="$tr('settings.label.autologin.enter_password')"
-          :placeholder="$tr('settings.placeholder.password')"
+          :label="t('settings.label.autologin_enter_password')"
+          :placeholder="t('settings.placeholder.password')"
         />
       </div>
     </template>
@@ -49,7 +57,7 @@ const loginPassword = ref('');
 </template>
 
 <style lang="scss" module>
-.frame {
-  padding: var(--spacing-m) var(--spacing-m) 0 var(--spacing-m);
-}
+  .frame {
+    padding: var(--spacing-m) var(--spacing-m) 0 var(--spacing-m);
+  }
 </style>

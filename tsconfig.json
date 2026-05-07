@@ -27,11 +27,10 @@
       "@types/lodash",
       "@types/jasmine"
     ],
-    "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"],
-      "@sys-map/*": ["src-system-map/*"],
-      "@tests/*": ["tests-app/src/*"]
+      "@/*": ["./src/*"],
+      "@sys-map/*": ["./src-system-map/*"],
+      "@tests/*": ["./tests-app/src/*"]
     },
     "plugins": [{
       "name": "@vuedx/typescript-plugin-vue"

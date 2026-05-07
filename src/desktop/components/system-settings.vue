@@ -15,36 +15,39 @@
  this program. If not, see <http://www.gnu.org/licenses/>.
 -->
 <script lang="ts" setup>
-import { Ui3nButton, Ui3nMenu, Ui3nRadio, Ui3nSwitch, Ui3nProgressLinear } from '@v1nt1248/3nclient-lib';
-import { AVAILABLE_THEMES, AVAILABLE_LANGS } from '@/common/constants';
-import { useSettings } from '@/common/composables/useSettings';
+  import { useI18n } from 'vue-i18n';
+  import { Ui3nButton, Ui3nMenu, Ui3nRadio, Ui3nSwitch, Ui3nProgressLinear } from '@v1nt1248/3nclient-lib';
+  import { AVAILABLE_THEMES, AVAILABLE_LANGS } from '@/common/constants';
+  import { useSettings } from '@/common/composables/useSettings';
 
-const emits = defineEmits<{
-  (ev: 'close'): void;
-}>();
+  const emits = defineEmits<{
+    (ev: 'close'): void;
+  }>();
 
-const {
-  colorTheme,
-  changeColorTheme,
-  lang,
-  allowShowingDevtool,
-  changeAllowShowingDevtool,
-  autoUpdate,
-  toggleAutoUpdate,
-  customLogoSrc,
-  addCustomLogo,
-  removeCustomLogo,
-  autoLogin,
-  autoLoginSetupOpened,
-  changeAutoLogin,
-  wipeDataFromDevice,
-} = useSettings();
+  const { t } = useI18n();
+
+  const {
+    colorTheme,
+    changeColorTheme,
+    lang,
+    allowShowingDevtool,
+    changeAllowShowingDevtool,
+    autoUpdate,
+    toggleAutoUpdate,
+    customLogoSrc,
+    addCustomLogo,
+    removeCustomLogo,
+    autoLogin,
+    autoLoginSetupOpened,
+    changeAutoLogin,
+    wipeDataFromDevice,
+  } = useSettings();
 </script>
 
 <template>
   <section :class="$style.appSettings">
     <div :class="$style.toolbar">
-      {{ $tr('settings.title') }}
+      {{ t('settings.title') }}
       <ui3n-button
         :class="$style.close"
         type="icon"
@@ -60,13 +63,13 @@ const {
       <!-- appearance section/block -->
       <div :class="$style.block">
         <div :class="$style.blockHeader">
-          {{ $tr('settings.section.appearance') }}
+          {{ t('settings.section.appearance') }}
         </div>
 
         <!-- theme -->
         <div :class="$style.rowBody">
           <div :class="$style.rowBodyLabel">
-            {{ $tr('settings.label.theme') }}
+            {{ t('settings.label.theme') }}
           </div>
 
           <div :class="$style.rowBodyValue">
@@ -84,17 +87,17 @@ const {
                 icon-color="var(--color-icon-button-tritery-default)"
                 icon-position="right"
               >
-                {{ $tr(AVAILABLE_THEMES[colorTheme].label) }}
+                {{ t(AVAILABLE_THEMES[colorTheme].label) }}
               </ui3n-button>
 
               <template #menu>
                 <div
-                  v-for="id in (['dark2', 'default', 'dark'] as const)"
+                  v-for="id in ['dark2', 'default', 'dark'] as const"
                   :key="id"
                   :class="[$style.colorThemesItem, colorTheme === id && $style.colorThemesItemSelected]"
                   @click="changeColorTheme(id)"
                 >
-                  {{ $tr(AVAILABLE_THEMES[id].label) }}
+                  {{ t(AVAILABLE_THEMES[id].label) }}
                 </div>
               </template>
             </ui3n-menu>
@@ -104,7 +107,7 @@ const {
         <!-- languages -->
         <div :class="$style.rowBody">
           <div :class="$style.rowBodyLabel">
-            {{ $tr('settings.label.language') }}
+            {{ t('settings.label.language') }}
           </div>
 
           <div :class="$style.rowBodyValue">
@@ -123,7 +126,7 @@ const {
         <!-- custom logo -->
         <div :class="$style.rowBody">
           <div :class="$style.rowBodyLabel">
-            {{ $tr('settings.label.custom-logo') }}
+            {{ t('settings.label.custom-logo') }}
           </div>
 
           <div :class="$style.rowBodyValue">
@@ -134,7 +137,7 @@ const {
               icon-position="left"
               @click="addCustomLogo"
             >
-              {{ $tr('settings.custom-logo.btn.add-logo') }}
+              {{ t('settings.btn.custom-logo.add-logo') }}
             </ui3n-button>
 
             <img
@@ -142,7 +145,7 @@ const {
               :src="customLogoSrc"
               alt="logo"
               :class="$style.customLogo"
-            >
+            />
 
             <ui3n-button
               v-if="!!customLogoSrc"
@@ -157,17 +160,17 @@ const {
       <!-- system section/block -->
       <div :class="$style.block">
         <div :class="$style.blockHeader">
-          {{ $tr('settings.system') }}
+          {{ t('settings.system') }}
         </div>
 
         <!-- autoupdates -->
         <div :class="$style.rowBody">
           <div :class="$style.rowBodyLabel">
-            {{ $tr('settings.label.autoupdates') }}
+            {{ t('settings.label.autoupdates') }}
           </div>
 
           <div :class="$style.rowBodyValue">
-            <span :class="$style.rowBodyText">{{ $tr('settings.label.off') }}</span>
+            <span :class="$style.rowBodyText">{{ t('settings.label.off') }}</span>
 
             <ui3n-switch
               size="16"
@@ -175,18 +178,18 @@ const {
               @change="toggleAutoUpdate"
             />
 
-            <span :class="$style.rowBodyText">{{ $tr('settings.label.on') }}</span>
+            <span :class="$style.rowBodyText">{{ t('settings.label.on') }}</span>
           </div>
         </div>
 
         <!-- showing devtool -->
         <div :class="$style.rowBody">
           <div :class="$style.rowBodyLabel">
-            {{ $tr('settings.label.showing.devtool') }}
+            {{ t('settings.label.showing_devtool') }}
           </div>
 
           <div :class="$style.rowBodyValue">
-            <span :class="$style.rowBodyText">{{ $tr('settings.label.no') }}</span>
+            <span :class="$style.rowBodyText">{{ t('settings.label.no') }}</span>
 
             <ui3n-switch
               size="16"
@@ -194,14 +197,14 @@ const {
               @change="changeAllowShowingDevtool"
             />
 
-            <span :class="$style.rowBodyText">{{ $tr('settings.label.yes') }}</span>
+            <span :class="$style.rowBodyText">{{ t('settings.label.yes') }}</span>
           </div>
         </div>
 
         <!-- autologin -->
         <div :class="$style.rowBody">
           <div :class="$style.rowBodyLabel">
-            {{ $tr('settings.label.autologin') }}
+            {{ t('settings.label.autologin') }}
           </div>
 
           <div
@@ -218,7 +221,7 @@ const {
             v-else
             :class="$style.rowBodyValue"
           >
-            <span :class="$style.rowBodyText">{{ $tr('settings.label.off') }}</span>
+            <span :class="$style.rowBodyText">{{ t('settings.label.off') }}</span>
 
             <ui3n-switch
               size="16"
@@ -226,7 +229,7 @@ const {
               @change="changeAutoLogin"
             />
 
-            <span :class="$style.rowBodyText">{{ $tr('settings.label.on') }}</span>
+            <span :class="$style.rowBodyText">{{ t('settings.label.on') }}</span>
           </div>
         </div>
       </div>
@@ -234,14 +237,14 @@ const {
       <!-- Data section/block -->
       <div :class="$style.block">
         <div :class="$style.blockHeader">
-          {{ $tr('system.data-removal.section') }}
+          {{ t('system.data_removal.section') }}
         </div>
         <div :class="$style.rowBody">
           <ui3n-button
             type="tertiary"
             @click="wipeDataFromDevice"
           >
-            {{ $tr('system.data-removal.wipe-from-device') }}
+            {{ t('system.data_removal.wipe_from_device') }}
           </ui3n-button>
         </div>
       </div>
@@ -250,124 +253,124 @@ const {
 </template>
 
 <style lang="scss" module>
-.appSettings {
-  --app-settings-toolbar-height: var(--spacing-xxl);
+  .appSettings {
+    --app-settings-toolbar-height: var(--spacing-xxl);
 
-  position: relative;
-  width: 100%;
-  height: 100%;
-}
-
-.toolbar {
-  position: relative;
-  width: 100%;
-  height: var(--app-settings-toolbar-height);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border-top: 1px solid var(--color-border-block-primary-default);
-  border-bottom: 1px solid var(--color-border-block-primary-default);
-  font-size: var(--font-14);
-  font-weight: 500;
-  line-height: var(--font-20);
-  color: var(--color-text-control-primary-default);
-  text-transform: capitalize;
-}
-
-.close {
-  position: absolute;
-  left: var(--spacing-ml);
-  top: var(--spacing-s);
-}
-
-.body {
-  position: relative;
-  width: 100%;
-  height: calc(100% - var(--app-settings-toolbar-height));
-  overflow-y: auto;
-  padding: var(--spacing-m);
-}
-
-.block {
-  position: relative;
-  width: 100%;
-  margin-bottom: var(--spacing-m);
-}
-
-.blockHeader {
-  display: flex;
-  width: 100%;
-  height: var(--spacing-ml);
-  justify-content: center;
-  align-items: center;
-  font-size: var(--font-12);
-  font-weight: 500;
-  line-height: var(--font-20);
-  color: var(--color-text-block-primary-default);
-  text-transform: capitalize;
-}
-
-.rowBody {
-  display: flex;
-  width: 100%;
-  height: var(--spacing-xl);
-  padding: 0 var(--spacing-m);
-  justify-content: space-between;
-  align-items: center;
-}
-
-.rowBodyLabel {
-  font-size: var(--font-14);
-  font-weight: 500;
-  line-height: var(--font-20);
-  color: var(--color-text-control-primary-default);
-  text-transform: capitalize;
-}
-
-.rowBodyValue {
-  position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: var(--spacing-s);
-}
-
-.rowBodyText {
-  font-size: var(--font-12);
-  font-weight: 500;
-  color: var(--color-text-control-primary-default);
-  text-transform: capitalize;
-}
-
-.colorThemesItem {
-  display: flex;
-  width: 120px;
-  height: var(--spacing-l);
-  padding: 0 12px;
-  justify-content: flex-start;
-  align-items: center;
-  font-size: var(--font-13);
-  font-weight: 500;
-  color: var(--color-text-control-primary-default);
-
-  &:not(.colorThemesItemSelected) {
-    cursor: pointer;
+    position: relative;
+    width: 100%;
+    height: 100%;
   }
 
-  &.colorThemesItemSelected {
-    color: var(--color-text-button-secondary-default);
+  .toolbar {
+    position: relative;
+    width: 100%;
+    height: var(--app-settings-toolbar-height);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-top: 1px solid var(--color-border-block-primary-default);
+    border-bottom: 1px solid var(--color-border-block-primary-default);
+    font-size: var(--font-14);
+    font-weight: 500;
+    line-height: var(--font-20);
+    color: var(--color-text-control-primary-default);
+    text-transform: capitalize;
   }
 
-  &:hover {
-    background-color: var(--color-bg-control-primary-hover);
+  .close {
+    position: absolute;
+    left: var(--spacing-ml);
+    top: var(--spacing-s);
   }
-}
 
-.customLogo {
-  max-height: var(--spacing-l);
-}
+  .body {
+    position: relative;
+    width: 100%;
+    height: calc(100% - var(--app-settings-toolbar-height));
+    overflow-y: auto;
+    padding: var(--spacing-m);
+  }
 
-.loginProgressBar {
-  width: 6em;
-}
+  .block {
+    position: relative;
+    width: 100%;
+    margin-bottom: var(--spacing-m);
+  }
+
+  .blockHeader {
+    display: flex;
+    width: 100%;
+    height: var(--spacing-ml);
+    justify-content: center;
+    align-items: center;
+    font-size: var(--font-12);
+    font-weight: 500;
+    line-height: var(--font-20);
+    color: var(--color-text-block-primary-default);
+    text-transform: capitalize;
+  }
+
+  .rowBody {
+    display: flex;
+    width: 100%;
+    height: var(--spacing-xl);
+    padding: 0 var(--spacing-m);
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .rowBodyLabel {
+    font-size: var(--font-14);
+    font-weight: 500;
+    line-height: var(--font-20);
+    color: var(--color-text-control-primary-default);
+    text-transform: capitalize;
+  }
+
+  .rowBodyValue {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: var(--spacing-s);
+  }
+
+  .rowBodyText {
+    font-size: var(--font-12);
+    font-weight: 500;
+    color: var(--color-text-control-primary-default);
+    text-transform: capitalize;
+  }
+
+  .colorThemesItem {
+    display: flex;
+    width: 120px;
+    height: var(--spacing-l);
+    padding: 0 12px;
+    justify-content: flex-start;
+    align-items: center;
+    font-size: var(--font-13);
+    font-weight: 500;
+    color: var(--color-text-control-primary-default);
+
+    &:not(.colorThemesItemSelected) {
+      cursor: pointer;
+    }
+
+    &.colorThemesItemSelected {
+      color: var(--color-text-button-secondary-default);
+    }
+
+    &:hover {
+      background-color: var(--color-bg-control-primary-hover);
+    }
+  }
+
+  .customLogo {
+    max-height: var(--spacing-l);
+  }
+
+  .loginProgressBar {
+    width: 6em;
+  }
 </style>

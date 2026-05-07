@@ -7,8 +7,6 @@
 
  You should have received a copy of the GNU General Public License along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
-
-import { toRO } from '@/common/utils/readonly';
 import { ref } from 'vue';
 
 export function makeRestartInfoPlace() {
@@ -45,7 +43,7 @@ export function makeRestartInfoPlace() {
   }
 
   return {
-    restart: toRO(restart),
+    restart,
 
     setAppsRestart,
     setPlatformRestart,

@@ -32,7 +32,7 @@ export const makeConfig = ({ mode }: UserConfig) => {
       input: {
         main: _resolve('./index.html'),
         'main-mobile': _resolve('./index-mobile.html'),
-        'system-map': _resolve('./system-map.html'),
+        'system-map': _resolve('./index-map.html'),
       },
       output: [
         {
@@ -65,7 +65,7 @@ export const makeConfig = ({ mode }: UserConfig) => {
       },
     },
   };
-}
+};
 
 // https://vitejs.dev/config/
 // @ts-ignore

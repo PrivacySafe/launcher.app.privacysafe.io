@@ -16,34 +16,33 @@
 -->
 
 <script lang="ts" setup>
-import { computed } from 'vue';
-import { Ui3nButton, Ui3nProgressCircular } from '@v1nt1248/3nclient-lib';
-import type { AppInfo } from '@/common/types';
-import { useAppView } from '@/common/composables/useAppView';
-import AppIcon from '@/common/components/app-icon.vue';
+  import { computed } from 'vue';
+  import { Ui3nButton, Ui3nProgressCircular } from '@v1nt1248/3nclient-lib';
+  import type { AppInfo } from '@/common/types';
+  import { useAppView } from '@/common/composables/useAppView';
+  import AppIcon from '@/common/components/app-icon.vue';
+  import AppItemArea from './app-item-area.vue';
 
-import AppItemArea from './app-item-area.vue';
+  const props = defineProps<{
+    appInfo: AppInfo;
+  }>();
 
-const props = defineProps<{
-  appInfo: AppInfo;
-}>();
+  const propsValue = computed(() => props.appInfo);
 
-const propsValue = computed(() => props.appInfo);
-
-const {
-  $tr,
-  appId,
-  canBeInstalled,
-  versionToInstall,
-  canBeUpdated,
-  versionInUpdate,
-  needToCloseOldVersion,
-  install,
-  update,
-  closeOldVersionApps,
-  installProc,
-  downloadOrUnzipProc,
-} = useAppView(propsValue);
+  const {
+    t,
+    appId,
+    canBeInstalled,
+    versionToInstall,
+    canBeUpdated,
+    versionInUpdate,
+    needToCloseOldVersion,
+    install,
+    update,
+    closeOldVersionApps,
+    installProc,
+    downloadOrUnzipProc,
+  } = useAppView(propsValue);
 </script>
 
 <template>
@@ -58,10 +57,14 @@ const {
 
         <div :class="$style.version">
           {{
-            canBeInstalled ? $tr('version.to-install', { install: versionToInstall! }) :
-            versionInUpdate ? $tr('version.to-update', {
-              current: appInfo.versions.current!, update: versionInUpdate!.version
-            }) : $tr('version', { version: appInfo.versions.current! })
+            canBeInstalled
+              ? t('version.to-install', { install: versionToInstall! })
+              : versionInUpdate
+                ? t('version.to-update', {
+                    current: appInfo.versions.current!,
+                    update: versionInUpdate!.version,
+                  })
+                : t('app.version', { version: appInfo.versions.current! })
           }}
         </div>
       </div>
@@ -74,7 +77,7 @@ const {
           type="primary"
           @click="install"
         >
-          {{ $tr('app.action.install') }}
+          {{ t('app.action.install') }}
         </ui3n-button>
 
         <ui3n-button
@@ -84,7 +87,7 @@ const {
           type="primary"
           @click="update"
         >
-          {{ $tr('app.action.update') }}
+          {{ t('app.action.update') }}
         </ui3n-button>
 
         <ui3n-button
@@ -93,7 +96,7 @@ const {
           block
           @click="closeOldVersionApps"
         >
-          {{ $tr('app.action.close-old-version') }}
+          {{ t('app.action.close_old_version') }}
         </ui3n-button>
       </div>
     </template>
@@ -131,63 +134,62 @@ const {
 </template>
 
 <style lang="scss" module>
-
-.content {
-  position: relative;
-  width: calc(100% - var(--action-block-width) - var(--spacing-l));
-}
-
-.name {
-  font-size: var(--font-16);
-  font-weight: 500;
-  line-height: var(--font-20);
-  color: var(--color-text-block-primary-default);
-}
-
-.version {
-  font-size: var(--font-10);
-  font-weight: 500;
-  line-height: var(--font-12);
-  color: var(--color-text-block-secondary-default);
-}
-
-.action {
-  position: relative;
-  width: var(--action-block-width);
-
-  .btn {
-    text-transform: capitalize;
+  .content {
+    position: relative;
+    width: calc(100% - var(--action-block-width) - var(--spacing-l));
   }
-}
 
-.description {
-  position: relative;
-  width: calc(100% - var(--action-block-width) - var(--spacing-s));
-  margin-top: var(--spacing-s);
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: stretch;
-  gap: var(--spacing-xs);
-  font-size: var(--font-12);
-  font-weight: 400;
-  line-height: var(--font-16);
-  color: var(--color-text-block-primary-default);
-}
+  .name {
+    font-size: var(--font-16);
+    font-weight: 500;
+    line-height: var(--font-20);
+    color: var(--color-text-block-primary-default);
+  }
 
-.accented {
-  color: var(--color-text-block-accent-default);
-}
+  .version {
+    font-size: var(--font-10);
+    font-weight: 500;
+    line-height: var(--font-12);
+    color: var(--color-text-block-secondary-default);
+  }
 
-.progressOverlay {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.2);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
+  .action {
+    position: relative;
+    width: var(--action-block-width);
+
+    .btn {
+      text-transform: capitalize;
+    }
+  }
+
+  .description {
+    position: relative;
+    width: calc(100% - var(--action-block-width) - var(--spacing-s));
+    margin-top: var(--spacing-s);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: stretch;
+    gap: var(--spacing-xs);
+    font-size: var(--font-12);
+    font-weight: 400;
+    line-height: var(--font-16);
+    color: var(--color-text-block-primary-default);
+  }
+
+  .accented {
+    color: var(--color-text-block-accent-default);
+  }
+
+  .progressOverlay {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgb(0, 0, 0, 0.2);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
 </style>

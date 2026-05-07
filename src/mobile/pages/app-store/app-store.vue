@@ -15,163 +15,167 @@
  this program. If not, see <http://www.gnu.org/licenses/>.
 -->
 <script lang="ts" setup>
-import { computed, inject, ref } from 'vue';
-import { storeToRefs } from 'pinia';
-import isEmpty from 'lodash/isEmpty';
-import { I18N_KEY, I18nPlugin, NOTIFICATIONS_KEY, NotificationsPlugin } from '@v1nt1248/3nclient-lib/plugins';
-import { Ui3nButton, Ui3nInput, Ui3nProgressCircular } from '@v1nt1248/3nclient-lib';
-import { useAppStore } from '@/common/store/app.store';
-import { useAppsStore } from '@/common/store/apps.store';
-import PlatformView from '@/desktop/components/platform-view.vue';
-import AppInfo from '@/mobile/components/app-info/app-info.vue';
+  import { computed, ref } from 'vue';
+  import { useI18n } from 'vue-i18n';
+  import { storeToRefs } from 'pinia';
+  import isEmpty from 'lodash/isEmpty';
+  import { Ui3nInput } from '@v1nt1248/3nclient-lib';
+  import { useAppsStore } from '@/common/store/apps.store';
+  import type { AppInfo } from '@/common/types';
+  import PlatformInfo from '@/mobile/components/platform-info.vue';
+  import ApplicationInfo from '@/mobile/components/app-info.vue';
+  import AppStoreItem from '@/mobile/components/app-store-item.vue';
+  import { updateVersionIn } from '@/common/utils/versions';
 
-const { $tr } = inject<I18nPlugin>(I18N_KEY)!;
-const { $createNotice } = inject<NotificationsPlugin>(NOTIFICATIONS_KEY)!;
+  const { t } = useI18n();
 
-const appStore = useAppStore();
-const { connectivityStatus } = storeToRefs(appStore);
+  const appsStore = useAppsStore();
+  const { applicationsInSystem, platform } = storeToRefs(appsStore);
 
-const appsStore = useAppsStore();
-const { applicationsInSystem, platform } = storeToRefs(appsStore);
-const { checkForAllUpdates } = appsStore;
+  const search = ref('');
+  const appData = ref<(AppInfo & { version: string }) | null>(null);
 
-const search = ref('');
-const checkProcIsOn = ref(false);
+  const searchStr = computed(() => search.value.trim().toLowerCase());
 
-const filteredApps = computed(() => applicationsInSystem.value
-  .filter(({ name }) => {
-    const searchStr = search.value.trim().toLowerCase();
-    return name.toLowerCase().includes(searchStr);
-  }),
-);
+  const filteredApps = computed(() =>
+    applicationsInSystem.value.filter(({ name }) => name.toLowerCase().includes(searchStr.value)),
+  );
 
-async function checkForUpdate() {
-  try {
-    checkProcIsOn.value = true;
+  const isPlatformShowed = computed(() => t('platform.title').toLowerCase().includes(searchStr.value));
 
-    $createNotice({
-      content: $tr('update-check.start'),
-      type: 'info',
-    });
+  function openInfo(appId: string) {
+    let app: AppInfo | undefined = undefined;
+    let versionInUpdate: { version: string; isBundledVersion: boolean } | undefined = undefined;
 
-    await checkForAllUpdates(true);
-    let numOfUpdates = applicationsInSystem.value.filter(app => !!app.updates).length;
-    if (platform.value.availableUpdates) {
-      numOfUpdates += 1;
+    if (appId !== 'platform') {
+      app = applicationsInSystem.value.find(a => a.appId === appId);
+      versionInUpdate = updateVersionIn(app!);
     }
-    const content =
-      numOfUpdates > 0
-        ? $tr('update-check.updates-found', { numOfUpdates: `${numOfUpdates}` })
-        : $tr('update-check.no-updates');
-    $createNotice({ content, type: 'success' });
-  } finally {
-    checkProcIsOn.value = false;
+
+    appData.value = {
+      appId,
+      name: appId === 'platform' ? t('platform.title') : app!.name,
+      icon: '',
+      iconBytes: appId === 'platform' ? undefined : app!.iconBytes,
+      version:
+        appId === 'platform'
+          ? t('app.version', { version: platform.value.version })
+          : versionInUpdate
+            ? t('app.version', { version: versionInUpdate!.version })
+            : t('app.version', { version: app!.versions.current }),
+      description: appId === 'platform' ? t('platform.description') : app?.description || '',
+      versions: appId === 'platform' ? ({} as AppInfo['versions']) : (app?.versions as AppInfo['versions']),
+    };
   }
-}
 </script>
 
 <template>
   <div :class="$style.appStore">
-    <div
-      v-if="connectivityStatus === 'online'"
-      :class="$style.action"
-    >
-      <ui3n-button
-        :disabled="checkProcIsOn"
-        @click="checkForUpdate"
-      >
-        {{ checkProcIsOn ? `${$tr('btn.checking-for-update')} ...` : $tr('btn.check-update') }}
-      </ui3n-button>
+    <div :class="$style.searchBlock">
+      <ui3n-input
+        v-model="search"
+        :placeholder="t('app.update.search_placeholder')"
+        clearable
+        icon="round-search"
+        autofocus
+        hide-bottom-space
+      />
     </div>
 
-    <platform-view />
+    <div :class="$style.body">
+      <template v-if="!isPlatformShowed && isEmpty(filteredApps)">
+        <div :class="$style.empty">
+          {{ t('app.list.empty') }}
+        </div>
+      </template>
 
-    <ui3n-input
-      v-model="search"
-      :placeholder="$tr('app.update.search.placeholder')"
-      clearable
-      icon="round-search"
-      autofocus
-      :class="$style.search"
+      <template v-else>
+        <platform-info
+          v-if="isPlatformShowed"
+          :platform="platform"
+          app-store-mode
+          @click="() => openInfo('platform')"
+        />
+
+        <application-info
+          v-for="app in filteredApps"
+          :key="app.appId"
+          :app-info="app"
+          app-store-mode
+          @click="() => openInfo(app.appId)"
+        />
+      </template>
+    </div>
+
+    <app-store-item
+      v-if="appData?.appId"
+      :app-data="appData"
+      @close="appData = null"
     />
-
-    <div
-      v-if="isEmpty(filteredApps)"
-      :class="$style.empty"
-    >
-      {{ $tr('app.list.empty') }}
-    </div>
-
-    <div
-      v-else
-      :class="$style.apps"
-    >
-      <app-info
-        v-for="app in filteredApps"
-        :key="app.appId"
-        :app-info="app"
-      />
-    </div>
-
-    <div
-      v-if="checkProcIsOn"
-      :class="$style.loader"
-    >
-      <ui3n-progress-circular
-        size="64"
-        indeterminate
-      />
-    </div>
   </div>
 </template>
 
 <style lang="scss" module>
-.appStore {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  padding: var(--spacing-m);
-  overflow-x: hidden;
-  overflow-y: auto;
-  background-color: var(--color-bg-block-primary-default);
-}
+  .appStore {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    padding: var(--spacing-m) var(--spacing-xs) var(--spacing-m) var(--spacing-m);
+    overflow-x: hidden;
+    overflow-y: auto;
+    background-color: var(--color-bg-block-primary-default);
+  }
 
-.action {
-  display: flex;
-  width: 100%;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: var(--spacing-m);
-}
+  .searchBlock {
+    padding: 0 12px var(--spacing-m) 0;
+  }
 
-.search {
-  margin: var(--spacing-ml) 0 var(--spacing-m);
-}
+  .body {
+    display: flex;
+    width: 100%;
+    height: calc(100% - var(--spacing-xxl) - var(--spacing-s));
+    padding-right: var(--spacing-s);
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: stretch;
+    row-gap: var(--spacing-s);
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
 
-.empty {
-  position: relative;
-  width: 100%;
-  text-align: center;
-  padding: var(--spacing-l) 0;
-  font-size: var(--font-18);
-  line-height: var(--font-24);
-  color: var(--color-text-block-primary-default);
-}
+  .action {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: var(--spacing-m);
+  }
 
-.apps {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: var(--spacing-m);
-}
+  .empty {
+    position: relative;
+    width: 100%;
+    text-align: center;
+    padding: var(--spacing-l) 0;
+    font-size: var(--font-18);
+    font-weight: 500;
+    line-height: var(--font-24);
+    color: var(--color-text-block-primary-default);
+  }
 
-.loader {
-  position: absolute;
-  inset: 0;
-  background-color: var(--shadow-key-1);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  pointer-events: none;
-  z-index: 5
-}
+  .apps {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-m);
+  }
+
+  .loader {
+    position: absolute;
+    inset: 0;
+    background-color: var(--shadow-key-1);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    pointer-events: none;
+    z-index: 5;
+  }
 </style>

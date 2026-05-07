@@ -1,11 +1,18 @@
 /*
  Copyright (C) 2024 - 2025 3NSoft Inc.
 
- This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ This program is free software: you can redistribute it and/or modify it under
+ the terms of the GNU General Public License as published by the Free Software
+ Foundation, either version 3 of the License, or (at your option) any later
+ version.
 
- This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ This program is distributed in the hope that it will be useful, but
+ WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ See the GNU General Public License for more details.
 
- You should have received a copy of the GNU General Public License along with this program. If not, see <http://www.gnu.org/licenses/>.
+ You should have received a copy of the GNU General Public License along with
+ this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
 import { CachedAppLaunchers, makeSystemInfo } from '@/common/store/apps/system-info/cached-system-info';
@@ -25,10 +32,7 @@ export function makeAppsAndLaunchersInfoPlace() {
   const getFileBytes = makeCachedAppFiles();
 
   async function initializeCached(): Promise<void> {
-    await Promise.all([
-      initAppDistSrc(),
-      initSysInfo()
-    ]);
+    await Promise.all([initAppDistSrc(), initSysInfo()]);
   }
 
   function getApp(appId: string): AppInfo {
@@ -40,12 +44,12 @@ export function makeAppsAndLaunchersInfoPlace() {
   }
 
   async function doOnInfoEvent(
-    appEvent: { upsert?: AppInfo; remove?: string; }|undefined,
-    launchersEvent: { upsert?: CachedAppLaunchers; remove?: string; }|undefined
+    appEvent: { upsert?: AppInfo; remove?: string } | undefined,
+    launchersEvent: { upsert?: CachedAppLaunchers; remove?: string } | undefined,
   ): Promise<void> {
     if (appEvent?.upsert) {
       const updatedInfo = await appInfoWithIconsFrom(appEvent.upsert);
-      const ind = applicationsInSystem.value.findIndex(({ appId }) => (appId === updatedInfo.appId));
+      const ind = applicationsInSystem.value.findIndex(({ appId }) => appId === updatedInfo.appId);
       if (ind >= 0) {
         applicationsInSystem.value[ind] = updatedInfo;
       } else {
@@ -53,22 +57,23 @@ export function makeAppsAndLaunchersInfoPlace() {
       }
       sortApplicationsInSystem();
     } else if (appEvent?.remove) {
-      const rmInd = applicationsInSystem.value.findIndex(({ appId }) => (appId === appEvent.remove));
+      const rmInd = applicationsInSystem.value.findIndex(({ appId }) => appId === appEvent.remove);
       if (rmInd >= 0) {
         applicationsInSystem.value.splice(rmInd, 1);
       }
     }
     if (launchersEvent?.upsert) {
       const updatedInfo = await appLaunchersFromInfo(launchersEvent.upsert);
-      const ind = appLaunchers.value.findIndex(({ appId }) => (appId === updatedInfo.appId));
+      const ind = appLaunchers.value.findIndex(({ appId }) => appId === updatedInfo.appId);
       if (ind >= 0) {
         appLaunchers.value[ind] = updatedInfo;
       } else {
         appLaunchers.value.push(updatedInfo);
       }
+
       sortLaunchers();
     } else if (launchersEvent?.remove) {
-      const rmInd = appLaunchers.value.findIndex(({ appId }) => (appId === launchersEvent.remove));
+      const rmInd = appLaunchers.value.findIndex(({ appId }) => appId === launchersEvent.remove);
       if (rmInd >= 0) {
         appLaunchers.value.slice(rmInd, 1);
       }
@@ -77,7 +82,7 @@ export function makeAppsAndLaunchersInfoPlace() {
 
   async function fetchAppsInfo(refreshCache = true) {
     // note that this call is sending events during await here
-    const { cacheTS: dataTS, launchers, apps } = await getAppsInfoAndLaunchers(!!refreshCache);
+    const { cacheTS: dataTS } = await getAppsInfoAndLaunchers(!!refreshCache);
     if (cacheTS.value === dataTS) {
       return;
     }
@@ -139,7 +144,8 @@ export function makeAppsAndLaunchersInfoPlace() {
   }
 
   async function appLauncherFromInfo(
-    appId: string, version: string,
+    appId: string,
+    version: string,
     { description, icon, name, component, formFactor, startCmd }: web3n.caps.Launcher,
   ): Promise<Launcher> {
     const iconBytes = icon ? await getFileBytes(appId, version, icon) : undefined;
@@ -164,7 +170,7 @@ export function makeAppsAndLaunchersInfoPlace() {
     getAppDistInfo,
     getBundleDistInfo,
 
-    initializeCached
+    initializeCached,
   };
 }
 

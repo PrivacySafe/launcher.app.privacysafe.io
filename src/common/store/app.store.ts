@@ -1,11 +1,18 @@
 /*
  Copyright (C) 2024 - 2025 3NSoft Inc.
 
- This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ This program is free software: you can redistribute it and/or modify it under
+ the terms of the GNU General Public License as published by the Free Software
+ Foundation, either version 3 of the License, or (at your option) any later
+ version.
 
- This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ This program is distributed in the hope that it will be useful, but
+ WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ See the GNU General Public License for more details.
 
- You should have received a copy of the GNU General Public License along with this program. If not, see <http://www.gnu.org/licenses/>.
+ You should have received a copy of the GNU General Public License along with
+ this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
 import { defineStore } from 'pinia';
@@ -22,9 +29,8 @@ export const useAppStore = defineStore('app', () => {
   const { connectivityStatus } = connectivity;
 
   const commonAppConfs = makeSystemLevelAppConfig();
-  const {
-    appVersion, user, lang, colorTheme, systemFoldersDisplaying, allowShowingDevtool, customLogoSrc
-  } = commonAppConfs;
+  const { appVersion, user, lang, colorTheme, systemFoldersDisplaying, allowShowingDevtool, customLogoSrc } =
+    commonAppConfs;
 
   async function initialize() {
     await Promise.all([connectivity.initialize(), commonAppConfs.initialize()]);
@@ -39,9 +45,7 @@ export const useAppStore = defineStore('app', () => {
   async function updateSettings(appConfig: Partial<SettingsJSON>) {
     const config = await makeAppConfigsInternal();
     const updatedAppConfig = {
-      // to current values
       ...(await config.getAll()),
-      // add updates
       ...appConfig,
     };
     await config.saveSettingsFile(updatedAppConfig);
@@ -62,5 +66,3 @@ export const useAppStore = defineStore('app', () => {
     updateSettings,
   };
 });
-
-export type AppStore = ReturnType<typeof useAppStore>;

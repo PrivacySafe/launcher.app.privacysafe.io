@@ -7,7 +7,7 @@
 
  You should have received a copy of the GNU General Public License along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
-/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-invalid-void-type */
 import { NamedProcs, SingleProc } from '@v1nt1248/3nclient-lib/utils';
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type

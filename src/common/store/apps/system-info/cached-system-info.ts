@@ -1,18 +1,22 @@
 /*
  Copyright (C) 2024 - 2025 3NSoft Inc.
 
- This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ This program is free software: you can redistribute it and/or modify it under
+ the terms of the GNU General Public License as published by the Free Software
+ Foundation, either version 3 of the License, or (at your option) any later
+ version.
 
- This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ This program is distributed in the hope that it will be useful, but
+ WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ See the GNU General Public License for more details.
 
- You should have received a copy of the GNU General Public License along with this program. If not, see <http://www.gnu.org/licenses/>.
+ You should have received a copy of the GNU General Public License along with
+ this program. If not, see <http://www.gnu.org/licenses/>.
 */
-
+/* eslint-disable @typescript-eslint/no-dynamic-delete */
 import { deepEqual } from '@/common/lib-common/json-utils';
-import {
-  getDynamicLaunchersLocations,
-  getLaunchersForUser,
-} from '@/common/lib-common/manifest-utils';
+import { getDynamicLaunchersLocations, getLaunchersForUser } from '@/common/lib-common/manifest-utils';
 import { AppInfo } from '@/common/types';
 import { SingleProc } from '@v1nt1248/3nclient-lib/utils';
 import { compare as compareSemVer } from 'semver';
@@ -27,12 +31,8 @@ interface CachedAppVersions {
   createdByVersion: string;
   formatVer: 2;
   stateTS: number;
-  apps: {
-    [appId: string]: AppInfo;
-  };
-  launchers: {
-    [appId: string]: CachedAppLaunchers;
-  };
+  apps: Record<string, AppInfo>;
+  launchers: Record<string, CachedAppLaunchers>;
 }
 
 export interface CachedAppLaunchers {
@@ -50,11 +50,10 @@ const appVersionsPath = '/cached/app-versions.json';
 
 export function makeSystemInfo(
   onInfoEvent: (
-    appEvent: { upsert?: AppInfo; remove?: string; }|undefined,
-    launchersEvent: { upsert?: CachedAppLaunchers; remove?: string; }|undefined
-  ) => void
+    appEvent: { upsert?: AppInfo; remove?: string } | undefined,
+    launchersEvent: { upsert?: CachedAppLaunchers; remove?: string } | undefined,
+  ) => void,
 ) {
-
   let myVersion = '';
   let stateTS = 0;
   let launchers: CachedAppVersions['launchers'] = {};
@@ -68,7 +67,7 @@ export function makeSystemInfo(
       fs = await w3n.storage!.getAppLocalFS!();
       try {
         const cached = await fs.readJSONFile<CachedAppVersions>(appVersionsPath);
-        if ((cached.createdByVersion !== myVersion) || (cached.formatVer !== 2)) {
+        if (cached.createdByVersion !== myVersion || cached.formatVer !== 2) {
           await unsyncedAppVersionsRefresh();
         } else {
           stateTS = cached.stateTS;
@@ -90,7 +89,7 @@ export function makeSystemInfo(
     const appVersions = await getAppVersionsFromW3N();
     const { addedOrChanged, removed } = diffAppVersions(appVersions, apps);
 
-    if ((addedOrChanged.size === 0) && (removed.size === 0)) {
+    if (addedOrChanged.size === 0 && removed.size === 0) {
       return stateTS;
     }
 
@@ -104,7 +103,7 @@ export function makeSystemInfo(
     }
 
     // create new values for added or changed apps
-    for (const [ id, appVersions ] of addedOrChanged.entries()) {
+    for (const [id, appVersions] of addedOrChanged.entries()) {
       const info = await getAppInfo(id, appVersions);
       if (info) {
         const { appInfo, currentManif } = info;
@@ -155,7 +154,7 @@ export function makeSystemInfo(
   async function needInitialSetup(): Promise<boolean> {
     await refreshProc.getP();
     const foundAppWithPacks = !!Object.values(apps).find(
-      app => (app.versions.packs && (app.versions.packs.length > 0))
+      app => app.versions.packs && app.versions.packs.length > 0,
     );
     return !foundAppWithPacks;
   }
@@ -180,7 +179,8 @@ export function makeSystemInfo(
 }
 
 async function getAppInfo(
-  id: string, { bundled, current, packs }: AppVersions,
+  id: string,
+  { bundled, current, packs }: AppVersions,
 ): Promise<{ appInfo: AppInfo; currentManif?: AppManifest } | undefined> {
   const latest = latestVersionOf({ bundled, current, packs });
   if (!latest) {
@@ -207,7 +207,7 @@ async function getAppInfo(
       latest,
       current,
       packs,
-      bundled
+      bundled,
     },
   };
 
@@ -247,7 +247,7 @@ async function getAppLaunchers(id: string, m: AppManifest | undefined): Promise<
   const { version, name, description, icon } = m;
 
   const formFactor = await w3n.ui.uiFormFactor();
-  let staticLaunchers = getLaunchersForUser(m, formFactor);
+  const staticLaunchers = getLaunchersForUser(m, formFactor);
   const dynLaunchers = getDynamicLaunchersLocations(m);
   if (!staticLaunchers && !dynLaunchers) {
     return;
@@ -268,13 +268,13 @@ async function getAppLaunchers(id: string, m: AppManifest | undefined): Promise<
 }
 
 type AppVersions = Pick<AppInfo['versions'], 'current' | 'bundled' | 'packs'>;
-type AppsVersions = { [id: string]: AppVersions; };
+type AppsVersions = Record<string, AppVersions>;
 
 async function getAppVersionsFromW3N(): Promise<AppsVersions> {
   const apps: AppsVersions = {};
-  for (const { id, version } of  await w3n.system.apps!.opener!.listCurrentApps()) {
+  for (const { id, version } of await w3n.system.apps!.opener!.listCurrentApps()) {
     apps[id] = {
-      current: version
+      current: version,
     };
   }
   for (const { id, versions } of await w3n.system.apps!.installer!.listAllAppsPacks()) {
@@ -283,7 +283,7 @@ async function getAppVersionsFromW3N(): Promise<AppsVersions> {
       app.packs = versions;
     } else {
       apps[id] = {
-        packs: versions
+        packs: versions,
       };
     }
   }
@@ -293,21 +293,24 @@ async function getAppVersionsFromW3N(): Promise<AppsVersions> {
       app.bundled = version;
     } else {
       apps[id] = {
-        bundled: version
+        bundled: version,
       };
     }
   }
   return apps;
 }
 
-function diffAppVersions(newApps: AppsVersions, prevApps: CachedAppVersions['apps']): {
+function diffAppVersions(
+  newApps: AppsVersions,
+  prevApps: CachedAppVersions['apps'],
+): {
   addedOrChanged: Map<string, AppVersions>;
   removed: Set<string>;
 } {
   const addedOrChanged = new Map<string, AppVersions>();
   const same = new Set<string>();
   const removed = new Set<string>();
-  for (const [ id, appVersions ] of Object.entries(newApps)) {
+  for (const [id, appVersions] of Object.entries(newApps)) {
     const prevApp = prevApps[id];
     if (!prevApp || !areVersionsSame(prevApp.versions, appVersions)) {
       addedOrChanged.set(id, appVersions);
@@ -315,7 +318,7 @@ function diffAppVersions(newApps: AppsVersions, prevApps: CachedAppVersions['app
       same.add(id);
     }
   }
-  for (const [ id ] of Object.entries(newApps)) {
+  for (const [id] of Object.entries(newApps)) {
     if (!same.has(id) && !addedOrChanged.has(id)) {
       removed.add(id);
     }
@@ -342,6 +345,5 @@ function diffAppVersions(newApps: AppsVersions, prevApps: CachedAppVersions['app
 // }
 
 function areVersionsSame(a: AppVersions, b: AppVersions): boolean {
-  return ((a.bundled === b.bundled) && (a.current === b.current) && deepEqual(a.packs, b.packs));
-
+  return a.bundled === b.bundled && a.current === b.current && deepEqual(a.packs, b.packs);
 }

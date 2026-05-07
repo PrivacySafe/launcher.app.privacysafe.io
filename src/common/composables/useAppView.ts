@@ -7,15 +7,15 @@
 
  You should have received a copy of the GNU General Public License along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
-import { computed, inject, type ComputedRef } from 'vue';
+import { computed, type ComputedRef } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { storeToRefs } from 'pinia';
-import { I18N_KEY, I18nPlugin } from '@v1nt1248/3nclient-lib/plugins';
 import { updateVersionIn } from '@/common/utils/versions';
 import type { AppInfo } from '@/common/types';
 import { useAppsStore } from '@/common/store/apps.store';
 
 export function useAppView(props: ComputedRef<AppInfo>) {
-  const { $tr } = inject<I18nPlugin>(I18N_KEY)!;
+  const { t } = useI18n();
 
   const appId = computed(() => props.value.appId);
 
@@ -74,7 +74,7 @@ export function useAppView(props: ComputedRef<AppInfo>) {
   }
 
   return {
-    $tr,
+    t,
     appId,
     canBeInstalled,
     versionToInstall,

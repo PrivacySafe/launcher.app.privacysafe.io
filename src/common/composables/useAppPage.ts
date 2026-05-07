@@ -14,24 +14,18 @@
  You should have received a copy of the GNU General Public License along with
  this program. If not, see <http://www.gnu.org/licenses/>.
 */
-
 import { computed, inject, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { storeToRefs } from 'pinia';
-import {
-  I18N_KEY,
-  I18nPlugin,
-  NOTIFICATIONS_KEY,
-  NotificationsPlugin,
-  VUEBUS_KEY,
-  VueBusPlugin,
-} from '@v1nt1248/3nclient-lib/plugins';
+import { NOTIFICATIONS_KEY, NotificationsPlugin, VUEBUS_KEY, VueBusPlugin } from '@v1nt1248/3nclient-lib/plugins';
 import { useAppStore } from '@/common/store/app.store';
 import { useAppsStore } from '@/common/store/apps.store';
-import { GlobalEvents } from '@/common/types';
+import type { GlobalEvents } from '@/common/types';
 
 export type AppViewInstance = ReturnType<typeof useAppPage>;
 
 export function useAppPage() {
+  const { t } = useI18n();
   const appStore = useAppStore();
   const { appVersion, user, connectivityStatus, appElement, customLogoSrc } = storeToRefs(appStore);
 
@@ -45,14 +39,13 @@ export function useAppPage() {
     addAppPackFromFile,
   } = appsStore;
 
-  const { $tr } = inject<I18nPlugin>(I18N_KEY)!;
   const { $emitter } = inject<VueBusPlugin<GlobalEvents>>(VUEBUS_KEY)!;
   const { $createNotice } = inject<NotificationsPlugin>(NOTIFICATIONS_KEY)!;
 
   const checkProcIsOn = ref(false);
 
   const connectivityStatusText = computed(() =>
-    connectivityStatus.value === 'online' ? 'app.status.connected.online' : 'app.status.connected.offline',
+    connectivityStatus.value === 'online' ? 'app.status.online' : 'app.status.offline',
   );
 
   const needPlatformRestartAfterUpdate = computed(() => !!restart.value?.platform);
@@ -65,7 +58,7 @@ export function useAppPage() {
     try {
       checkProcIsOn.value = true;
       $createNotice({
-        content: $tr('update-check.start'),
+        content: t('update_check.start'),
         type: 'info',
       });
       await checkForAllUpdates(true);
@@ -75,8 +68,8 @@ export function useAppPage() {
       }
       const content =
         numOfUpdates > 0
-          ? $tr('update-check.updates-found', { numOfUpdates: `${numOfUpdates}` })
-          : $tr('update-check.no-updates');
+          ? t('update_check.updates_found', { numOfUpdates: `${numOfUpdates}` })
+          : t('update_check.no_updates');
       $createNotice({ content, type: 'success' });
     } finally {
       checkProcIsOn.value = false;
@@ -85,7 +78,7 @@ export function useAppPage() {
 
   $emitter.once('init-setup:start', ev =>
     $createNotice({
-      content: $tr('system.init-setup-start', {
+      content: t('system.init_setup_start', {
         appsList: ev.bundledAppsForInstall.join(', '),
       }),
       type: 'info',
@@ -94,7 +87,7 @@ export function useAppPage() {
 
   $emitter.once('init-setup:done', () =>
     $createNotice({
-      content: $tr('system.init-setup-done'),
+      content: t('system.init_setup_done'),
       type: 'success',
     }),
   );
@@ -141,6 +134,7 @@ export function useAppPage() {
   }
 
   return {
+    t,
     appVersion,
     appElement,
     connectivityStatus,

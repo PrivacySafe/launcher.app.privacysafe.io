@@ -16,26 +16,21 @@
 -->
 
 <script lang="ts" setup>
-import { computed } from 'vue';
-import { Ui3nButton, Ui3nProgressCircular } from '@v1nt1248/3nclient-lib';
-import { useAppLauncher } from '@/common/composables/useAppLauncher';
-import type { AppLaunchers } from '@/common/types';
-import AppIcon from '@/common/components/app-icon.vue';
-import ApplicationItemArea from './app-item-area.vue';
+  import { computed } from 'vue';
+  import { Ui3nButton, Ui3nProgressCircular } from '@v1nt1248/3nclient-lib';
+  import { useAppLauncher } from '@/common/composables/useAppLauncher';
+  import type { AppLaunchers } from '@/common/types';
+  import AppIcon from '@/common/components/app-icon.vue';
+  import ApplicationItemArea from './app-item-area.vue';
 
-const props = defineProps<{
-  launchers: AppLaunchers;
-}>();
+  const props = defineProps<{
+    launchers: AppLaunchers;
+  }>();
 
-const propsValue = computed(() => props.launchers);
+  const propsValue = computed(() => props.launchers);
 
-const {
-  needToCloseOldVersion,
-  canBeLaunched,
-  appProcessToDisplay,
-  launchDefault,
-  closeOldVersionApps,
-} = useAppLauncher(propsValue);
+  const { t, needToCloseOldVersion, canBeLaunched, appProcessToDisplay, launchDefault, closeOldVersionApps } =
+    useAppLauncher(propsValue);
 </script>
 
 <template>
@@ -47,9 +42,7 @@ const {
           {{ launchers.name }}
         </div>
 
-        <div :class="$style.version">
-          v {{ launchers.version }}
-        </div>
+        <div :class="$style.version">v {{ launchers.version }}</div>
       </div>
 
       <div
@@ -62,7 +55,7 @@ const {
           block
           @click="launchDefault"
         >
-          {{ $tr('app.action.open') }}
+          {{ t('app.action.open') }}
         </ui3n-button>
 
         <ui3n-button
@@ -71,7 +64,7 @@ const {
           block
           @click="closeOldVersionApps"
         >
-          {{ $tr('app.action.close-old-version') }}
+          {{ t('app.action.close_old_version') }}
         </ui3n-button>
       </div>
     </template>
@@ -92,46 +85,45 @@ const {
 </template>
 
 <style lang="scss" module>
-
-.content {
-  position: relative;
-  width: calc(100% - var(--spacing-l) - var(--action-block-width));
-}
-
-.name {
-  font-size: var(--font-16);
-  font-weight: 500;
-  line-height: var(--font-20);
-  color: var(--color-text-block-primary-default);
-}
-
-.version {
-  font-size: var(--font-10);
-  font-weight: 500;
-  line-height: var(--font-12);
-  color: var(--color-text-block-secondary-default);
-}
-
-.action {
-  position: relative;
-  width: var(--action-block-width);
-  min-width: var(--action-block-width);
-
-  .btn {
-    text-transform: capitalize;
+  .content {
+    position: relative;
+    width: calc(100% - var(--spacing-l) - var(--action-block-width));
   }
-}
 
-.progressOverlay {
-  position: absolute;
-  left: 0;
-  top: 0;
-  border-radius: var(--spacing-s);
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.2);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
+  .name {
+    font-size: var(--font-16);
+    font-weight: 500;
+    line-height: var(--font-20);
+    color: var(--color-text-block-primary-default);
+  }
+
+  .version {
+    font-size: var(--font-10);
+    font-weight: 500;
+    line-height: var(--font-12);
+    color: var(--color-text-block-secondary-default);
+  }
+
+  .action {
+    position: relative;
+    width: var(--action-block-width);
+    min-width: var(--action-block-width);
+
+    .btn {
+      text-transform: capitalize;
+    }
+  }
+
+  .progressOverlay {
+    position: absolute;
+    left: 0;
+    top: 0;
+    border-radius: var(--spacing-s);
+    width: 100%;
+    height: 100%;
+    background-color: rgb(0, 0, 0, 0.2);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
 </style>

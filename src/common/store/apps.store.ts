@@ -1,11 +1,18 @@
 /*
  Copyright (C) 2024 - 2025 3NSoft Inc.
 
- This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ This program is free software: you can redistribute it and/or modify it under
+ the terms of the GNU General Public License as published by the Free Software
+ Foundation, either version 3 of the License, or (at your option) any later
+ version.
 
- This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ This program is distributed in the hope that it will be useful, but
+ WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ See the GNU General Public License for more details.
 
- You should have received a copy of the GNU General Public License along with this program. If not, see <http://www.gnu.org/licenses/>.
+ You should have received a copy of the GNU General Public License along with
+ this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
 import { ref } from 'vue';
@@ -19,12 +26,32 @@ import { makeAppsAndLaunchersInfoPlace } from './apps/apps-and-launchers-info';
 import { makePlatform } from './apps/platform';
 import { compare as compareSemVer } from 'semver';
 import { debouncedFnCall } from '@/common/utils/debounce';
-import { toRO } from '@/common/utils/readonly';
 import { makeConfs } from './apps/system-info/confs';
 import { observerToGeneratorPipe } from '../utils/observer-utils';
 
-type PostInstallState = web3n.system.apps.PostInstallState;
-type BundleVersions = web3n.system.platform.BundleVersions;
+function canUpdateBundle(current: BundleVersions, latestAvailable: BundleVersions): boolean {
+  const platDiff = compareSemVer(current.platform, latestAvailable.platform);
+  if (platDiff < 0) {
+    return true;
+  } else if (platDiff > 0) {
+    return false;
+  }
+
+  const currBundleNum = parseInt(current.bundle.substring(current.bundle.indexOf('+') + 1));
+  const latestBundleNum = parseInt(latestAvailable.bundle.substring(latestAvailable.bundle.indexOf('+') + 1));
+  if (currBundleNum >= latestBundleNum) {
+    return false;
+  }
+
+  for (const [appId, version] of Object.entries(latestAvailable.apps)) {
+    const currVer = current.apps[appId];
+    if (currVer === undefined || compareSemVer(currVer, version) < 0) {
+      return true;
+    }
+  }
+
+  return false;
+}
 
 export const useAppsStore = defineStore('apps', () => {
   const confs = makeConfs();
@@ -349,12 +376,12 @@ export const useAppsStore = defineStore('apps', () => {
   }
 
   return {
-    autoUpdate: toRO(autoUpdate),
-    appLaunchers: toRO(appLaunchers),
-    applicationsInSystem: toRO(applicationsInSystem),
-    platform: toRO(platform),
-    restart, // is readonly already
-    processes, // is readonly already
+    autoUpdate,
+    appLaunchers,
+    applicationsInSystem,
+    platform,
+    restart,
+    processes,
 
     getApp,
     toggleAutoUpdate,
@@ -372,29 +399,3 @@ export const useAppsStore = defineStore('apps', () => {
     addAppPackFromFile,
   };
 });
-
-export type AppsStore = ReturnType<typeof useAppsStore>;
-
-function canUpdateBundle(current: BundleVersions, latestAvailable: BundleVersions): boolean {
-  const platDiff = compareSemVer(current.platform, latestAvailable.platform);
-  if (platDiff < 0) {
-    return true;
-  } else if (platDiff > 0) {
-    return false;
-  }
-
-  const currBundleNum = parseInt(current.bundle.substring(current.bundle.indexOf('+') + 1));
-  const latestBundleNum = parseInt(latestAvailable.bundle.substring(latestAvailable.bundle.indexOf('+') + 1));
-  if (currBundleNum >= latestBundleNum) {
-    return false;
-  }
-
-  for (const [appId, version] of Object.entries(latestAvailable.apps)) {
-    const currVer = current.apps[appId];
-    if (currVer === undefined || compareSemVer(currVer, version) < 0) {
-      return true;
-    }
-  }
-
-  return false;
-}

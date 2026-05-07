@@ -15,19 +15,19 @@
  this program. If not, see <http://www.gnu.org/licenses/>.
 -->
 <script lang="ts" setup>
-import { computed, inject } from 'vue';
-import { storeToRefs } from 'pinia';
-import isEmpty from 'lodash/isEmpty';
-import { I18N_KEY, I18nPlugin } from '@v1nt1248/3nclient-lib/plugins';
-import { useAppsStore } from '@/common/store/apps.store';
-import Launchers from '@/desktop/components/app-launchers.vue';
+  import { computed } from 'vue';
+  import { useI18n } from 'vue-i18n';
+  import { storeToRefs } from 'pinia';
+  import isEmpty from 'lodash/isEmpty';
+  import { useAppsStore } from '@/common/store/apps.store';
+  import Launchers from '@/desktop/components/app-launchers.vue';
 
-const { $tr } = inject<I18nPlugin>(I18N_KEY)!;
+  const { t } = useI18n();
 
-const appsStore = useAppsStore();
-const { appLaunchers } = storeToRefs(appsStore);
+  const appsStore = useAppsStore();
+  const { appLaunchers } = storeToRefs(appsStore);
 
-const nothingToShow = computed(() => isEmpty(appLaunchers.value));
+  const nothingToShow = computed(() => isEmpty(appLaunchers.value));
 </script>
 
 <template>
@@ -36,38 +36,38 @@ const nothingToShow = computed(() => isEmpty(appLaunchers.value));
       v-if="nothingToShow"
       :class="$style.empty"
     >
-      {{ $tr('install.process') }}
+      {{ t('install.process') }}
     </div>
 
     <launchers
       v-for="app in appLaunchers"
-      :key="app.appId+app.version"
+      :key="app.appId + app.version"
       :launchers="app"
     />
   </section>
 </template>
 
 <style lang="scss" module>
-.applications {
-  position: relative;
-  width: calc(100% - var(--spacing-s));
-  height: calc(100% - var(--spacing-ml));
-  margin: var(--spacing-s) 0 var(--spacing-m) 0;
-  padding: var(--spacing-m) var(--spacing-xs) var(--spacing-m) var(--spacing-m);
-  overflow-y: auto;
-  scrollbar-gutter: stable;
-}
+  .applications {
+    position: relative;
+    width: calc(100% - var(--spacing-s));
+    height: calc(100% - var(--spacing-ml));
+    margin: var(--spacing-s) 0 var(--spacing-m) 0;
+    padding: var(--spacing-m) var(--spacing-xs) var(--spacing-m) var(--spacing-m);
+    overflow-y: auto;
+    scrollbar-gutter: stable;
+  }
 
-.empty {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 0 var(--spacing-m);
-  font-size: var(--font-18);
-  line-height: var(--font-24);
-  color: var(--color-text-block-primary-default);
-}
+  .empty {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0 var(--spacing-m);
+    font-size: var(--font-18);
+    line-height: var(--font-24);
+    color: var(--color-text-block-primary-default);
+  }
 </style>

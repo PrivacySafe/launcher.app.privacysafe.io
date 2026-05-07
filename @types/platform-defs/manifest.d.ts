@@ -61,7 +61,7 @@ declare namespace web3n.caps {
 			[resourceName: string]: FSResourceDescriptor;
 		};
 
-		// XXX 
+		// XXX
 		// App that uses connectors (TBD) may want to provide default connector
 		// settings, allowing user to start with non-empty configuration that may
 		// evolve into some custom settings, e.g. Thunderbird will let one setup
@@ -256,6 +256,7 @@ declare namespace web3n.caps {
 		connectivity?: ConnectivityCAPSetting;
 		mediaDevices?: MediaDevicesCAPSetting;
 		webrtc?: WebRTCCAPSetting;
+		connectToExternal?: ExternalConnectCAPSetting;
 	}
 
 	type AppsCAPSetting = 'all' | ('opener' | 'downloader' | 'installer')[];
@@ -314,6 +315,16 @@ declare namespace web3n.caps {
 	}
 
 	type WebRTCCAPSetting = 'all';
+
+	interface ExternalConnectCAPSetting {
+		fetch?: URLWhitelistEntry[];
+	}
+
+	interface URLWhitelistEntry {
+		schema: 'https' | 'ws';
+		domain: string;
+		pathPrefix?: string;
+	}
 
 	interface SiteManifest {
 		siteDomain: string;
