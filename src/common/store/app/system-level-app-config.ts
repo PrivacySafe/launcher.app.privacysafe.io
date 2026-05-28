@@ -23,7 +23,7 @@ export function makeSystemLevelAppConfig() {
   const appVersion = ref<string>('');
   const user = ref<string>('');
   const lang = ref<AvailableLanguage>('en');
-  const colorTheme = ref<AvailableColorTheme>('default');
+  const colorTheme = ref<AvailableColorTheme>('dark2');
   const systemFoldersDisplaying = ref(false);
   const allowShowingDevtool = ref(false);
   const customLogoSrc = ref<string>();
