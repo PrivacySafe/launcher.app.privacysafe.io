@@ -47,7 +47,7 @@
 <template>
   <div
     :class="$style.appLauncher"
-    @click="start"
+    @click.capture="start"
   >
     <app-icon
       :icon-bytes="launcher.iconBytes"

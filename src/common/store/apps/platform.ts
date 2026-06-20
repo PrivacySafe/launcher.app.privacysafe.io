@@ -38,7 +38,8 @@ export function makePlatform(
   });
 
   const downloadPlatformUpdate = debouncedFnCall(async () => {
-    if (!platform.value.availableUpdates) {
+    const downloader = w3n.system?.platform?.downloader;
+    if (!downloader || !platform.value.availableUpdates) {
       return;
     }
     const newBundleVersion = platform.value.availableUpdates[0].version;
@@ -54,7 +55,7 @@ export function makePlatform(
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let errEvent: any;
-      w3n.system!.platform!.setupUpdater(newBundleVersion, {
+      downloader.setupUpdater(newBundleVersion, {
         next: ev => {
           if (ev.event === 'download-progress') {
             upsertProcess(null, {
@@ -76,7 +77,7 @@ export function makePlatform(
         throw errEvent;
       }
 
-      const files = await w3n.system!.platform!.downloadUpdate();
+      const files = await downloader.downloadUpdate();
       if (files) {
         setPlatformRestart(true);
       }

@@ -47,8 +47,8 @@ export function useAppsUpdates() {
 
   const platformProc = computed(() => processes.value[PLATFORM_ID]) as ComputedRef<ProcessInfo[] | undefined>;
   const needToRestartPlatformAfterUpdate = computed(() => !!restart.value?.platform);
-  const canBePlatformUpdated = computed(
-    () => !platformProc.value && !!platform.value.availableUpdates && !needToRestartPlatformAfterUpdate.value,
+  const canBePlatformUpdated = computed(() => w3n.system.platform?.downloader &&
+    !platformProc.value && !!platform.value.availableUpdates && !needToRestartPlatformAfterUpdate.value
   );
   const downloadPlatformProc = computed(() =>
     platformProc.value?.find(({ procType }) => procType === 'downloading'),

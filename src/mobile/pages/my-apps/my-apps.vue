@@ -15,11 +15,12 @@
  this program. If not, see <http://www.gnu.org/licenses/>.
 -->
 <script lang="ts" setup>
-  import { computed, ref } from 'vue';
+  import { computed, ref, useTemplateRef } from 'vue';
   import { useI18n } from 'vue-i18n';
   import { storeToRefs } from 'pinia';
   import isEmpty from 'lodash/isEmpty';
   import size from 'lodash/size';
+  import { useSwipe, type UseSwipeDirection } from '@vueuse/core';
   import { useAppsStore } from '@/common/store/apps.store';
   import AppLauncher from '@/mobile/components/app-launcher.vue';
 
@@ -29,9 +30,8 @@
   const { appLaunchers } = storeToRefs(appsStore);
 
   const ITEMS_PER_SCREEN = 8;
+  const target = useTemplateRef('container');
   const currentPage = ref(0);
-  const isDragging = ref(false);
-  const startX = ref(0);
   const transitionName = ref('slide-next');
 
   const totalPages = computed(() => Math.ceil(size(appLaunchers.value) / ITEMS_PER_SCREEN));
@@ -42,40 +42,23 @@
       .slice(start, start + ITEMS_PER_SCREEN);
   });
 
-  function onPointerDown(e: PointerEvent) {
-    startX.value = e.clientX;
-    isDragging.value = false;
-  }
+  const { isSwiping } = useSwipe(target, {
+    passive: false,
+    onSwipeEnd(e: TouchEvent, direction: UseSwipeDirection) {
+      const dir = direction === 'left' ? 'next' : direction === 'right' ? 'prev' : '-';
+      if (dir === '-') {
+        return;
+      }
 
-  function onPointerMove(e: PointerEvent) {
-    if (startX.value === 0) {
-      return;
-    }
-
-    const currentDiff = Math.abs(startX.value - e.clientX);
-
-    if (currentDiff > 10) {
-      isDragging.value = true;
-    }
-  }
-
-  function onPointerUp(e: PointerEvent) {
-    const diffX = startX.value - e.clientX;
-
-    if (Math.abs(diffX) > 50) {
-      if (diffX > 0 && currentPage.value < totalPages.value - 1) {
+      if (direction === 'left' && currentPage.value < totalPages.value - 1) {
         transitionName.value = 'slide-next';
         currentPage.value++;
-      } else if (diffX < 0 && currentPage.value > 0) {
+      } else if (direction === 'right' && currentPage.value > 0) {
         transitionName.value = 'slide-prev';
         currentPage.value--;
       }
-    }
-
-    setTimeout(() => {
-      isDragging.value = false;
-    }, 50);
-  }
+    },
+  });
 </script>
 
 <template>
@@ -90,11 +73,8 @@
     <template v-else>
       <div :class="$style.body">
         <div
+          ref="container"
           :class="$style.sliderContainer"
-          @pointerdown="onPointerDown"
-          @pointermove="onPointerMove"
-          @pointerup="onPointerUp"
-          @pointercancel="onPointerUp"
         >
           <Transition :name="transitionName">
             <div
@@ -108,7 +88,7 @@
                 <div :class="$style.appWrapper">
                   <app-launcher
                     :launcher="launcher"
-                    :lock="isDragging"
+                    :lock="isSwiping"
                   />
                 </div>
               </template>

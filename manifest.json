@@ -1,7 +1,7 @@
 {
   "name": "Dashboard",
   "appDomain": "launcher.app.privacysafe.io",
-  "version": "0.11.18",
+  "version": "0.11.23",
   "icon": "logo.png",
   "description": "Dashboard/Launcher manages and launches your apps.",
 
@@ -27,9 +27,7 @@
             "thisApp": "ui-settings"
           },
           "startAppCmds": {
-            "thisApp": [
-              "open-system-map"
-            ]
+            "thisApp": ["open-system-map"]
           }
         },
         "connectivity": "check",
@@ -52,7 +50,7 @@
 
     "/index-map.html": {
       "runtime": "web-gui",
-      "formFactor": [ "desktop", "tablet" ],
+      "formFactor": ["desktop", "tablet"],
       "capsRequested": {
         "apps": "opener",
         "log": "all",
@@ -68,7 +66,7 @@
           "appFS": "default"
         },
         "system": {
-          "apps": [ "opener" ],
+          "apps": ["opener"],
           "monitor": "all"
         }
       },
@@ -80,9 +78,7 @@
       },
       "startCmds": {
         "open-system-map": {
-          "thisAppComponents": [
-            "/index.html"
-          ]
+          "thisAppComponents": ["/index.html"]
         }
       }
     },
@@ -148,5 +144,4 @@
       "formFactor": "phone"
     }
   ]
-
 }

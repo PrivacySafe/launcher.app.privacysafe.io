@@ -16,98 +16,139 @@
 -->
 
 <script lang="ts" setup>
-  import { computed } from 'vue';
-  import { Ui3nButton, Ui3nProgressCircular } from '@v1nt1248/3nclient-lib';
+  import { computed, ref } from 'vue';
+  import {
+    Ui3nButton,
+    Ui3nProgressCircular,
+    Ui3nResize as vUi3nResize,
+    type Ui3nResizeCbArg,
+  } from '@v1nt1248/3nclient-lib';
   import { useAppLauncher } from '@/common/composables/useAppLauncher';
   import type { AppLaunchers } from '@/common/types';
   import AppIcon from '@/common/components/app-icon.vue';
-  import ApplicationItemArea from './app-item-area.vue';
 
   const props = defineProps<{
     launchers: AppLaunchers;
   }>();
 
+  const appIconSize = ref(0);
+  const appNameFontSize = ref(16);
+  const appVersionFontSize = ref(10);
+
   const propsValue = computed(() => props.launchers);
+  const appNameFontSizeCss = computed(() => `${appNameFontSize.value}px`);
+  const appVersionFontSizeCss = computed(() => `${appVersionFontSize.value}px`);
 
   const { t, needToCloseOldVersion, canBeLaunched, appProcessToDisplay, launchDefault, closeOldVersionApps } =
     useAppLauncher(propsValue);
+
+  function onElementResize(data: Ui3nResizeCbArg) {
+    const { width } = data;
+    console.log('Q => ', width);
+    appIconSize.value = Math.floor(width / 3);
+    appNameFontSize.value = Math.floor(width / 9);
+    appVersionFontSize.value = Math.floor(width / 12);
+  }
 </script>
 
 <template>
-  <application-item-area>
-    <template #main>
-      <app-icon :icon-bytes="launchers.iconBytes" />
-      <div :class="$style.content">
-        <div :class="$style.name">
-          {{ launchers.name }}
-        </div>
+  <div
+    v-ui3n-resize="onElementResize"
+    :class="$style.appLauncher"
+  >
+    <app-icon
+      :icon-bytes="launchers.iconBytes"
+      :size="`${appIconSize}`"
+    />
 
-        <div :class="$style.version">v {{ launchers.version }}</div>
+    <div :class="$style.info">
+      <div :class="$style.name">
+        {{ launchers.name }}
       </div>
 
-      <div
-        v-if="!!launchers.defaultLauncher"
-        :class="$style.action"
+      <div :class="$style.version">v {{ launchers.version }}</div>
+    </div>
+
+    <div :class="$style.action">
+      <ui3n-button
+        v-if="launchers.defaultLauncher && canBeLaunched"
+        type="secondary"
+        :class="$style.btn"
+        @click="launchDefault"
       >
-        <ui3n-button
-          v-if="canBeLaunched"
-          :class="$style.btn"
-          block
-          @click="launchDefault"
-        >
-          {{ t('app.action.open') }}
-        </ui3n-button>
+        {{ t('app.action.open') }}
+      </ui3n-button>
 
-        <ui3n-button
-          v-if="needToCloseOldVersion"
-          :class="$style.btn"
-          block
-          @click="closeOldVersionApps"
-        >
-          {{ t('app.action.close_old_version') }}
-        </ui3n-button>
-      </div>
-    </template>
-
-    <template #other>
-      <div
-        v-if="!!appProcessToDisplay"
-        :class="$style.progressOverlay"
+      <ui3n-button
+        v-if="launchers.defaultLauncher && needToCloseOldVersion"
+        :class="$style.btn"
+        @click="closeOldVersionApps"
       >
-        <ui3n-progress-circular
-          size="40"
-          with-text
-          :value="appProcessToDisplay.progressValue"
-        />
-      </div>
-    </template>
-  </application-item-area>
+        {{ t('app.action.close_old_version') }}
+      </ui3n-button>
+    </div>
+
+    <div
+      v-if="!!appProcessToDisplay"
+      :class="$style.progressOverlay"
+    >
+      <ui3n-progress-circular
+        size="40"
+        with-text
+        :value="appProcessToDisplay.progressValue"
+      />
+    </div>
+  </div>
 </template>
 
 <style lang="scss" module>
-  .content {
+  .appLauncher {
+    --app-name-font-size: v-bind(appNameFontSizeCss);
+    --app-ver-font-size: v-bind(appVersionFontSizeCss);
+
     position: relative;
-    width: calc(100% - var(--spacing-l) - var(--action-block-width));
+    min-width: 0;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10%;
+    background-color: var(--color-bg-control-secondary-default);
+    border-radius: var(--spacing-m);
+  }
+
+  .info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    row-gap: var(--spacing-s);
   }
 
   .name {
-    font-size: var(--font-16);
+    font-size: var(--app-name-font-size);
     font-weight: 500;
-    line-height: var(--font-20);
+    line-height: 1;
     color: var(--color-text-block-primary-default);
   }
 
   .version {
-    font-size: var(--font-10);
+    font-size: var(--app-ver-font-size);
     font-weight: 500;
-    line-height: var(--font-12);
+    line-height: 1;
     color: var(--color-text-block-secondary-default);
   }
 
   .action {
-    position: relative;
-    width: var(--action-block-width);
-    min-width: var(--action-block-width);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    column-gap: var(--spacing-s);
+    width: 100%;
+    height: var(--spacing-l);
+    padding-top: var(--spacing-s);
 
     .btn {
       text-transform: capitalize;
@@ -116,14 +157,11 @@
 
   .progressOverlay {
     position: absolute;
-    left: 0;
-    top: 0;
-    border-radius: var(--spacing-s);
-    width: 100%;
-    height: 100%;
-    background-color: rgb(0, 0, 0, 0.2);
+    inset: 0;
     display: flex;
     justify-content: center;
     align-items: center;
+    border-radius: var(--spacing-m);
+    background-color: var(--shadow-key-1);
   }
 </style>

@@ -15,8 +15,7 @@
  this program. If not, see <http://www.gnu.org/licenses/>.
 -->
 
-<script lang="ts" setup>
-</script>
+<script lang="ts" setup></script>
 
 <template>
   <div :class="$style.applicationView">
@@ -29,24 +28,25 @@
 </template>
 
 <style lang="scss" module>
-.applicationView {
-  --action-block-width: 88px;
+  .applicationView {
+    --action-block-width: 88px;
 
-  position: relative;
-  width: 100%;
-  border-radius: var(--spacing-s);
-  padding: var(--spacing-s) var(--spacing-m);
-  background-color: var(--color-bg-control-secondary-default);
-  margin-bottom: var(--spacing-s);
-}
+    position: relative;
+    width: 100%;
+    min-height: 92px;
+    border-radius: var(--spacing-s);
+    padding: var(--spacing-s) var(--spacing-m);
+    background-color: var(--color-bg-control-secondary-default);
+    margin-bottom: var(--spacing-s);
+  }
 
-.main {
-  position: relative;
-  width: 100%;
-  min-height: var(--spacing-l);
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  gap: var(--spacing-s);
-}
+  .main {
+    position: relative;
+    width: 100%;
+    min-height: var(--spacing-l);
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: var(--spacing-s);
+  }
 </style>

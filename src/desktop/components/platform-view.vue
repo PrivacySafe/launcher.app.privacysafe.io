@@ -46,7 +46,7 @@
   }
 
   function quitAndInstall() {
-    w3n.system!.platform!.quitAndInstall();
+    w3n.system!.platform!.downloader?.quitAndInstall();
   }
 </script>
 

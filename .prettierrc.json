@@ -9,6 +9,5 @@
   "tabWidth": 2,
   "useTabs": false,
   "singleAttributePerLine": true,
-  "vueIndentScriptAndStyle": true,
-  "htmlWhitespaceSensitivity": "css"
+  "vueIndentScriptAndStyle": true
 }

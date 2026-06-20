@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2024 - 2025 3NSoft Inc.
+ Copyright (C) 2024 - 2026 3NSoft Inc.
 
  This program is free software: you can redistribute it and/or modify it under
  the terms of the GNU General Public License as published by the Free Software
@@ -37,6 +37,8 @@ export function useAppPage() {
     fetchCachedInfo,
     checkForAllUpdates,
     addAppPackFromFile,
+    isFirstTimeOpened,
+    installBundledAppsIntoNewSystem
   } = appsStore;
 
   const { $emitter } = inject<VueBusPlugin<GlobalEvents>>(VUEBUS_KEY)!;
@@ -93,13 +95,19 @@ export function useAppPage() {
   );
 
   function quitAndInstall() {
-    w3n.system!.platform!.quitAndInstall();
+    w3n.system!.platform!.downloader?.quitAndInstall();
   }
 
   function triggerOnStart(): void {
     // trigger, but don't wait here
     fetchCachedInfo().then(async () => {
-      await updateAppsAndLaunchersInfo();
+      if (await isFirstTimeOpened()) {
+        // setup autologin on this first run, while intial apps installation process
+        await updateAppsAndLaunchersInfo();
+        await installBundledAppsIntoNewSystem();
+      } else {
+        await updateAppsAndLaunchersInfo();
+      }
       if (connectivityStatus.value === 'online') {
         await checkAndInstallAllUpdates();
       }

@@ -295,13 +295,12 @@ export const useAppsStore = defineStore('apps', () => {
     await w3n.system!.apps!.opener!.closeAppsAfterUpdate(appsToClose);
   });
 
+  async function isFirstTimeOpened(): Promise<boolean> {
+    return appLaunchers.value.length === 0 && (await needInitialSetup());
+  }
+
   const updateAppsAndLaunchersInfo = makeSyncedFunc(new SingleProc(), undefined, async () => {
     await fetchAppsInfo();
-    if (appLaunchers.value.length === 0 && (await needInitialSetup())) {
-      // trigger installation in a new system, which will call this func again
-      installBundledAppsIntoNewSystem();
-      return;
-    }
   });
 
   async function fetchCachedInfo() {
@@ -386,6 +385,9 @@ export const useAppsStore = defineStore('apps', () => {
     getApp,
     toggleAutoUpdate,
     initialize,
+
+    isFirstTimeOpened,
+    installBundledAppsIntoNewSystem,
 
     downloadAndInstallApp,
     installBundledApp,

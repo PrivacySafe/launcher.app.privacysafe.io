@@ -22,6 +22,7 @@ type WritableFS = web3n.files.WritableFS;
 type FileException = web3n.files.FileException;
 type DistChannels = web3n.system.apps.DistChannels;
 type BundleVersions = web3n.system.platform.BundleVersions;
+type PlatformDownloader = web3n.system.platform.PlatformDownloader;
 
 export interface ChannelsInfo {
   channels: DistChannels['channels'];
@@ -116,9 +117,13 @@ export function makeAppDistInfo() {
     if (!forceInfoDownload && cachedInfo && cacheIsRecent(cachedInfo.cacheTS, Date.now())) {
       return cachedInfo;
     }
+    const downloader = w3n.system?.platform?.downloader;
+    if (!downloader) {
+      return cachedInfo
+    }
     return procSync
       .startOrChain(UPDATE_INFO_FILE, async () => {
-        const data = await downloadBundleData();
+        const data = await downloadBundleData(downloader);
         await saveBundleData(data);
         return data;
       })
@@ -160,8 +165,7 @@ function cacheIsRecent(cacheTS: number, now: number): boolean {
   return cacheTS + UPDATE_INFO_CACHE_TTL_SECONDS * 1000 > now;
 }
 
-async function downloadBundleData(): Promise<CachedBundleDistributionInfo> {
-  const downloader = w3n.system!.platform!;
+async function downloadBundleData(downloader: PlatformDownloader): Promise<CachedBundleDistributionInfo> {
   const data = {
     versions: {},
     cacheTS: Date.now(),

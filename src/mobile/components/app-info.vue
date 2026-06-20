@@ -131,6 +131,7 @@
     position: relative;
     width: 100%;
     height: var(--item-height);
+    min-height: var(--item-height);
     padding: 0 var(--spacing-s) 0 var(--spacing-m);
     border-radius: var(--spacing-s);
     background-color: var(--color-bg-control-secondary-default);

@@ -72,7 +72,7 @@
     if (event === 'update') {
       await downloadPlatformUpdate();
     } else {
-      await w3n.system!.platform!.quitAndInstall();
+      await w3n.system!.platform!.downloader?.quitAndInstall();
     }
   }
 
