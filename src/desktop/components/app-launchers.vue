@@ -26,6 +26,7 @@
   import { useAppLauncher } from '@/common/composables/useAppLauncher';
   import type { AppLaunchers } from '@/common/types';
   import AppIcon from '@/common/components/app-icon.vue';
+  import InstallationChannel from '@/common/components/installation-channel.vue';
 
   const props = defineProps<{
     launchers: AppLaunchers;
@@ -44,7 +45,6 @@
 
   function onElementResize(data: Ui3nResizeCbArg) {
     const { width } = data;
-    console.log('Q => ', width);
     appIconSize.value = Math.floor(width / 3);
     appNameFontSize.value = Math.floor(width / 9);
     appVersionFontSize.value = Math.floor(width / 12);
@@ -87,6 +87,11 @@
         {{ t('app.action.close_old_version') }}
       </ui3n-button>
     </div>
+
+    <installation-channel
+      :class="$style.channel"
+      :font-size="appVersionFontSize"
+    />
 
     <div
       v-if="!!appProcessToDisplay"
@@ -153,6 +158,12 @@
     .btn {
       text-transform: capitalize;
     }
+  }
+
+  .channel {
+    position: absolute;
+    top: 10px;
+    right: 10px;
   }
 
   .progressOverlay {

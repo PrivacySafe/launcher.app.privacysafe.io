@@ -18,6 +18,7 @@
   import { Ui3nButton, Ui3nMenu, Ui3nRadio, Ui3nSwitch } from '@v1nt1248/3nclient-lib';
   import { AVAILABLE_THEMES, AVAILABLE_LANGS } from '@/common/constants';
   import { useSettings } from '@/common/composables/useSettings';
+  import CustomScrollBar from '@/common/components/custom-scroll-bar.vue';
 
   const {
     t,
@@ -45,217 +46,219 @@
 <template>
   <div :class="$style.settings">
     <!-- appearance section/block -->
-    <div :class="$style.block">
-      <div :class="$style.title">
-        {{ t('settings.section.appearance') }}
-      </div>
+    <custom-scroll-bar>
+      <div :class="$style.block">
+        <div :class="$style.title">
+          {{ t('settings.section.appearance') }}
+        </div>
 
-      <div :class="$style.row">
-        <h4 :class="$style.label">
-          {{ t('settings.label.theme') }}
-        </h4>
+        <div :class="$style.row">
+          <h4 :class="$style.label">
+            {{ t('settings.label.theme') }}
+          </h4>
 
-        <div :class="$style.value">
-          <ui3n-menu
-            :offset-x="-48"
-            :offset-y="4"
-            :allow-flip="false"
-          >
-            <ui3n-button
-              type="custom"
-              color="var(--color-bg-control-secondary-default)"
-              text-color="var(--color-text-button-tritery-default)"
-              icon="outline-arrow-drop-down"
-              icon-size="16"
-              icon-color="var(--color-icon-button-tritery-default)"
-              icon-position="right"
+          <div :class="$style.value">
+            <ui3n-menu
+              :offset-x="-48"
+              :offset-y="4"
+              :allow-flip="false"
             >
-              {{ t(AVAILABLE_THEMES[colorTheme].label) }}
+              <ui3n-button
+                type="custom"
+                color="var(--color-bg-control-secondary-default)"
+                text-color="var(--color-text-button-tritery-default)"
+                icon="outline-arrow-drop-down"
+                icon-size="16"
+                icon-color="var(--color-icon-button-tritery-default)"
+                icon-position="right"
+              >
+                {{ t(AVAILABLE_THEMES[colorTheme].label) }}
+              </ui3n-button>
+
+              <template #menu>
+                <div
+                  v-for="id in ['dark2', 'default', 'dark'] as const"
+                  :key="id"
+                  :class="[$style.colorThemesItem, colorTheme === id && $style.colorThemesItemSelected]"
+                  @click="changeColorTheme(id)"
+                >
+                  {{ t(AVAILABLE_THEMES[id].label) }}
+                </div>
+              </template>
+            </ui3n-menu>
+          </div>
+        </div>
+
+        <!-- languages -->
+        <div :class="$style.row">
+          <h4 :class="$style.label">
+            {{ t('settings.label.language') }}
+          </h4>
+
+          <div :class="$style.value">
+            <ui3n-radio
+              size="20"
+              :checked-value="AVAILABLE_LANGS.en.value"
+              :unchecked-value="AVAILABLE_LANGS.en.value"
+              :disabled="true"
+              :model-value="lang"
+            >
+              {{ AVAILABLE_LANGS[lang].label }}
+            </ui3n-radio>
+          </div>
+        </div>
+
+        <!-- custom logo -->
+        <div :class="$style.row">
+          <h4 :class="$style.label">
+            {{ t('settings.label.custom-logo') }}
+          </h4>
+          <div :class="$style.value">
+            <ui3n-button
+              v-if="!customLogoSrc"
+              type="primary"
+              icon="round-plus"
+              icon-position="left"
+              @click="addCustomLogo"
+            >
+              {{ t('settings.btn.custom-logo.add-logo') }}
             </ui3n-button>
 
-            <template #menu>
-              <div
-                v-for="id in ['dark2', 'default', 'dark'] as const"
-                :key="id"
-                :class="[$style.colorThemesItem, colorTheme === id && $style.colorThemesItemSelected]"
-                @click="changeColorTheme(id)"
-              >
-                {{ t(AVAILABLE_THEMES[id].label) }}
-              </div>
-            </template>
-          </ui3n-menu>
+            <img
+              v-if="!!customLogoSrc"
+              :src="customLogoSrc"
+              alt="logo"
+              :class="$style.customLogo"
+            />
+
+            <ui3n-button
+              v-if="!!customLogoSrc"
+              type="secondary"
+              icon="outline-delete"
+              @click="removeCustomLogo"
+            />
+          </div>
         </div>
       </div>
 
-      <!-- languages -->
-      <div :class="$style.row">
-        <h4 :class="$style.label">
-          {{ t('settings.label.language') }}
-        </h4>
+      <!-- system section/block -->
+      <div :class="$style.block">
+        <div :class="$style.title">
+          {{ t('settings.system') }}
+        </div>
 
-        <div :class="$style.value">
-          <ui3n-radio
-            size="20"
-            :checked-value="AVAILABLE_LANGS.en.value"
-            :unchecked-value="AVAILABLE_LANGS.en.value"
-            :disabled="true"
-            :model-value="lang"
+        <!-- autoupdates -->
+        <div :class="$style.row">
+          <h4 :class="$style.label">
+            {{ t('settings.label.autoupdates') }}
+          </h4>
+
+          <div :class="$style.value">
+            <span
+              :class="[$style.pointer, $style.text]"
+              @click="changeAutoUpdate(false)"
+            >
+              {{ t('settings.label.off') }}
+            </span>
+
+            <ui3n-switch
+              size="16"
+              :model-value="autoUpdate"
+              @change="toggleAutoUpdate"
+            />
+
+            <span
+              :class="[$style.pointer, $style.text]"
+              @click="changeAutoUpdate(true)"
+            >
+              {{ t('settings.label.on') }}
+            </span>
+          </div>
+        </div>
+
+        <!-- allow devtool  -->
+        <div :class="$style.row">
+          <h4 :class="$style.label">
+            {{ t('settings.label.showing_devtool') }}
+          </h4>
+
+          <div :class="$style.value">
+            <span
+              :class="[$style.pointer, $style.text]"
+              @click="changeAllowShowingDevtool(false)"
+            >
+              {{ t('settings.label.no') }}
+            </span>
+
+            <ui3n-switch
+              size="16"
+              :model-value="allowShowingDevtool"
+              @change="changeAllowShowingDevtool"
+            />
+
+            <span
+              :class="[$style.pointer, $style.text]"
+              @click="changeAllowShowingDevtool(true)"
+            >
+              {{ t('settings.label.yes') }}
+            </span>
+          </div>
+        </div>
+
+        <!-- autologin -->
+        <div :class="$style.row">
+          <h4 :class="$style.label">
+            {{ t('settings.label.autologin') }}
+          </h4>
+
+          <div
+            v-if="autoLoginSetupOpened"
+            :class="$style.value"
+          />
+
+          <div
+            v-else
+            :class="$style.value"
           >
-            {{ AVAILABLE_LANGS[lang].label }}
-          </ui3n-radio>
+            <span
+              :class="[$style.pointer, $style.text]"
+              @click="changeAutoLogin(false)"
+            >
+              {{ t('settings.label.off') }}
+            </span>
+
+            <ui3n-switch
+              size="16"
+              :model-value="autoLogin"
+              @change="changeAutoLogin"
+            />
+
+            <span
+              :class="[$style.pointer, $style.text]"
+              @click="changeAutoLogin(true)"
+            >
+              {{ t('settings.label.on') }}
+            </span>
+          </div>
         </div>
       </div>
 
-      <!-- custom logo -->
-      <div :class="$style.row">
-        <h4 :class="$style.label">
-          {{ t('settings.label.custom-logo') }}
-        </h4>
-        <div :class="$style.value">
+      <!-- Data section/block -->
+      <div :class="$style.block">
+        <div :class="$style.title">
+          {{ t('system.data_removal.section') }}
+        </div>
+
+        <div :class="$style.row">
           <ui3n-button
-            v-if="!customLogoSrc"
-            type="primary"
-            icon="round-plus"
-            icon-position="left"
-            @click="addCustomLogo"
+            type="tertiary"
+            @click="wipeDataFromDevice"
           >
-            {{ t('settings.btn.custom-logo.add-logo') }}
+            {{ t('system.data_removal.wipe_from_device') }}
           </ui3n-button>
-
-          <img
-            v-if="!!customLogoSrc"
-            :src="customLogoSrc"
-            alt="logo"
-            :class="$style.customLogo"
-          />
-
-          <ui3n-button
-            v-if="!!customLogoSrc"
-            type="secondary"
-            icon="outline-delete"
-            @click="removeCustomLogo"
-          />
         </div>
       </div>
-    </div>
-
-    <!-- system section/block -->
-    <div :class="$style.block">
-      <div :class="$style.title">
-        {{ t('settings.system') }}
-      </div>
-
-      <!-- autoupdates -->
-      <div :class="$style.row">
-        <h4 :class="$style.label">
-          {{ t('settings.label.autoupdates') }}
-        </h4>
-
-        <div :class="$style.value">
-          <span
-            :class="[$style.pointer, $style.text]"
-            @click="changeAutoUpdate(false)"
-          >
-            {{ t('settings.label.off') }}
-          </span>
-
-          <ui3n-switch
-            size="16"
-            :model-value="autoUpdate"
-            @change="toggleAutoUpdate"
-          />
-
-          <span
-            :class="[$style.pointer, $style.text]"
-            @click="changeAutoUpdate(true)"
-          >
-            {{ t('settings.label.on') }}
-          </span>
-        </div>
-      </div>
-
-      <!-- allow devtool  -->
-      <div :class="$style.row">
-        <h4 :class="$style.label">
-          {{ t('settings.label.showing_devtool') }}
-        </h4>
-
-        <div :class="$style.value">
-          <span
-            :class="[$style.pointer, $style.text]"
-            @click="changeAllowShowingDevtool(false)"
-          >
-            {{ t('settings.label.no') }}
-          </span>
-
-          <ui3n-switch
-            size="16"
-            :model-value="allowShowingDevtool"
-            @change="changeAllowShowingDevtool"
-          />
-
-          <span
-            :class="[$style.pointer, $style.text]"
-            @click="changeAllowShowingDevtool(true)"
-          >
-            {{ t('settings.label.yes') }}
-          </span>
-        </div>
-      </div>
-
-      <!-- autologin -->
-      <div :class="$style.row">
-        <h4 :class="$style.label">
-          {{ t('settings.label.autologin') }}
-        </h4>
-
-        <div
-          v-if="autoLoginSetupOpened"
-          :class="$style.value"
-        />
-
-        <div
-          v-else
-          :class="$style.value"
-        >
-          <span
-            :class="[$style.pointer, $style.text]"
-            @click="changeAutoLogin(false)"
-          >
-            {{ t('settings.label.off') }}
-          </span>
-
-          <ui3n-switch
-            size="16"
-            :model-value="autoLogin"
-            @change="changeAutoLogin"
-          />
-
-          <span
-            :class="[$style.pointer, $style.text]"
-            @click="changeAutoLogin(true)"
-          >
-            {{ t('settings.label.on') }}
-          </span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Data section/block -->
-    <div :class="$style.block">
-      <div :class="$style.title">
-        {{ t('system.data_removal.section') }}
-      </div>
-
-      <div :class="$style.row">
-        <ui3n-button
-          type="tertiary"
-          @click="wipeDataFromDevice"
-        >
-          {{ t('system.data_removal.wipe_from_device') }}
-        </ui3n-button>
-      </div>
-    </div>
+    </custom-scroll-bar>
   </div>
 </template>
 

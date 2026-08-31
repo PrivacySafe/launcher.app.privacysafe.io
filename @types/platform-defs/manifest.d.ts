@@ -61,7 +61,7 @@ declare namespace web3n.caps {
 			[resourceName: string]: FSResourceDescriptor;
 		};
 
-		// XXX
+		// XXX 
 		// App that uses connectors (TBD) may want to provide default connector
 		// settings, allowing user to start with non-empty configuration that may
 		// evolve into some custom settings, e.g. Thunderbird will let one setup
@@ -206,8 +206,17 @@ declare namespace web3n.caps {
 		forOneConnectionOnly?: true;
 	}
 
-	interface GUIServiceComponent
-	extends ServiceComponent, CommonGUIComponentSetting {
+	interface CAPsImplementingComponent extends CommonComponentSetting {
+		capImpls: string|string[];
+		forOneConnectionOnly?: true;
+	}
+
+	interface GUIServiceComponent extends ServiceComponent, CommonGUIComponentSetting {
+		runtime: GUIRuntime;
+		childOfGUICaller?: true;
+	}
+
+	interface CAPsImplementingGUIComponent extends CAPsImplementingComponent, CommonGUIComponentSetting {
 		runtime: GUIRuntime;
 		childOfGUICaller?: true;
 	}
@@ -242,7 +251,9 @@ declare namespace web3n.caps {
 		otherApps?: '*' | string[];
 	}
 
-	type AppComponent = GUIComponent | ServiceComponent | GUIServiceComponent;
+	type AppComponent = GUIComponent |
+		ServiceComponent | GUIServiceComponent |
+		CAPsImplementingComponent | CAPsImplementingGUIComponent;
 
 	interface SharedLibInfo {
 		libDomain: string;
@@ -274,6 +285,7 @@ declare namespace web3n.caps {
 		openInMountedFolder?: OpenInMountedFolderCAPSetting;
 		openURL?: OpenURLWhitelistEntry[];
 		clipboard?: ClipboardCAPSetting;
+		scanUrlQR?: true;
 	}
 
 	type FileDialogsCAPSettings = 'all' | 'readonly';

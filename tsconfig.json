@@ -21,13 +21,12 @@
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,
     "lib": ["ESNext", "DOM", "DOM.Iterable"],
-    "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
       "@sys-map/*": ["./src-system-map/*"],
       "@tests/*": ["./tests-app/src/*"]
     }
   },
-  "include": ["vite.config.ts", "src/**/*", "src-system-map/**/*", "@types/**/*", "tests-app/src/**/*"],
-  "exclude": ["node_modules", "public", "app"]
+  "include": ["./vite.config.ts", "./src/**/*", "./src-system-map/**/*", "./@types/**/*"],
+  "exclude": ["./node_modules", "./public", "./app"]
 }

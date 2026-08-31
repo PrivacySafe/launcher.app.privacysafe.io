@@ -300,10 +300,10 @@ function d2ForApp(app: DiagramAppData): string {
       : labelLine
   }
     style.font-size: 24${
-      app.components.map(d2ForComponent).join('') +
-      app.services.map(d2ForService).join('') +
-      app.startCmds.map(d2ForStartCmd).join('') +
-      app.connections.inThisApp.map(d2ForInAppConnection).join('')
+      app.components.map(d2ForComponent).join('\n') +
+      app.services.map(d2ForService).join('\n') +
+      app.startCmds.map(d2ForStartCmd).join('\n') +
+      app.connections.inThisApp.map(d2ForInAppConnection).join('\n')
     }
   }
   `;
@@ -421,7 +421,7 @@ function d2ForExternalConnectionsOf(apps: DiagramAppData[]): string {
   return apps
     .map(app => app.connections.toOtherApps.map(d2ForConnectionToOtherApp))
     .flatMap(c => c)
-    .join('');
+    .join('\n');
 }
 
 function d2ForPlatformAndCapsConnections(apps: DiagramAppData[]): string {
@@ -455,7 +455,7 @@ function d2ForPlatformAndCapsConnections(apps: DiagramAppData[]): string {
       style.border-radius: 999
     }
   }
-  ` + apps.map(app => app.connections.toPlatform.map(d2ForCapConnection).join('')).join('')
+  ` + apps.map(app => app.connections.toPlatform.map(d2ForCapConnection).join('\n')).join('\n')
   );
 }
 

@@ -16,6 +16,7 @@
 -->
 <script lang="ts" setup>
   import { onBeforeMount, onBeforeUnmount, ref } from 'vue';
+  import isEmpty from 'lodash/isEmpty';
   import {
     Ui3nButton,
     Ui3nDialogProvider,
@@ -26,6 +27,7 @@
   } from '@v1nt1248/3nclient-lib';
   import { useAppPage } from '@/common/composables/useAppPage';
   import prLogo from '@/common/assets/images/privacysafe-logo.svg';
+  import { APP_USER_DEFAULT_MENU } from '@/common/constants';
   import ContactIcon from '@/common/components/contact-icon.vue';
   import SystemSettings from '@/desktop/components/system-settings.vue';
   import Applications from '@/desktop/pages/main-tabs/applications.vue';
@@ -38,12 +40,14 @@
     appElement,
     appVersion,
     user,
+    openUsers,
     connectivityStatus,
     connectivityStatusText,
     customLogoSrc,
     needPlatformRestartAfterUpdate,
     checkProcIsOn,
-    appExit,
+    onUserMenuOpen,
+    runAction,
     quitAndInstall,
     checkForUpdate,
     doBeforeMount,
@@ -100,6 +104,8 @@
         <ui3n-menu
           position-strategy="fixed"
           :offset-y="4"
+          :class="$style.menuWrapper"
+          @open="onUserMenuOpen"
         >
           <div
             v-ui3n-ripple
@@ -114,11 +120,26 @@
 
           <template #menu>
             <div :class="$style.menu">
+              <template v-if="!isEmpty(openUsers)">
+                <div
+                  v-for="u in openUsers"
+                  :key="u"
+                  :class="[$style.menuItem, u === user && $style.menuItemDisabled]"
+                  @click="() => runAction(u)"
+                >
+                  {{ u }}
+                </div>
+
+                <div :class="$style.separator" />
+              </template>
+
               <div
+                v-for="item in APP_USER_DEFAULT_MENU"
+                :key="item.key"
                 :class="$style.menuItem"
-                @click="appExit"
+                @click="() => runAction(item.key)"
               >
-                {{ t('app.exit') }}
+                {{ t(item.label_key) }}
               </div>
             </div>
           </template>
@@ -137,21 +158,23 @@
         </div>
       </ui3n-tabs>
 
-      <ui3n-tooltip
-        :content="t('settings.btn.open')"
-        position-strategy="fixed"
-        placement="top-start"
-      >
-        <ui3n-button
-          :class="$style.settingsBtn"
-          type="custom"
-          color="var(--color-bg-button-tritery-default)"
-          icon="outline-settings"
-          icon-size="24"
-          icon-color="var(--color-icon-button-tritery-default)"
-          @click="isSettingsShow = true"
-        />
-      </ui3n-tooltip>
+      <div :class="$style.btns">
+        <ui3n-tooltip
+          :content="t('settings.btn.open')"
+          position-strategy="fixed"
+          placement="top-start"
+        >
+          <ui3n-button
+            :class="$style.settingsBtn"
+            type="custom"
+            color="var(--color-bg-button-tritery-default)"
+            icon="outline-settings"
+            icon-size="24"
+            icon-color="var(--color-icon-button-tritery-default)"
+            @click="isSettingsShow = true"
+          />
+        </ui3n-tooltip>
+      </div>
 
       <ui3n-button
         v-if="currentTab === 0 && needPlatformRestartAfterUpdate"
@@ -346,17 +369,27 @@
     border-radius: 50%;
   }
 
+  .menuWrapper {
+    --ui3n-menu-content-border-radius: 6px;
+  }
+
   .menu {
     position: relative;
     background-color: var(--color-bg-control-secondary-default);
+    padding: 2px 0;
     width: max-content;
-    border-radius: var(--spacing-xs);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: stretch;
+    row-gap: 2px;
+
     @include mixins.elevation(1);
   }
 
   .menuItem {
     position: relative;
-    width: 60px;
+    min-width: 60px;
     height: var(--spacing-l);
     padding: 0 var(--spacing-s);
     font-size: var(--font-13);
@@ -371,6 +404,21 @@
       background-color: var(--color-bg-control-primary-hover);
       color: var(--color-text-control-accent-default);
     }
+
+    &.menuItemDisabled {
+      cursor: default;
+      pointer-events: none;
+      opacity: 0.5;
+    }
+  }
+
+  .separator {
+    position: relative;
+    left: var(--spacing-s);
+    width: calc(100% - var(--spacing-m));
+    height: 1px;
+    border-bottom: 1px solid var(--color-border-control-primary-default);
+    margin: 2px 0;
   }
 
   .tabsWrapper {
@@ -394,11 +442,18 @@
     font-weight: 500;
   }
 
+  .btns {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    column-gap: var(--spacing-s);
+    position: absolute;
+    left: var(--spacing-m);
+  }
+
   .settingsBtn {
     gap: 0 !important;
     padding-left: var(--spacing-s) !important;
-    position: absolute;
-    left: var(--spacing-m);
   }
 
   .updateBtn {

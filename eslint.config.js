@@ -152,13 +152,4 @@ export default [
       },
     },
   },
-
-  {
-    files: ['**/tests-app/*.{j,t}s?(x)'],
-    languageOptions: {
-      globals: {
-        ...globals.jest,
-      },
-    },
-  },
 ];

@@ -38,11 +38,13 @@ export function useAppPage() {
     checkForAllUpdates,
     addAppPackFromFile,
     isFirstTimeOpened,
-    installBundledAppsIntoNewSystem
+    installBundledAppsIntoNewSystem,
   } = appsStore;
 
   const { $emitter } = inject<VueBusPlugin<GlobalEvents>>(VUEBUS_KEY)!;
   const { $createNotice } = inject<NotificationsPlugin>(NOTIFICATIONS_KEY)!;
+
+  const openUsers = ref<string[]>([]);
 
   const checkProcIsOn = ref(false);
 
@@ -52,8 +54,50 @@ export function useAppPage() {
 
   const needPlatformRestartAfterUpdate = computed(() => !!restart.value?.platform);
 
-  async function appExit() {
-    w3n.closeSelf();
+  async function onUserMenuOpen(addYourself?: boolean) {
+    const users = await w3n.system.otherOpenUsers?.list();
+    openUsers.value = users || [];
+
+    if (addYourself) {
+      openUsers.value.unshift(user.value);
+    }
+  }
+
+  async function runAction(action: string) {
+    switch (action) {
+      case 'logout': {
+        if (w3n.system.logout) {
+          return w3n.system.logout();
+        }
+
+        return;
+      }
+
+      case 'add': {
+        if (w3n.system.otherOpenUsers?.openLogin) {
+          return w3n.system.otherOpenUsers.openLogin();
+        }
+
+        return;
+      }
+
+      case 'exit': {
+        if (w3n.system.exitPlatform) {
+          return w3n.system.exitPlatform();
+        }
+
+        return;
+      }
+
+      default: {
+        console.log('user: ', action);
+        if (w3n.system.otherOpenUsers?.openDashboardOf) {
+          return w3n.system.otherOpenUsers.openDashboardOf(action);
+        }
+
+        return;
+      }
+    }
   }
 
   async function checkForUpdate() {
@@ -115,9 +159,9 @@ export function useAppPage() {
   }
 
   async function addAppFromFile() {
-    const filesWithApps = await w3n.shell!.fileDialogs!.openFileDialog!('Choose 3NWeb App file', 'Add App', true, [
-      { name: '', extensions: ['3nw', '3nweb', 'zip'] },
-    ]);
+    const filesWithApps = await w3n.shell!.fileDialogs!.openFileDialog!('Choose 3NWeb App file', 'Add App', true, {
+      filters: [{ name: '', extensions: ['3nw', '3nweb', 'zip'] }],
+    });
     if (!filesWithApps) {
       return;
     }
@@ -151,8 +195,10 @@ export function useAppPage() {
     needPlatformRestartAfterUpdate,
     checkProcIsOn,
     user,
+    openUsers,
 
-    appExit,
+    onUserMenuOpen,
+    runAction,
     quitAndInstall,
     checkForUpdate,
     addAppFromFile,

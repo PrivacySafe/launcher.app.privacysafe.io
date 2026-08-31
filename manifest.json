@@ -1,7 +1,7 @@
 {
   "name": "Dashboard",
   "appDomain": "launcher.app.privacysafe.io",
-  "version": "0.11.23",
+  "version": "0.11.34",
   "icon": "logo.png",
   "description": "Dashboard/Launcher manages and launches your apps.",
 
@@ -36,6 +36,7 @@
           "platform": "all",
           "monitor": "all",
           "logout": true,
+          "otherOpenUsers": "all",
           "userLogin": "all"
         }
       },
@@ -109,7 +110,9 @@
           "apps": "all",
           "platform": "all",
           "monitor": "all",
-          "logout": true
+          "logout": true,
+          "otherOpenUsers": "all",
+          "userLogin": "all"
         }
       }
     }

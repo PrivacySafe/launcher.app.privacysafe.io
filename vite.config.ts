@@ -36,9 +36,9 @@ export const makeConfig = ({ mode }: ConfigEnv): UserConfig => {
           'system-map': _resolve('./index-map.html'),
         },
         output: {
-          entryFileNames: 'assets/[name]-[hash].js',
-          chunkFileNames: 'assets/[name]-[hash].js',
-          assetFileNames: 'assets/[name]-[hash].[ext]',
+          entryFileNames: 'assets/[name].js',
+          chunkFileNames: 'assets/[name].js',
+          assetFileNames: 'assets/[name].[ext]',
         },
       },
     },

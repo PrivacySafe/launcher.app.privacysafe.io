@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2024 3NSoft Inc.
+ Copyright (C) 2024-2026 3NSoft Inc.
 
  This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 
@@ -30,3 +30,9 @@ export const AVAILABLE_LANGS: Record<AvailableLanguage, { value: AvailableLangua
 };
 
 export const UPDATE_INFO_CACHE_TTL_SECONDS = 12 * 60 * 60;
+
+export const APP_USER_DEFAULT_MENU = [
+  { key: 'logout', label_key: 'app.user_menu.logout' },
+  { key: 'add', label_key: 'app.user_menu.add' },
+  { key: 'exit', label_key: 'app.user_menu.exit' },
+];

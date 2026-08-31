@@ -20,6 +20,7 @@
   import type { AppLaunchers } from '@/common/types';
   import { useAppLauncher } from '@/common/composables/useAppLauncher';
   import AppIcon from '@/common/components/app-icon.vue';
+  import InstallationChannel from '@/common/components/installation-channel.vue';
 
   const props = defineProps<{
     launcher: AppLaunchers;
@@ -57,6 +58,11 @@
     <span :class="$style.name">{{ launcher.name }}</span>
 
     <span :class="$style.version">{{ launcher.version }}</span>
+
+    <installation-channel
+      :class="$style.channel"
+      :font-size="10"
+    />
 
     <div
       v-if="!!appProcessToDisplay"
@@ -116,6 +122,12 @@
     button {
       text-transform: capitalize;
     }
+  }
+
+  .channel {
+    position: absolute;
+    top: 8px;
+    right: 8px;
   }
 
   .loader {

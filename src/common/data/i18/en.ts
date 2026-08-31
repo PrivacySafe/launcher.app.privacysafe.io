@@ -23,7 +23,11 @@ export const en = {
       online: 'online',
       offline: 'offline',
     },
-    exit: 'Exit',
+    user_menu: {
+      logout: 'Logout',
+      add: 'Add Account',
+      exit: 'Exit',
+    },
     tabs: {
       applications: 'My Apps',
       update: 'App Store',
@@ -50,6 +54,9 @@ export const en = {
         store: 'App Store',
         settings: 'Settings',
       },
+    },
+    orientation: {
+      rotateBack: 'Please rotate your phone back to portrait orientation',
     },
   },
 

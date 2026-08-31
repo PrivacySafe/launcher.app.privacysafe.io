@@ -19,6 +19,7 @@
   import { Ui3nButton, Ui3nMenu, Ui3nRadio, Ui3nSwitch, Ui3nProgressLinear } from '@v1nt1248/3nclient-lib';
   import { AVAILABLE_THEMES, AVAILABLE_LANGS } from '@/common/constants';
   import { useSettings } from '@/common/composables/useSettings';
+  import CustomScrollBar from '@/common/components/custom-scroll-bar.vue';
 
   const emits = defineEmits<{
     (ev: 'close'): void;
@@ -60,194 +61,196 @@
     </div>
 
     <div :class="$style.body">
-      <!-- appearance section/block -->
-      <div :class="$style.block">
-        <div :class="$style.blockHeader">
-          {{ t('settings.section.appearance') }}
-        </div>
-
-        <!-- theme -->
-        <div :class="$style.rowBody">
-          <div :class="$style.rowBodyLabel">
-            {{ t('settings.label.theme') }}
+      <custom-scroll-bar>
+        <!-- appearance section/block -->
+        <div :class="$style.block">
+          <div :class="$style.blockHeader">
+            {{ t('settings.section.appearance') }}
           </div>
 
-          <div :class="$style.rowBodyValue">
-            <ui3n-menu
-              :offset-x="-48"
-              :offset-y="4"
-              :allow-flip="false"
-            >
-              <ui3n-button
-                type="custom"
-                color="var(--color-bg-control-secondary-default)"
-                text-color="var(--color-text-button-tritery-default)"
-                icon="outline-arrow-drop-down"
-                icon-size="16"
-                icon-color="var(--color-icon-button-tritery-default)"
-                icon-position="right"
+          <!-- theme -->
+          <div :class="$style.rowBody">
+            <div :class="$style.rowBodyLabel">
+              {{ t('settings.label.theme') }}
+            </div>
+
+            <div :class="$style.rowBodyValue">
+              <ui3n-menu
+                :offset-x="-48"
+                :offset-y="4"
+                :allow-flip="false"
               >
-                {{ t(AVAILABLE_THEMES[colorTheme].label) }}
+                <ui3n-button
+                  type="custom"
+                  color="var(--color-bg-control-secondary-default)"
+                  text-color="var(--color-text-button-tritery-default)"
+                  icon="outline-arrow-drop-down"
+                  icon-size="16"
+                  icon-color="var(--color-icon-button-tritery-default)"
+                  icon-position="right"
+                >
+                  {{ t(AVAILABLE_THEMES[colorTheme].label) }}
+                </ui3n-button>
+
+                <template #menu>
+                  <div
+                    v-for="id in ['dark2', 'default', 'dark'] as const"
+                    :key="id"
+                    :class="[$style.colorThemesItem, colorTheme === id && $style.colorThemesItemSelected]"
+                    @click="changeColorTheme(id)"
+                  >
+                    {{ t(AVAILABLE_THEMES[id].label) }}
+                  </div>
+                </template>
+              </ui3n-menu>
+            </div>
+          </div>
+
+          <!-- languages -->
+          <div :class="$style.rowBody">
+            <div :class="$style.rowBodyLabel">
+              {{ t('settings.label.language') }}
+            </div>
+
+            <div :class="$style.rowBodyValue">
+              <ui3n-radio
+                size="16"
+                :checked-value="AVAILABLE_LANGS.en.value"
+                :unchecked-value="AVAILABLE_LANGS.en.value"
+                :disabled="true"
+                :model-value="lang"
+              >
+                {{ AVAILABLE_LANGS[lang].label }}
+              </ui3n-radio>
+            </div>
+          </div>
+
+          <!-- custom logo -->
+          <div :class="$style.rowBody">
+            <div :class="$style.rowBodyLabel">
+              {{ t('settings.label.custom-logo') }}
+            </div>
+
+            <div :class="$style.rowBodyValue">
+              <ui3n-button
+                v-if="!customLogoSrc"
+                type="primary"
+                icon="round-plus"
+                icon-position="left"
+                @click="addCustomLogo"
+              >
+                {{ t('settings.btn.custom-logo.add-logo') }}
               </ui3n-button>
 
-              <template #menu>
-                <div
-                  v-for="id in ['dark2', 'default', 'dark'] as const"
-                  :key="id"
-                  :class="[$style.colorThemesItem, colorTheme === id && $style.colorThemesItemSelected]"
-                  @click="changeColorTheme(id)"
-                >
-                  {{ t(AVAILABLE_THEMES[id].label) }}
-                </div>
-              </template>
-            </ui3n-menu>
+              <img
+                v-if="!!customLogoSrc"
+                :src="customLogoSrc"
+                alt="logo"
+                :class="$style.customLogo"
+              />
+
+              <ui3n-button
+                v-if="!!customLogoSrc"
+                type="secondary"
+                icon="outline-delete"
+                @click="removeCustomLogo"
+              />
+            </div>
           </div>
         </div>
 
-        <!-- languages -->
-        <div :class="$style.rowBody">
-          <div :class="$style.rowBodyLabel">
-            {{ t('settings.label.language') }}
+        <!-- system section/block -->
+        <div :class="$style.block">
+          <div :class="$style.blockHeader">
+            {{ t('settings.system') }}
           </div>
 
-          <div :class="$style.rowBodyValue">
-            <ui3n-radio
-              size="16"
-              :checked-value="AVAILABLE_LANGS.en.value"
-              :unchecked-value="AVAILABLE_LANGS.en.value"
-              :disabled="true"
-              :model-value="lang"
+          <!-- autoupdates -->
+          <div :class="$style.rowBody">
+            <div :class="$style.rowBodyLabel">
+              {{ t('settings.label.autoupdates') }}
+            </div>
+
+            <div :class="$style.rowBodyValue">
+              <span :class="$style.rowBodyText">{{ t('settings.label.off') }}</span>
+
+              <ui3n-switch
+                size="16"
+                :model-value="autoUpdate"
+                @change="toggleAutoUpdate"
+              />
+
+              <span :class="$style.rowBodyText">{{ t('settings.label.on') }}</span>
+            </div>
+          </div>
+
+          <!-- showing devtool -->
+          <div :class="$style.rowBody">
+            <div :class="$style.rowBodyLabel">
+              {{ t('settings.label.showing_devtool') }}
+            </div>
+
+            <div :class="$style.rowBodyValue">
+              <span :class="$style.rowBodyText">{{ t('settings.label.no') }}</span>
+
+              <ui3n-switch
+                size="16"
+                :model-value="allowShowingDevtool"
+                @change="changeAllowShowingDevtool"
+              />
+
+              <span :class="$style.rowBodyText">{{ t('settings.label.yes') }}</span>
+            </div>
+          </div>
+
+          <!-- autologin -->
+          <div :class="$style.rowBody">
+            <div :class="$style.rowBodyLabel">
+              {{ t('settings.label.autologin') }}
+            </div>
+
+            <div
+              v-if="autoLoginSetupOpened"
+              :class="$style.rowBodyValue"
             >
-              {{ AVAILABLE_LANGS[lang].label }}
-            </ui3n-radio>
+              <ui3n-progress-linear
+                :class="$style.loginProgressBar"
+                indeterminate
+              />
+            </div>
+
+            <div
+              v-else
+              :class="$style.rowBodyValue"
+            >
+              <span :class="$style.rowBodyText">{{ t('settings.label.off') }}</span>
+
+              <ui3n-switch
+                size="16"
+                :model-value="autoLogin"
+                @change="changeAutoLogin"
+              />
+
+              <span :class="$style.rowBodyText">{{ t('settings.label.on') }}</span>
+            </div>
           </div>
         </div>
 
-        <!-- custom logo -->
-        <div :class="$style.rowBody">
-          <div :class="$style.rowBodyLabel">
-            {{ t('settings.label.custom-logo') }}
+        <!-- Data section/block -->
+        <div :class="$style.block">
+          <div :class="$style.blockHeader">
+            {{ t('system.data_removal.section') }}
           </div>
-
-          <div :class="$style.rowBodyValue">
+          <div :class="$style.rowBody">
             <ui3n-button
-              v-if="!customLogoSrc"
-              type="primary"
-              icon="round-plus"
-              icon-position="left"
-              @click="addCustomLogo"
+              type="tertiary"
+              @click="wipeDataFromDevice"
             >
-              {{ t('settings.btn.custom-logo.add-logo') }}
+              {{ t('system.data_removal.wipe_from_device') }}
             </ui3n-button>
-
-            <img
-              v-if="!!customLogoSrc"
-              :src="customLogoSrc"
-              alt="logo"
-              :class="$style.customLogo"
-            />
-
-            <ui3n-button
-              v-if="!!customLogoSrc"
-              type="secondary"
-              icon="outline-delete"
-              @click="removeCustomLogo"
-            />
           </div>
         </div>
-      </div>
-
-      <!-- system section/block -->
-      <div :class="$style.block">
-        <div :class="$style.blockHeader">
-          {{ t('settings.system') }}
-        </div>
-
-        <!-- autoupdates -->
-        <div :class="$style.rowBody">
-          <div :class="$style.rowBodyLabel">
-            {{ t('settings.label.autoupdates') }}
-          </div>
-
-          <div :class="$style.rowBodyValue">
-            <span :class="$style.rowBodyText">{{ t('settings.label.off') }}</span>
-
-            <ui3n-switch
-              size="16"
-              :model-value="autoUpdate"
-              @change="toggleAutoUpdate"
-            />
-
-            <span :class="$style.rowBodyText">{{ t('settings.label.on') }}</span>
-          </div>
-        </div>
-
-        <!-- showing devtool -->
-        <div :class="$style.rowBody">
-          <div :class="$style.rowBodyLabel">
-            {{ t('settings.label.showing_devtool') }}
-          </div>
-
-          <div :class="$style.rowBodyValue">
-            <span :class="$style.rowBodyText">{{ t('settings.label.no') }}</span>
-
-            <ui3n-switch
-              size="16"
-              :model-value="allowShowingDevtool"
-              @change="changeAllowShowingDevtool"
-            />
-
-            <span :class="$style.rowBodyText">{{ t('settings.label.yes') }}</span>
-          </div>
-        </div>
-
-        <!-- autologin -->
-        <div :class="$style.rowBody">
-          <div :class="$style.rowBodyLabel">
-            {{ t('settings.label.autologin') }}
-          </div>
-
-          <div
-            v-if="autoLoginSetupOpened"
-            :class="$style.rowBodyValue"
-          >
-            <ui3n-progress-linear
-              :class="$style.loginProgressBar"
-              indeterminate
-            />
-          </div>
-
-          <div
-            v-else
-            :class="$style.rowBodyValue"
-          >
-            <span :class="$style.rowBodyText">{{ t('settings.label.off') }}</span>
-
-            <ui3n-switch
-              size="16"
-              :model-value="autoLogin"
-              @change="changeAutoLogin"
-            />
-
-            <span :class="$style.rowBodyText">{{ t('settings.label.on') }}</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Data section/block -->
-      <div :class="$style.block">
-        <div :class="$style.blockHeader">
-          {{ t('system.data_removal.section') }}
-        </div>
-        <div :class="$style.rowBody">
-          <ui3n-button
-            type="tertiary"
-            @click="wipeDataFromDevice"
-          >
-            {{ t('system.data_removal.wipe_from_device') }}
-          </ui3n-button>
-        </div>
-      </div>
+      </custom-scroll-bar>
     </div>
   </section>
 </template>

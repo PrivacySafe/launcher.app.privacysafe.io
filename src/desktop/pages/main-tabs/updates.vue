@@ -23,10 +23,10 @@
   import { useAppsStore } from '@/common/store/apps.store';
   import AppView from '@/desktop/components/app-view.vue';
   import PlatformView from '@/desktop/components/platform-view.vue';
+  import CustomScrollBar from '@/common/components/custom-scroll-bar.vue';
 
   const { t } = useI18n();
   const { applicationsInSystem } = storeToRefs(useAppsStore());
-
   const search = ref('');
 
   const filteredApps = computed(() =>
@@ -48,24 +48,24 @@
         autofocus
       />
     </div>
-
     <div :class="$style.content">
-      <platform-view />
+      <custom-scroll-bar>
+        <platform-view />
+        <div
+          v-if="isEmpty(filteredApps)"
+          :class="$style.empty"
+        >
+          {{ t('app.list.empty') }}
+        </div>
 
-      <div
-        v-if="isEmpty(filteredApps)"
-        :class="$style.empty"
-      >
-        {{ t('app.list.empty') }}
-      </div>
-
-      <template v-else>
-        <app-view
-          v-for="app in filteredApps"
-          :key="app.appId"
-          :app-info="app"
-        />
-      </template>
+        <template v-else>
+          <app-view
+            v-for="app in filteredApps"
+            :key="app.appId"
+            :app-info="app"
+          />
+        </template>
+      </custom-scroll-bar>
     </div>
   </section>
 </template>

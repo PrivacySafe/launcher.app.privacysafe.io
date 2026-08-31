@@ -26,6 +26,7 @@
   import ApplicationInfo from '@/mobile/components/app-info.vue';
   import AppStoreItem from '@/mobile/components/app-store-item.vue';
   import { updateVersionIn } from '@/common/utils/versions';
+  import CustomScrollBar from '@/common/components/custom-scroll-bar.vue';
 
   const { t } = useI18n();
 
@@ -83,28 +84,31 @@
     </div>
 
     <div :class="$style.body">
-      <template v-if="!isPlatformShowed && isEmpty(filteredApps)">
-        <div :class="$style.empty">
-          {{ t('app.list.empty') }}
-        </div>
-      </template>
+      <custom-scroll-bar>
+        <template v-if="!isPlatformShowed && isEmpty(filteredApps)">
+          <div :class="$style.empty">
+            {{ t('app.list.empty') }}
+          </div>
+        </template>
 
-      <template v-else>
-        <platform-info
-          v-if="isPlatformShowed"
-          :platform="platform"
-          app-store-mode
-          @click="() => openInfo('platform')"
-        />
+        <template v-else>
+          <platform-info
+            v-if="isPlatformShowed"
+            :platform="platform"
+            app-store-mode
+            @click="() => openInfo('platform')"
+          />
 
-        <application-info
-          v-for="app in filteredApps"
-          :key="app.appId"
-          :app-info="app"
-          app-store-mode
-          @click="() => openInfo(app.appId)"
-        />
-      </template>
+          <application-info
+            v-for="app in filteredApps"
+            :key="app.appId"
+            :class="$style.appItems"
+            :app-info="app"
+            app-store-mode
+            @click="() => openInfo(app.appId)"
+          />
+        </template>
+      </custom-scroll-bar>
     </div>
 
     <app-store-item
@@ -139,8 +143,8 @@
     justify-content: flex-start;
     align-items: stretch;
     row-gap: var(--spacing-s);
-    overflow-x: hidden;
-    overflow-y: auto;
+    /*overflow-x: hidden;
+    overflow-y: auto;*/
   }
 
   .action {
@@ -177,5 +181,9 @@
     align-items: center;
     pointer-events: none;
     z-index: 5;
+  }
+
+  .appItems {
+    margin-top: var(--spacing-s);
   }
 </style>

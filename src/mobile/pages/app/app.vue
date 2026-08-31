@@ -15,16 +15,18 @@
  this program. If not, see <http://www.gnu.org/licenses/>.
 -->
 <script lang="ts" setup>
-  import { computed, onBeforeMount, onBeforeUnmount, ref } from 'vue';
+  import { computed, onBeforeMount, onBeforeUnmount, ref, watch } from 'vue';
   import { useRoute } from 'vue-router';
-  import { Ui3nButton, Ui3nDialogProvider } from '@v1nt1248/3nclient-lib';
+  import { Ui3nDialogProvider } from '@v1nt1248/3nclient-lib';
   import { APP_MENU_DATA } from '@/mobile/components/app-menu/constants';
   import { useAppPage } from '@/common/composables/useAppPage';
   import AppMenu from '@/mobile/components/app-menu/app-menu.vue';
+  import OrientationNotice from '@/mobile/components/orientation-notice.vue';
 
   const route = useRoute();
 
-  const { t, user, connectivityStatusText, doBeforeMount, doBeforeUnmount } = useAppPage();
+  const { t, user, connectivityStatus, openUsers, onUserMenuOpen, runAction, doBeforeMount, doBeforeUnmount } =
+    useAppPage();
 
   const isMenuOpen = ref(false);
 
@@ -32,9 +34,11 @@
     return APP_MENU_DATA.find(i => i.routeName === route.name);
   });
 
-  function toggleMenu() {
-    isMenuOpen.value = !isMenuOpen.value;
-  }
+  watch(isMenuOpen, async (val, oVal) => {
+    if (val && val !== oVal) {
+      await onUserMenuOpen(false);
+    }
+  });
 
   onBeforeMount(doBeforeMount);
   onBeforeUnmount(doBeforeUnmount);
@@ -42,33 +46,16 @@
 
 <template>
   <div :class="$style.app">
-    <transition name="slide-fade">
-      <div
-        v-if="isMenuOpen"
-        :class="$style.menu"
-      >
-        <app-menu
-          :user="user"
-          :connectivity-status-text="connectivityStatusText"
-          @close="isMenuOpen = false"
-        />
-      </div>
-    </transition>
-
     <div :class="[$style.body, isMenuOpen && $style.bodyDisabled]">
       <div :class="$style.toolbar">
-        <transition>
-          <ui3n-button
-            type="icon"
-            :color="isMenuOpen ? 'transparent' : 'var(--color-bg-block-primary-default)'"
-            :icon="isMenuOpen ? 'round-close' : 'round-menu'"
-            :icon-color="
-              isMenuOpen ? 'var(--color-icon-block-secondary-default)' : 'var(--color-icon-block-primary-default)'
-            "
-            icon-size="32"
-            @click="toggleMenu"
-          />
-        </transition>
+        <app-menu
+          :is-menu-open="isMenuOpen"
+          :user="user"
+          :connectivity-status="connectivityStatus"
+          :open-users="openUsers"
+          @update:model-value="ev => (isMenuOpen = ev)"
+          @run-action="runAction"
+        />
 
         <div :class="$style.item">
           <span :class="$style.itemName">{{ currentMenuItem?.name ? t(currentMenuItem.name) : '' }}</span>
@@ -89,6 +76,8 @@
     <div id="notification" />
 
     <ui3n-dialog-provider />
+
+    <orientation-notice />
   </div>
 </template>
 
@@ -107,14 +96,6 @@
     justify-content: flex-start;
     align-items: stretch;
     overflow: hidden;
-  }
-
-  .menu {
-    position: relative;
-    min-width: 80%;
-    width: 80%;
-    height: 100%;
-    z-index: 1;
   }
 
   .body {
