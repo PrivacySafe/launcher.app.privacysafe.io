@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2024 - 2025 3NSoft Inc.
+ Copyright (C) 2024 - 2026 3NSoft Inc.
 
  This program is free software: you can redistribute it and/or modify it under
  the terms of the GNU General Public License as published by the Free Software
@@ -37,8 +37,8 @@ function canUpdateBundle(current: BundleVersions, latestAvailable: BundleVersion
     return false;
   }
 
-  const currBundleNum = parseInt(current.bundle.substring(current.bundle.indexOf('+') + 1));
-  const latestBundleNum = parseInt(latestAvailable.bundle.substring(latestAvailable.bundle.indexOf('+') + 1));
+  const currBundleNum = bundleNumFromVersion(current.bundle);
+  const latestBundleNum = bundleNumFromVersion(latestAvailable.bundle);
   if (currBundleNum >= latestBundleNum) {
     return false;
   }
@@ -51,6 +51,10 @@ function canUpdateBundle(current: BundleVersions, latestAvailable: BundleVersion
   }
 
   return false;
+}
+
+function bundleNumFromVersion(v: string): number {
+  return parseInt(v.substring(v.lastIndexOf((v.includes('+') ? '+' : '.') + 1)));
 }
 
 export const useAppsStore = defineStore('apps', () => {

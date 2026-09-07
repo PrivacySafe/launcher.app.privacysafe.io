@@ -66,11 +66,11 @@ export function useAppPage() {
   async function runAction(action: string) {
     switch (action) {
       case 'logout': {
-        if (w3n.system.logout) {
-          return w3n.system.logout();
+        if (!w3n.system.logout || !w3n.system.userLogin) {
+          return;
         }
-
-        return;
+        await w3n.system.userLogin.removeAutoLogin();
+        return w3n.system.logout();
       }
 
       case 'add': {
