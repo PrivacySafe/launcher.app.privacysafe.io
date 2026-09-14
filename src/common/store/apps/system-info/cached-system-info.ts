@@ -14,7 +14,7 @@
  You should have received a copy of the GNU General Public License along with
  this program. If not, see <http://www.gnu.org/licenses/>.
 */
-/* eslint-disable @typescript-eslint/no-dynamic-delete */
+
 import { deepEqual } from '@/common/lib-common/json-utils';
 import { getDynamicLaunchersLocations, getLaunchersForUser } from '@/common/lib-common/manifest-utils';
 import { AppInfo } from '@/common/types';
@@ -197,12 +197,20 @@ async function getAppInfo(
   }
 
   const appId = m.appDomain;
-  const { name, description, icon } = m;
+  const { name, description, icon, tags, publisher, website, contact, policy, terms, license, source } = m;
   const appInfo: AppInfo = {
     appId,
     name,
     description,
     icon,
+    tags,
+    publisher,
+    website,
+    contact,
+    policy,
+    terms,
+    license,
+    source,
     versions: {
       latest,
       current,

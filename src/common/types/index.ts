@@ -13,6 +13,22 @@ export interface AppInfo {
   readonly name: string;
   readonly description: string;
   readonly icon: string;
+  readonly tags?: string[];
+
+  readonly publisher?: string;
+
+  readonly website?: string;
+
+  readonly contact?: string;
+
+  readonly policy?: string;
+
+  readonly terms?: string;
+
+  readonly license?: string;
+
+  readonly source?: string;
+
   iconBytes?: Uint8Array;
   readonly versions: {
     latest: string;
