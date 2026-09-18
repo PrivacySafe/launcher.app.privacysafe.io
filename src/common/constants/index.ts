@@ -7,21 +7,21 @@
 
  You should have received a copy of the GNU General Public License along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
+import type { ThemeId } from '@v1nt1248/3nclient-lib/plugins';
+import type { AvailableLanguage } from '@/common/types';
 
-import type { AvailableColorTheme, AvailableLanguage } from '@/common/types';
-
-export const AVAILABLE_THEMES: Record<AvailableColorTheme, { label: string; cssClass: string }> = {
+export const AVAILABLE_THEMES: Record<ThemeId, { label: string; cssClass: string }> = {
   dark: {
-    label: 'settings.theme.dark1',
+    label: 'settings.theme.dark',
     cssClass: 'dark-theme',
   },
-  default: {
+  light: {
     label: 'settings.theme.light',
-    cssClass: 'default-theme',
+    cssClass: 'light-theme',
   },
-  dark2: {
-    label: 'settings.theme.dark2',
-    cssClass: 'dark2-theme',
+  midnight: {
+    label: 'settings.theme.midnight',
+    cssClass: 'midnight-theme',
   },
 };
 

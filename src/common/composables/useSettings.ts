@@ -22,8 +22,8 @@ import {
   DialogsPlugin,
   NOTIFICATIONS_KEY,
   NotificationsPlugin,
+  type ThemeId,
 } from '@v1nt1248/3nclient-lib/plugins';
-import type { AvailableColorTheme } from '@/common/types';
 import { useAppStore } from '@/common/store/app.store';
 import { useAppsStore } from '@/common/store/apps.store';
 import { SettingsJSON } from '@/common/store/app/ui-settings';
@@ -59,7 +59,7 @@ export function useSettings() {
     }
   }
 
-  function changeColorTheme(val: AvailableColorTheme) {
+  function changeColorTheme(val: ThemeId) {
     if (colorTheme.value === val) {
       return;
     }

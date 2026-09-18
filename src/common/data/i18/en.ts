@@ -107,8 +107,8 @@ export const en = {
     },
     theme: {
       light: 'Light',
-      dark1: 'Midnight Blue',
-      dark2: 'Dark',
+      midnight: 'Midnight Blue',
+      dark: 'Dark',
     },
   },
 

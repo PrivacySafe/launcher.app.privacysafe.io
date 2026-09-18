@@ -94,7 +94,7 @@
 
                 <template #menu>
                   <div
-                    v-for="id in ['dark2', 'default', 'dark'] as const"
+                    v-for="id in ['dark', 'light', 'midnight'] as const"
                     :key="id"
                     :class="[$style.colorThemesItem, colorTheme === id && $style.colorThemesItemSelected]"
                     @click="changeColorTheme(id)"

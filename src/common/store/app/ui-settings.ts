@@ -7,22 +7,22 @@
 
  You should have received a copy of the GNU General Public License along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
-
-import type { AppConfig, AvailableLanguage, AvailableColorTheme } from '@/common/types';
+import type { ThemeId } from '@v1nt1248/3nclient-lib/plugins';
+import type { AppConfig, AvailableLanguage } from '@/common/types';
 import { SingleProc } from '@v1nt1248/3nclient-lib/utils';
 
 export interface AppConfigsInternal {
   getAll: () => Promise<SettingsJSON>;
   saveSettingsFile: (data: AppConfig) => Promise<void>;
   getCurrentLanguage: () => Promise<AvailableLanguage>;
-  getCurrentColorTheme: () => Promise<AvailableColorTheme>;
+  getCurrentColorTheme: () => Promise<ThemeId>;
   getSystemFoldersDisplaying: () => Promise<boolean>;
   getAllowShowingDevtool: () => Promise<boolean>;
 }
 
 export interface AppConfigs {
   getCurrentLanguage: () => Promise<AvailableLanguage>;
-  getCurrentColorTheme: () => Promise<AvailableColorTheme>;
+  getCurrentColorTheme: () => Promise<ThemeId>;
   getSystemFoldersDisplaying: () => Promise<boolean>;
   getAllowShowingDevtool: () => Promise<boolean>;
   getAll: () => Promise<SettingsJSON>;
@@ -31,7 +31,7 @@ export interface AppConfigs {
 
 export interface SettingsJSON {
   lang: AvailableLanguage;
-  colorTheme: AvailableColorTheme;
+  colorTheme: ThemeId;
   systemFoldersDisplaying: boolean;
   allowShowingDevtool: boolean;
   customLogo: AppConfig['customLogo'];
@@ -46,7 +46,6 @@ const resourceApp = 'launcher.app.privacysafe.io';
 const settingsPath = '/constants/settings.json';
 
 export async function makeAppConfigsInternal(): Promise<AppConfigsInternal> {
-
   // this implicitly initializes resource, and will fail if it isn't launcher
   await w3n.shell!.getFSResource!(undefined, resourceName);
   const localStore = await w3n.storage!.getAppLocalFS!();
@@ -65,20 +64,19 @@ export async function makeAppConfigsInternal(): Promise<AppConfigsInternal> {
 
   return {
     saveSettingsFile,
-    ...makeAppConfsReader(file)
+    ...makeAppConfsReader(file),
   };
 }
 
 type ReadonlyFile = web3n.files.ReadonlyFile;
 
 function makeAppConfsReader(file: ReadonlyFile): AppConfigs {
-
   async function getCurrentLanguage(): Promise<AvailableLanguage> {
     const { lang } = await file.readJSON<SettingsJSON>();
     return lang;
   }
 
-  async function getCurrentColorTheme(): Promise<AvailableColorTheme> {
+  async function getCurrentColorTheme(): Promise<ThemeId> {
     const { colorTheme } = await file.readJSON<SettingsJSON>();
     return colorTheme;
   }
@@ -118,11 +116,11 @@ function makeAppConfsReader(file: ReadonlyFile): AppConfigs {
     getCurrentColorTheme,
     getCurrentLanguage,
     getSystemFoldersDisplaying,
-    watchConfig
+    watchConfig,
   };
 }
 
 export async function makeAppConfigs(): Promise<AppConfigs> {
-  const confFile = await w3n.shell!.getFSResource!(resourceApp, resourceName) as ReadonlyFile;
+  const confFile = (await w3n.shell!.getFSResource!(resourceApp, resourceName)) as ReadonlyFile;
   return makeAppConfsReader(confFile);
 }

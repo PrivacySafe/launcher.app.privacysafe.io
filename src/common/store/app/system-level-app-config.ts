@@ -16,14 +16,27 @@
 */
 import { ref } from 'vue';
 import { makeAppConfigs } from '@/common/store/app/ui-settings';
-import { AppConfig, AvailableColorTheme, AvailableLanguage } from '@/common/types';
 import { blobFromDataURL } from '@/common/utils/image-files';
+import type { AppConfig, AvailableLanguage } from '@/common/types';
+import type { ThemeId } from '@v1nt1248/3nclient-lib/plugins';
+
+function getActiveTheme(value: ThemeId | 'default' | 'dark1' | 'dark2'): ThemeId {
+  if (value === 'default') {
+    return 'light';
+  }
+
+  if (value === 'dark1' || value === 'dark2') {
+    return 'dark';
+  }
+
+  return value;
+}
 
 export function makeSystemLevelAppConfig() {
   const appVersion = ref<string>('');
   const user = ref<string>('');
   const lang = ref<AvailableLanguage>('en');
-  const colorTheme = ref<AvailableColorTheme>('dark2');
+  const colorTheme = ref<ThemeId>('dark');
   const systemFoldersDisplaying = ref(false);
   const allowShowingDevtool = ref(false);
   const customLogoSrc = ref<string>();
@@ -32,7 +45,7 @@ export function makeSystemLevelAppConfig() {
     lang.value = value;
   }
 
-  function setColorTheme(theme: AvailableColorTheme) {
+  function setColorTheme(theme: ThemeId) {
     const prevColorThemeCssClass = `${colorTheme.value}-theme`;
     colorTheme.value = theme;
     const curColorThemeCssClass = `${colorTheme.value}-theme`;
@@ -71,7 +84,8 @@ export function makeSystemLevelAppConfig() {
       const config = await makeAppConfigs();
       const { lang, colorTheme, systemFoldersDisplaying, allowShowingDevtool, customLogo } = await config.getAll();
       setLang(lang);
-      setColorTheme(colorTheme);
+      const theme = getActiveTheme(colorTheme);
+      setColorTheme(theme);
       setSystemFoldersDisplaying(systemFoldersDisplaying);
       setAllowShowingDevtool(allowShowingDevtool);
       setCustomLogo(customLogo);

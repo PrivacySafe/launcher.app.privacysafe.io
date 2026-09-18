@@ -22,11 +22,14 @@ yarn-error.log*
 .vscode
 .zed
 .history
+.kilo
+.claude
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+*.log
 
 # Tmp files
 .~*
