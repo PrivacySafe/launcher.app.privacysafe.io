@@ -339,6 +339,7 @@
   }
 
   .rowBodyText {
+    min-width: var(--spacing-ml);
     font-size: var(--font-12);
     font-weight: 500;
     color: var(--color-text-control-primary-default);

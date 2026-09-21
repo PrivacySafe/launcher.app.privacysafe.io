@@ -14,11 +14,11 @@
  You should have received a copy of the GNU General Public License along with
  this program. If not, see <http://www.gnu.org/licenses/>.
 */
-import { ref } from 'vue';
+import { inject, ref } from 'vue';
+import { THEME_KEY, type ThemeId, type ThemePlugin } from '@v1nt1248/3nclient-lib/plugins';
 import { makeAppConfigs } from '@/common/store/app/ui-settings';
 import { blobFromDataURL } from '@/common/utils/image-files';
 import type { AppConfig, AvailableLanguage } from '@/common/types';
-import type { ThemeId } from '@v1nt1248/3nclient-lib/plugins';
 
 function getActiveTheme(value: ThemeId | 'default' | 'dark1' | 'dark2'): ThemeId {
   if (value === 'default') {
@@ -33,6 +33,7 @@ function getActiveTheme(value: ThemeId | 'default' | 'dark1' | 'dark2'): ThemeId
 }
 
 export function makeSystemLevelAppConfig() {
+  const { setTheme } = inject<ThemePlugin>(THEME_KEY)!;
   const appVersion = ref<string>('');
   const user = ref<string>('');
   const lang = ref<AvailableLanguage>('en');
@@ -46,14 +47,8 @@ export function makeSystemLevelAppConfig() {
   }
 
   function setColorTheme(theme: ThemeId) {
-    const prevColorThemeCssClass = `${colorTheme.value}-theme`;
     colorTheme.value = theme;
-    const curColorThemeCssClass = `${colorTheme.value}-theme`;
-    const htmlEl = document.querySelector('html');
-    if (!htmlEl) return;
-
-    htmlEl.classList.remove(prevColorThemeCssClass);
-    htmlEl.classList.add(curColorThemeCssClass);
+    setTheme(theme);
   }
 
   function setSystemFoldersDisplaying(value: boolean) {
@@ -94,7 +89,7 @@ export function makeSystemLevelAppConfig() {
         next: appConfig => {
           const { lang, colorTheme, systemFoldersDisplaying, allowShowingDevtool, customLogo } = appConfig;
           setLang(lang);
-          setColorTheme(colorTheme);
+          setColorTheme(getActiveTheme(colorTheme));
           setSystemFoldersDisplaying(!!systemFoldersDisplaying);
           setAllowShowingDevtool(!!allowShowingDevtool);
           setCustomLogo(customLogo);

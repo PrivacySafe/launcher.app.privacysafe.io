@@ -16,7 +16,7 @@
 */
 import { createApp } from 'vue';
 import { createPinia } from 'pinia';
-import { dialogs, notifications, storeNotifications, vueBus } from '@v1nt1248/3nclient-lib/plugins';
+import { dialogs, notifications, storeNotifications, theme, vueBus } from '@v1nt1248/3nclient-lib/plugins';
 
 import '@v1nt1248/3nclient-lib/variables.css';
 import '@v1nt1248/3nclient-lib/style.css';
@@ -40,7 +40,7 @@ function initialApp() {
       return tag.startsWith('ui3n-');
     };
 
-    app.use(pinia).use(i18n).use(vueBus).use(notifications).use(dialogs).use(router);
+    app.use(pinia).use(i18n).use(vueBus).use(notifications).use(dialogs).use(theme, { theme: 'dark' }).use(router);
     app.mount('#mobile');
   } catch (err) {
     console.error('🔥 ERROR CREATE APP. ', err);

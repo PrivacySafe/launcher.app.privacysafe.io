@@ -10,18 +10,15 @@
 import type { ThemeId } from '@v1nt1248/3nclient-lib/plugins';
 import type { AvailableLanguage } from '@/common/types';
 
-export const AVAILABLE_THEMES: Record<ThemeId, { label: string; cssClass: string }> = {
+export const AVAILABLE_THEMES: Record<ThemeId, { label: string }> = {
   dark: {
     label: 'settings.theme.dark',
-    cssClass: 'dark-theme',
   },
   light: {
     label: 'settings.theme.light',
-    cssClass: 'light-theme',
   },
   midnight: {
     label: 'settings.theme.midnight',
-    cssClass: 'midnight-theme',
   },
 };
 

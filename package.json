@@ -1,6 +1,6 @@
 {
   "name": "launcher.app.privacysafe.io",
-  "version": "0.11.37",
+  "version": "0.11.38",
   "license": "GPL-3.0-or-later",
   "type": "module",
   "scripts": {
@@ -21,7 +21,7 @@
   "dependencies": {
     "@terrastruct/d2": "0.1.33",
     "@types/semver": "7.8.0",
-    "@v1nt1248/3nclient-lib": "0.3.50",
+    "@v1nt1248/3nclient-lib": "0.4.0",
     "@vueuse/core": "14.4.0",
     "lodash": "4.18.1",
     "pinia": "3.0.4",
@@ -35,13 +35,13 @@
     "@eslint/js": "10.0.1",
     "@types/jasmine": "5.1.15",
     "@types/lodash": "4.17.25",
-    "@types/node": "24.13.5",
+    "@types/node": "24.13.6",
     "@typescript-eslint/eslint-plugin": "8.70.0",
     "@typescript-eslint/parser": "8.70.0",
     "@vitejs/plugin-vue": "6.0.9",
     "@vue/devtools": "8.2.1",
     "@vue/eslint-config-typescript": "14.9.0",
-    "eslint": "10.10.0",
+    "eslint": "10.11.0",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-import": "2.32.0",
     "eslint-plugin-node": "11.1.0",

@@ -1,7 +1,7 @@
 {
   "name": "Dashboard",
   "appDomain": "launcher.app.privacysafe.io",
-  "version": "0.11.37",
+  "version": "0.11.38",
   "icon": "logo.png",
   "description": "Dashboard/Launcher manages and launches your apps.",
 
@@ -11,6 +11,7 @@
   "policy": "https://ivycyber.com/privacy",
   "terms": "https://ivycyber.com/terms",
   "license": "AGPL-3.0-or-later",
+  "source": "https://github.com/PrivacySafe/launcher.app.privacysafe.io",
 
   "components": {
     "/index.html": {
