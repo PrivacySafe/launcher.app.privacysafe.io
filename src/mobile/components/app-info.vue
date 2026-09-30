@@ -22,6 +22,7 @@
   import type { ProcessInfo } from '@/common/store/apps/processes';
   import { updateVersionIn } from '@/common/utils/versions';
   import AppIcon from '@/common/components/app-icon.vue';
+  import AppStatus from '@/common/components/app-status.vue';
 
   const props = defineProps<{
     appInfo?: AppInfo;
@@ -75,11 +76,14 @@
     <div :class="$style.block">
       <app-icon
         v-if="appInfo?.iconBytes"
+        :class="$style.icon"
         :icon-bytes="appInfo.iconBytes"
       />
 
       <div :class="$style.name">
-        <span>{{ appInfo?.name }}</span>
+        <span :class="$style.title">{{ appInfo?.name }}</span>
+
+        <app-status :tags="appInfo?.tags" />
 
         <template v-if="appStoreMode">
           <span :class="$style.version">
@@ -130,9 +134,9 @@
 
     position: relative;
     width: 100%;
-    height: var(--item-height);
     min-height: var(--item-height);
-    padding: 0 var(--spacing-s) 0 var(--spacing-m);
+    flex-shrink: 0;
+    padding: var(--spacing-s) var(--spacing-s) var(--spacing-s) var(--spacing-m);
     border-radius: var(--spacing-s);
     background-color: var(--color-bg-control-secondary-default);
     display: flex;
@@ -142,6 +146,7 @@
     user-select: none;
 
     button {
+      flex-shrink: 0;
       min-height: var(--spacing-xl);
       min-width: 124px;
       padding: 0 12px;
@@ -153,21 +158,25 @@
       .block {
         width: 100%;
       }
-
-      .name {
-        width: calc(100% - 48px);
-      }
     }
   }
 
   .block {
+    flex: 1;
+    min-width: 0;
     display: flex;
     justify-content: flex-start;
     align-items: center;
     column-gap: var(--spacing-s);
   }
 
+  .icon {
+    flex-shrink: 0;
+  }
+
   .name {
+    flex: 1;
+    min-width: 0;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -178,6 +187,12 @@
     line-height: var(--font-18);
     color: var(--color-text-block-primary-default);
 
+    .title,
+    .version {
+      max-width: 100%;
+      overflow-wrap: anywhere;
+    }
+
     .version {
       font-size: var(--font-10);
       font-weight: 500;
@@ -186,6 +201,7 @@
     }
 
     .description {
+      width: 100%;
       display: inline-block;
       font-size: var(--font-10);
       font-weight: 500;

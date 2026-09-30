@@ -24,6 +24,8 @@
   import { PLATFORM_ID } from '@/common/store/apps/processes';
   import psIcon from '@/common/assets/images/platform-icon.png';
   import AppIcon from '@/common/components/app-icon.vue';
+  import AppStatus from '@/common/components/app-status.vue';
+  import AppMetadata from '@/common/components/app-metadata.vue';
 
   const props = defineProps<{
     appData: AppInfo & { version: string };
@@ -37,17 +39,15 @@
   const { processes } = storeToRefs(appsStore);
   const { installAppFromPack, installBundledApp } = appsStore;
 
-  const appId = computed(() => (props.appData.appId === 'platform' ? PLATFORM_ID : props.appData.appId));
+  const appId = computed(() => props.appData.appId);
 
   const itemProc = computed(() => (appId.value === PLATFORM_ID ? null : processes.value[appId.value]));
   const versionToInstall = computed(() => (appId.value === PLATFORM_ID ? null : props.appData.versions?.latest));
-  const canBeInstalled = computed(() => {
-    if (appId.value === PLATFORM_ID) {
-      return false;
-    }
 
-    return !itemProc.value && !props.appData.versions?.current && !!versionToInstall.value;
-  });
+  const showInstall = computed(
+    () => appId.value !== PLATFORM_ID && !props.appData.versions.current && !!versionToInstall.value,
+  );
+  const canBeInstalled = computed(() => showInstall.value && !itemProc.value);
 
   async function install() {
     if (!canBeInstalled.value) {
@@ -78,8 +78,8 @@
     <div :class="$style.body">
       <div :class="$style.content">
         <app-icon
-          :icon-url="appData.appId === 'platform' ? psIcon : undefined"
-          :icon-bytes="appData.appId !== 'platform' ? appData.iconBytes : undefined"
+          :icon-url="appId === PLATFORM_ID ? psIcon : undefined"
+          :icon-bytes="appId !== PLATFORM_ID ? appData.iconBytes : undefined"
           size="48"
         />
 
@@ -87,8 +87,13 @@
           {{ appData.name }}
         </div>
 
+        <app-status
+          v-if="appId !== PLATFORM_ID"
+          :tags="appData.tags"
+        />
+
         <div
-          v-if="appData.appId !== 'platform'"
+          v-if="appId !== PLATFORM_ID"
           :class="$style.subname"
         >
           {{ appData.appId }}
@@ -102,8 +107,13 @@
           {{ appData.description }}
         </div>
 
-        <div
+        <app-metadata
           v-if="appId !== PLATFORM_ID"
+          :app-info="appData"
+        />
+
+        <div
+          v-if="showInstall"
           :class="$style.action"
         >
           <ui3n-button
@@ -196,7 +206,7 @@
     font-weight: 500;
     line-height: var(--font-18);
     color: var(--color-text-block-primary-default);
-    text-indent: var(--spacing-ml);
+    overflow-wrap: anywhere;
     text-align: left;
   }
 

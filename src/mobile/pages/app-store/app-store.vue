@@ -21,6 +21,7 @@
   import isEmpty from 'lodash/isEmpty';
   import { Ui3nInput } from '@v1nt1248/3nclient-lib';
   import { useAppsStore } from '@/common/store/apps.store';
+  import { PLATFORM_ID } from '@/common/store/apps/processes';
   import type { AppInfo } from '@/common/types';
   import PlatformInfo from '@/mobile/components/platform-info.vue';
   import ApplicationInfo from '@/mobile/components/app-info.vue';
@@ -34,7 +35,7 @@
   const { applicationsInSystem, platform } = storeToRefs(appsStore);
 
   const search = ref('');
-  const appData = ref<(AppInfo & { version: string }) | null>(null);
+  const selectedAppId = ref<string | null>(null);
 
   const searchStr = computed(() => search.value.trim().toLowerCase());
 
@@ -44,29 +45,40 @@
 
   const isPlatformShowed = computed(() => t('platform.title').toLowerCase().includes(searchStr.value));
 
-  function openInfo(appId: string) {
-    let app: AppInfo | undefined = undefined;
-    let versionInUpdate: { version: string; isBundledVersion: boolean } | undefined = undefined;
-
-    if (appId !== 'platform') {
-      app = applicationsInSystem.value.find(a => a.appId === appId);
-      versionInUpdate = updateVersionIn(app!);
+  const appData = computed<(AppInfo & { version: string }) | null>(() => {
+    const appId = selectedAppId.value;
+    if (!appId) {
+      return null;
     }
 
-    appData.value = {
-      appId,
-      name: appId === 'platform' ? t('platform.title') : app!.name,
-      icon: '',
-      iconBytes: appId === 'platform' ? undefined : app!.iconBytes,
-      version:
-        appId === 'platform'
-          ? t('app.version', { version: platform.value.version })
-          : versionInUpdate
-            ? t('app.version', { version: versionInUpdate!.version })
-            : t('app.version', { version: app!.versions.current }),
-      description: appId === 'platform' ? t('platform.description') : app?.description || '',
-      versions: appId === 'platform' ? ({} as AppInfo['versions']) : (app?.versions as AppInfo['versions']),
+    if (appId === PLATFORM_ID) {
+      return {
+        appId,
+        name: t('platform.title'),
+        icon: '',
+        description: t('platform.description'),
+        versions: { latest: platform.value.version, current: platform.value.version },
+        version: t('app.version', { version: platform.value.version }),
+      };
+    }
+
+    const app = applicationsInSystem.value.find(a => a.appId === appId);
+
+    if (!app) {
+      return null;
+    }
+
+    const versionInUpdate = updateVersionIn(app);
+    const version = !app.versions.current ? app.versions.latest : versionInUpdate?.version || app.versions.current;
+
+    return {
+      ...app,
+      version: t('app.version', { version }),
     };
+  });
+
+  function openInfo(appId: string) {
+    selectedAppId.value = appId;
   }
 </script>
 
@@ -96,7 +108,7 @@
             v-if="isPlatformShowed"
             :platform="platform"
             app-store-mode
-            @click="() => openInfo('platform')"
+            @click="() => openInfo(PLATFORM_ID)"
           />
 
           <application-info
@@ -114,7 +126,7 @@
     <app-store-item
       v-if="appData?.appId"
       :app-data="appData"
-      @close="appData = null"
+      @close="selectedAppId = null"
     />
   </div>
 </template>

@@ -56,6 +56,7 @@ export interface AppLaunchers {
   appId: string;
   version: string;
   name: string;
+  tags?: string[];
   description: string;
   icon: string;
   iconBytes?: Uint8Array;

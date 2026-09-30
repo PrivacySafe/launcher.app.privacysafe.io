@@ -20,7 +20,7 @@
   import type { AppLaunchers } from '@/common/types';
   import { useAppLauncher } from '@/common/composables/useAppLauncher';
   import AppIcon from '@/common/components/app-icon.vue';
-  import InstallationChannel from '@/common/components/installation-channel.vue';
+  import AppStatus from '@/common/components/app-status.vue';
 
   const props = defineProps<{
     launcher: AppLaunchers;
@@ -59,9 +59,10 @@
 
     <span :class="$style.version">{{ launcher.version }}</span>
 
-    <installation-channel
-      :class="$style.channel"
-      :font-size="10"
+    <app-status
+      :tags="launcher.tags"
+      :class="$style.status"
+      :font-size="12"
     />
 
     <div
@@ -85,10 +86,10 @@
     padding: var(--spacing-s);
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
     justify-items: stretch;
-    row-gap: var(--spacing-s);
+    row-gap: var(--spacing-xs);
     border-radius: var(--spacing-s);
     background-color: var(--color-bg-control-secondary-default);
     cursor: pointer;
@@ -124,10 +125,10 @@
     }
   }
 
-  .channel {
-    position: absolute;
-    top: 8px;
-    right: 8px;
+  .status {
+    max-width: 100%;
+    text-align: center;
+    flex-shrink: 0;
   }
 
   .loader {

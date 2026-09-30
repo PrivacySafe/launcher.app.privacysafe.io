@@ -58,6 +58,16 @@ export const en = {
     orientation: {
       rotateBack: 'Please rotate your phone back to portrait orientation',
     },
+    info: {
+      details: 'App details',
+      publisher: 'Publisher',
+      website: 'Website',
+      contact: 'Contact',
+      policy: 'Privacy policy',
+      terms: 'Terms of service',
+      license: 'License',
+      source: 'Source code',
+    },
   },
 
   btn: {

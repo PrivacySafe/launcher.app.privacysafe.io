@@ -21,6 +21,8 @@
   import type { AppInfo } from '@/common/types';
   import { useAppView } from '@/common/composables/useAppView';
   import AppIcon from '@/common/components/app-icon.vue';
+  import AppStatus from '@/common/components/app-status.vue';
+  import AppMetadata from '@/common/components/app-metadata.vue';
   import AppItemArea from './app-item-area.vue';
 
   const props = defineProps<{
@@ -54,6 +56,10 @@
         <div :class="$style.name">
           {{ appInfo.name }}
         </div>
+        <app-status
+          :tags="appInfo.tags"
+          :class="$style.status"
+        />
 
         <div :class="$style.version">
           {{
@@ -108,6 +114,10 @@
         </span>
         <span :class="$style.accented">{{ appId }}</span>
       </div>
+      <app-metadata
+        :app-info="appInfo"
+        expandable
+      />
 
       <div
         v-if="!!installProc"
@@ -137,8 +147,13 @@
   .content {
     position: relative;
     width: calc(100% - var(--action-block-width) - var(--spacing-l));
+    min-width: 0;
+    overflow-wrap: anywhere;
   }
 
+  .status {
+    margin: var(--spacing-xs) 0;
+  }
   .name {
     font-size: var(--font-16);
     font-weight: 500;

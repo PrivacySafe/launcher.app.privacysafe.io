@@ -29,7 +29,7 @@ type DynamicLaunchers = web3n.caps.DynamicLaunchers;
 
 interface CachedAppVersions {
   createdByVersion: string;
-  formatVer: 2;
+  formatVer: 3;
   stateTS: number;
   apps: Record<string, AppInfo>;
   launchers: Record<string, CachedAppLaunchers>;
@@ -41,6 +41,7 @@ export interface CachedAppLaunchers {
   name: string;
   icon: string;
   description: string;
+  tags?: string[];
   defaultLauncher?: Launcher;
   staticLaunchers?: Launcher[];
   dynLaunchers?: DynamicLaunchers[];
@@ -67,7 +68,7 @@ export function makeSystemInfo(
       fs = await w3n.storage!.getAppLocalFS!();
       try {
         const cached = await fs.readJSONFile<CachedAppVersions>(appVersionsPath);
-        if (cached.createdByVersion !== myVersion || cached.formatVer !== 2) {
+        if (cached.createdByVersion !== myVersion || cached.formatVer !== 3) {
           await unsyncedAppVersionsRefresh();
         } else {
           stateTS = cached.stateTS;
@@ -124,7 +125,8 @@ export function makeSystemInfo(
     }
 
     await fs!.writeJSONFile(appVersionsPath, {
-      formatVer: 2,
+      createdByVersion: myVersion,
+      formatVer: 3,
       stateTS: stateTS,
       launchers: launchers,
       apps: apps,
@@ -252,7 +254,7 @@ async function getAppLaunchers(id: string, m: AppManifest | undefined): Promise<
   }
 
   const appId = m.appDomain;
-  const { version, name, description, icon } = m;
+  const { version, name, description, icon, tags } = m;
 
   const formFactor = await w3n.ui.uiFormFactor();
   const staticLaunchers = getLaunchersForUser(m, formFactor);
@@ -268,6 +270,7 @@ async function getAppLaunchers(id: string, m: AppManifest | undefined): Promise<
     name,
     icon,
     description,
+    tags,
     defaultLauncher,
     staticLaunchers,
     dynLaunchers,

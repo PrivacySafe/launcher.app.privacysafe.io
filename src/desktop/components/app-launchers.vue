@@ -26,7 +26,7 @@
   import { useAppLauncher } from '@/common/composables/useAppLauncher';
   import type { AppLaunchers } from '@/common/types';
   import AppIcon from '@/common/components/app-icon.vue';
-  import InstallationChannel from '@/common/components/installation-channel.vue';
+  import AppStatus from '@/common/components/app-status.vue';
 
   const props = defineProps<{
     launchers: AppLaunchers;
@@ -88,8 +88,9 @@
       </ui3n-button>
     </div>
 
-    <installation-channel
-      :class="$style.channel"
+    <app-status
+      :tags="launchers.tags"
+      :class="$style.status"
       :font-size="appVersionFontSize"
     />
 
@@ -160,10 +161,12 @@
     }
   }
 
-  .channel {
-    position: absolute;
-    top: 10px;
-    right: 10px;
+  .status {
+    order: -1;
+    align-self: stretch;
+    text-align: right;
+    flex-shrink: 0;
+    margin-bottom: var(--spacing-xs);
   }
 
   .progressOverlay {

@@ -104,20 +104,16 @@ export function makeAppsAndLaunchersInfoPlace() {
     }
   }
   async function appInfoWithIconsFrom(info: AppInfo): Promise<AppInfo> {
-    const { appId, name, description, icon, versions } = info;
+    const { appId, icon, versions } = info;
     const iconBytes = icon ? await getFileBytes(appId, versions.latest, icon) : undefined;
     return {
-      appId,
-      name,
-      description,
-      icon,
-      versions,
+      ...info,
       iconBytes,
     };
   }
 
   async function appLaunchersFromInfo(info: CachedAppLaunchers): Promise<AppLaunchers> {
-    const { appId, version, name, description, icon } = info;
+    const { appId, version, name, description, icon, tags } = info;
     const iconBytes = icon ? await getFileBytes(appId, version, icon) : undefined;
     const defaultLauncher = info.defaultLauncher
       ? await appLauncherFromInfo(appId, version, info.defaultLauncher)
@@ -137,6 +133,7 @@ export function makeAppsAndLaunchersInfoPlace() {
       description,
       icon,
       iconBytes,
+      tags,
       dynamicLaunchers,
       staticLaunchers,
       defaultLauncher,
