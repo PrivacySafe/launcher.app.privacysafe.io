@@ -87,13 +87,13 @@
         {{ t('app.action.close_old_version') }}
       </ui3n-button>
     </div>
-
+<!-- 
     <app-status
       :tags="launchers.tags"
       :class="$style.status"
       :font-size="appVersionFontSize"
     />
-
+ -->
     <div
       v-if="!!appProcessToDisplay"
       :class="$style.progressOverlay"
