@@ -32,11 +32,13 @@
 
 <style lang="scss" module>
   .status {
-    display: inline-block;
     flex-shrink: 0;
     font-size: v-bind(fontSizeCss);
     font-weight: 500;
     line-height: 1.2;
+    position: absolute;
+    top: var(--spacing-m);
+    right: var(--spacing-m);
   }
 
   .stable {

@@ -58,13 +58,13 @@
     <span :class="$style.name">{{ launcher.name }}</span>
 
     <span :class="$style.version">{{ launcher.version }}</span>
-<!-- 
+
     <app-status
       :tags="launcher.tags"
       :class="$style.status"
       :font-size="12"
     />
- -->
+
     <div
       v-if="!!appProcessToDisplay"
       :class="$style.loader"
