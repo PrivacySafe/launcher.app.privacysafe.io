@@ -57,6 +57,7 @@
     margin: var(--spacing-s) 0 var(--spacing-m) 0;
     padding: var(--spacing-m) var(--spacing-xs) var(--spacing-m) var(--spacing-m);
     overflow-y: auto;
+    overflow-x: hidden;
     scrollbar-gutter: stable;
     display: grid;
     gap: var(--spacing-s);
@@ -74,5 +75,24 @@
     font-size: var(--font-18);
     line-height: var(--font-24);
     color: var(--color-text-block-primary-default);
+  }
+
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background-color: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    min-height: 24px;
+    background-color: var(--color-bg-control-accent-default);
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: var(--color-bg-control-accent-hover);
+    cursor: pointer;
   }
 </style>
