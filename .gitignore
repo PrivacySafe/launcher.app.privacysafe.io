@@ -33,6 +33,3 @@ yarn-error.log*
 
 # Tmp files
 .~*
-
-# pnpm's settings is unnecessary here
-pnpm-workspace.yaml
