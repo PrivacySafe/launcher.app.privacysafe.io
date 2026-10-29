@@ -24,8 +24,8 @@ export const AVAILABLE_THEMES: Record<ThemeId, { label: string }> = {
 
 export const AVAILABLE_LANGS: Record<AvailableLanguage, { value: AvailableLanguage; label: string }> = {
   en: { value: 'en', label: 'English' },
-  es: { value: 'es', label: 'Spanish' },
-  fr: { value: 'fr', label: 'French' },
+  fr: { value: 'fr', label: 'Français' },
+  es: { value: 'es', label: 'Español' },
 };
 
 export const UPDATE_INFO_CACHE_TTL_SECONDS = 12 * 60 * 60;

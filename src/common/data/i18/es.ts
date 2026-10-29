@@ -14,7 +14,9 @@
  You should have received a copy of the GNU General Public License along with
  this program. If not, see <http://www.gnu.org/licenses/>.
 */
-export const es = {
+import type { MessageSchema } from './en';
+
+export const es: MessageSchema = {
   app: {
     title: 'Panel',
     version: 'v {version}',
@@ -137,6 +139,9 @@ export const es = {
 
   install: {
     process: 'La instalación inicial de aplicaciones está en curso.',
+    progress: '{installed} de {total} aplicaciones instaladas',
+    unpacking: 'Desempaquetando {name}…',
+    installing: 'Instalando {name}…',
   },
 
   update_check: {

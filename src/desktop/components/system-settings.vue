@@ -20,6 +20,7 @@
   import { AVAILABLE_THEMES, AVAILABLE_LANGS } from '@/common/constants';
   import { useSettings } from '@/common/composables/useSettings';
   import CustomScrollBar from '@/common/components/custom-scroll-bar.vue';
+  import { AvailableLanguage } from '@/common/types';
 
   const emits = defineEmits<{
     (ev: 'close'): void;
@@ -30,8 +31,8 @@
   const {
     colorTheme,
     changeColorTheme,
-    changeLanguage,
     lang,
+    changeLang,
     allowShowingDevtool,
     changeAllowShowingDevtool,
     autoUpdate,
@@ -92,11 +93,12 @@
                 >
                   {{ t(AVAILABLE_THEMES[colorTheme].label) }}
                 </ui3n-button>
+
                 <template #menu>
                   <div
                     v-for="id in ['dark', 'light', 'midnight'] as const"
                     :key="id"
-                    :class="[$style.colorThemesItem, colorTheme === id && $style.colorThemesItemSelected]"
+                    :class="[$style.menuItem, colorTheme === id && $style.menuItemSelected]"
                     @click="changeColorTheme(id)"
                   >
                     {{ t(AVAILABLE_THEMES[id].label) }}
@@ -114,9 +116,10 @@
 
             <div :class="$style.rowBodyValue">
               <ui3n-menu
-                :offset-x="-48"
+                :offset-x="-24"
                 :offset-y="4"
                 :allow-flip="false"
+                :content-border-radius="16"
               >
                 <ui3n-button
                   type="custom"
@@ -129,14 +132,15 @@
                 >
                   {{ AVAILABLE_LANGS[lang].label }}
                 </ui3n-button>
+
                 <template #menu>
                   <div
-                    v-for="(language, id) in AVAILABLE_LANGS"
-                    :key="id"
-                    :class="$style.colorThemesItem"
-                    @click="changeLanguage(id)"
+                    v-for="item in Object.values(AVAILABLE_LANGS) as { value: AvailableLanguage; label: string }[]"
+                    :key="item.value"
+                    :class="[$style.menuItem, lang === item.value && $style.menuItemSelected]"
+                    @click="changeLang(item.value)"
                   >
-                    {{ language.label }}
+                    {{ item.label }}
                   </div>
                 </template>
               </ui3n-menu>
@@ -189,8 +193,8 @@
               {{ t('settings.label.autoupdates') }}
             </div>
 
-            <div :class="$style.rowBodyValue">
-              <span :class="$style.rowBodyText">{{ t('settings.label.off') }}</span>
+            <div :class="[$style.rowBodyValue, $style.grid]">
+              <span :class="[$style.rowBodyText, $style.right]">{{ t('settings.label.off') }}</span>
 
               <ui3n-switch
                 size="16"
@@ -198,7 +202,7 @@
                 @change="toggleAutoUpdate"
               />
 
-              <span :class="$style.rowBodyText">{{ t('settings.label.on') }}</span>
+              <span :class="[$style.rowBodyText, $style.left]">{{ t('settings.label.on') }}</span>
             </div>
           </div>
 
@@ -208,8 +212,8 @@
               {{ t('settings.label.showing_devtool') }}
             </div>
 
-            <div :class="$style.rowBodyValue">
-              <span :class="$style.rowBodyText">{{ t('settings.label.no') }}</span>
+            <div :class="[$style.rowBodyValue, $style.grid]">
+              <span :class="[$style.rowBodyText, $style.right]">{{ t('settings.label.no') }}</span>
 
               <ui3n-switch
                 size="16"
@@ -239,9 +243,9 @@
 
             <div
               v-else
-              :class="$style.rowBodyValue"
+              :class="[$style.rowBodyValue, $style.grid]"
             >
-              <span :class="$style.rowBodyText">{{ t('settings.label.off') }}</span>
+              <span :class="[$style.rowBodyText, $style.right]">{{ t('settings.label.off') }}</span>
 
               <ui3n-switch
                 size="16"
@@ -249,7 +253,7 @@
                 @change="changeAutoLogin"
               />
 
-              <span :class="$style.rowBodyText">{{ t('settings.label.on') }}</span>
+              <span :class="[$style.rowBodyText, $style.left]">{{ t('settings.label.on') }}</span>
             </div>
           </div>
         </div>
@@ -350,10 +354,18 @@
 
   .rowBodyValue {
     position: relative;
+    gap: var(--spacing-s);
+  }
+
+  .rowBodyValue:not(.grid) {
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: var(--spacing-s);
+  }
+
+  .rowBodyValue.grid {
+    display: grid;
+    grid-template-columns: 72px 32px 72px;
   }
 
   .rowBodyText {
@@ -362,9 +374,17 @@
     font-weight: 500;
     color: var(--color-text-control-primary-default);
     text-transform: capitalize;
+
+    &.left {
+      text-align: left;
+    }
+
+    &.right {
+      text-align: right;
+    }
   }
 
-  .colorThemesItem {
+  .menuItem {
     display: flex;
     width: 120px;
     height: var(--spacing-l);
@@ -375,11 +395,11 @@
     font-weight: 500;
     color: var(--color-text-control-primary-default);
 
-    &:not(.colorThemesItemSelected) {
+    &:not(.menuItemSelected) {
       cursor: pointer;
     }
 
-    &.colorThemesItemSelected {
+    &.menuItemSelected {
       color: var(--color-text-button-secondary-default);
     }
 

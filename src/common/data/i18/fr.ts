@@ -14,7 +14,9 @@
  You should have received a copy of the GNU General Public License along with
  this program. If not, see <http://www.gnu.org/licenses/>.
 */
-export const fr = {
+import type { MessageSchema } from './en';
+
+export const fr: MessageSchema = {
   app: {
     title: 'Tableau de bord',
     version: 'v {version}',
@@ -137,6 +139,9 @@ export const fr = {
 
   install: {
     process: "L'installation initiale des applications est en cours.",
+    progress: '{installed} sur {total} applications installées',
+    unpacking: 'Décompression de {name}…',
+    installing: 'Installation de {name}…',
   },
 
   update_check: {
